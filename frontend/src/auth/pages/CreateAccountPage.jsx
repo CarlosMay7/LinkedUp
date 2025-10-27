@@ -1,12 +1,13 @@
 import { useState } from 'react';
 
-export const LoginPage = () => {
+export const CreateAccountPage = () => {
     const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
     const handleSubmit = e => {
         e.preventDefault();
-        console.log('Logging in with:', { username, password });
+        console.log('Creating account with:', { username, email, password });
     };
 
     return (
@@ -19,6 +20,13 @@ export const LoginPage = () => {
                 required
             />
             <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
+            />
+            <input
                 type="password"
                 placeholder="Password"
                 value={password}
@@ -26,7 +34,7 @@ export const LoginPage = () => {
                 required
             />
             <button type="submit" className="button">
-                Log In
+                Create Account
             </button>
         </form>
     );
