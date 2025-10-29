@@ -1,0 +1,45 @@
+# Node dependencies
+node_modules/
+**/node_modules/
+
+# Build output
+dist/
+build/
+**/dist/
+**/build/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+**/.vscode/
+
+# Environment files
+.env
+**/.env
+
+# Optional npm/yarn files
+package-lock.json
+yarn.lock
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Temporary files
+*.tmp
+*.temp
+
+# Frontend specific (React)
+**/coverage/
+**/public/build/
+
+# Jest coverage (backend/frontend)
+coverage/
+**/coverage/

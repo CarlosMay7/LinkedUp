@@ -1,0 +1,28 @@
+{
+  "name": "linked-up",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "backend/auth-service",
+    "backend/chat-service",
+    "backend/web-sockets-service",
+    "frontend"
+  ],
+  "scripts": {
+    "prepare": "husky install",
+    "lint": "echo 'Usa el script de lint dentro de cada proyecto'",
+    "format": "echo 'Usa el script de format dentro de cada proyecto'",
+    "test": "echo 'Usa el script de test dentro de cada proyecto'"
+  },
+  "devDependencies": {
+    "husky": "^9.0.10",
+    "lint-staged": "^15.2.0"
+  },
+  "lint-staged": {
+  "backend/auth/**/*.{ts,js}": ["npm --prefix backend/auth-service lint", "npm --prefix backend/auth-service run format", "npm --prefix backend/auth-service run test"],
+  "backend/chat/**/*.{ts,js}": ["npm --prefix backend/chat-service run lint", "npm --prefix backend/chat-service run format", "npm --prefix backend/chat-service run test"],
+  "backend/websockets/**/*.{ts,js}": ["npm --prefix backend/web-sockets-service run lint", "npm --prefix backend/web-sockets-service run format", "npm --prefix backend/web-sockets-service run test"],
+  "frontend/**/*.{ts,tsx,js,jsx}": ["npm --prefix frontend run lint", "npm --prefix frontend run format", "npm --prefix frontend run test"]
+}
+
+}
