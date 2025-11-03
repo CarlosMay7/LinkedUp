@@ -1,4 +1,4 @@
-import logoSrc from '../assets/Logo.png';
+import logoSrc from '../assets/logo/Logo.png';
 
 export const Logo = () => (
     <div className="logo-container">

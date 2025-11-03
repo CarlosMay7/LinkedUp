@@ -11,6 +11,7 @@ html {
 
 * {
   font-family: 'Inter', sans-serif;
+  color: var(--text-color);
 }
 
 *, *:before, *:after {
@@ -19,7 +20,8 @@ html {
 
 
 :root {
-  --primary-color: #e8caaf;
+  --primary-color: #e3cbb9; 
+  --primary-color-dark: #cfab8e;
   --secondary-color: #d1b7a3;
   --background: #fdfaf6;
   --text-color: #6f5e53;
@@ -40,18 +42,30 @@ a {
   border-radius: 8px;
   cursor: pointer;
   margin-top: 1rem;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, filter 0.2s ease-in-out;
   
-  background: linear-gradient(135deg, #e3cbb9, #d1b7a3);
-  color: #fff; /* Color de texto oscuro */
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
   box-shadow: 0 4px 15px rgba(215, 192, 174, 0.4);
+}
+
+.logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.brand-logo {
+  max-width: 80%;
+  height: auto;
+  display: block; 
 }
 
 .button:hover {
   transform: translateY(-2px);
+  filter: brightness(1.05);
   box-shadow: 0 6px 20px rgba(215, 192, 174, 0.6);
 }
-
 .form {
   display: flex;
   flex-direction: column;
@@ -63,7 +77,6 @@ a {
   padding: 0.9rem 1rem;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
-  margin-bottom: 1rem;
   background-color: #fafafa;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
@@ -76,4 +89,8 @@ a {
   outline: none;
   border-color: #c7b2a0;
   box-shadow: 0 0 0 3px rgba(199, 178, 160, 0.2);
+}
+
+.dont-show {
+  display: none;
 }

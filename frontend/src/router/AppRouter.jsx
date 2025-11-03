@@ -3,7 +3,7 @@ import { AuthRoutes } from '../auth/routes/AuthRoutes';
 import { ChatRoutes } from '../chat/routes/ChatRoutes';
 
 export const AppRouter = () => {
-    const status = 'No Authenticated'; // TODO: remove this line after implementing auth check
+    const status = 'Authenticated'; // TODO: remove this line after implementing auth check
     return (
         <Routes>
             {status === 'Authenticated' ? (
