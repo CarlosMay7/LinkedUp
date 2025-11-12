@@ -4,7 +4,7 @@
   align-items: center;
   min-height: 100vh;
   background-color: var(--background);
-  padding: 2rem;
+  padding: 0 2rem;
 }
 
 .container {
@@ -67,10 +67,10 @@
   transform: scale(1.12);
 }
 
+/* --- Estilos de Página de Perfil --- */
 .profile-page {
   display: flex;
   justify-content: space-around;
-  
 }
 
 .profile-form {
@@ -108,9 +108,9 @@
 }
 
 .avatar-current {
-  width: 12rem;           
+  width: 12rem;
   height: 12rem;
-  object-fit: contain;   
+  object-fit: contain;
   margin-bottom: 1rem;
   transition: transform 0.3s ease;
   display: block;
@@ -133,8 +133,8 @@
   scrollbar-color: var(--shadow-color) transparent;
   opacity: 0;
   transform: translateY(-10px);
-  pointer-events: none; 
-  height: 0; 
+  pointer-events: none;
+  height: 0;
 }
 
 .avatar-picker.show {
@@ -162,4 +162,202 @@
 
 .profile-button {
   margin: 0 auto;
+}
+
+
+.room-wrapper {
+  max-width: 900px;
+  width: 90%;
+  background-color: var(--background);
+  border-radius: 24px;
+  padding: 2rem;
+  box-shadow: 0 10px 25px var(--shadow-color);
+  margin: 0 auto;
+}
+
+.room-header {
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding: 1rem;
+  background-color: var(--background);
+  box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+.back-button {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  color: #a0a0a0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0;
+}
+
+.room-title {
+  flex-grow: 1;
+  text-align: center;
+  margin: 0;
+  color: var(--text-color);
+}
+
+.room-content {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+.area-title {
+  font-size: 0.85rem;
+  color: rgba(111, 94, 83, 0.7);
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.messages-area {
+  width: 80%;
+  max-width: 80%;
+  display: flex;
+  flex-direction: column;
+}
+
+.messages-list {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  height: 450px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.message {
+  display: flex;
+  flex-direction: column;
+  max-width: 80%;
+}
+
+.message .user-name {
+  font-weight: bold;
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+  color: var(--text-color);
+}
+
+.message .message-text {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  word-wrap: break-word;
+  line-height: 1.4;
+}
+
+.message .timestamp {
+  font-size: 0.75rem;
+  color: #b0b0b0;
+  margin-top: 0.25rem;
+}
+
+.message.other {
+  align-self: flex-start;
+  align-items: flex-start;
+}
+.message.other .message-text {
+  background-color: #f5f5f5;
+}
+
+.message.mine {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+.message.mine .message-text {
+  background-color: transparent;
+}
+.message.mine .timestamp {
+  text-align: right;
+}
+
+.message.hola-style .message-text {
+  background-color: #ffffff;
+  border: 2px dashed #e0e0e0;
+}
+
+.censored {
+  background-color: #e0e0e0;
+  color: #e0e0e0;
+  border-radius: 4px;
+  user-select: none;
+}
+
+.room-members-container {
+  width: 20%;
+  height: 65vh;
+  scrollbar-width: none;
+  overflow-y: scroll;
+  background-color: var(--background);
+  border-radius: 1rem;
+  padding: 0 1rem;
+  overflow-x: hidden; 
+}
+
+.members-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.members-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #999;
+  font-weight: 500;
+  min-width: 0;
+}
+
+.member-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+  flex: 1;      
+  min-width: 0; 
+}
+
+.user-icon {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+  opacity: 0.7;
+
+  flex-shrink: 0;
+}
+
+.message-input-container {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  border-top: 1px solid #eee;
+  padding-top: 1.5rem;
+}
+
+.message-input {
+  flex-grow: 1;
+  border-radius: 20px !important;
+  padding: 0.75rem 1rem;
+  margin-top: 0 !important;
+}
+
+.send-button {
+  border-radius: 20px !important;
+  padding: 0.75rem 1.5rem !important;
+  margin-top: 0 !important;
 }
