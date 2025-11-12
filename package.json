@@ -15,14 +15,31 @@
     "test": "echo 'Usa el script de test dentro de cada proyecto'"
   },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
     "husky": "^9.0.10",
-    "lint-staged": "^15.2.0"
+    "lint-staged": "^15.2.0",
+    "ts-jest": "^29.4.5"
   },
   "lint-staged": {
-  "backend/auth/**/*.{ts,js}": ["npm --prefix backend/auth-service lint", "npm --prefix backend/auth-service run format", "npm --prefix backend/auth-service run test"],
-  "backend/chat/**/*.{ts,js}": ["npm --prefix backend/chat-service run lint", "npm --prefix backend/chat-service run format", "npm --prefix backend/chat-service run test"],
-  "backend/websockets/**/*.{ts,js}": ["npm --prefix backend/web-sockets-service run lint", "npm --prefix backend/web-sockets-service run format", "npm --prefix backend/web-sockets-service run test"],
-  "frontend/**/*.{ts,tsx,js,jsx}": ["npm --prefix frontend run lint", "npm --prefix frontend run format", "npm --prefix frontend run test"]
-}
-
+    "backend/auth/**/*.{ts,js}": [
+      "npm --prefix backend/auth-service lint",
+      "npm --prefix backend/auth-service run format",
+      "npm --prefix backend/auth-service run test"
+    ],
+    "backend/chat/**/*.{ts,js}": [
+      "npm --prefix backend/chat-service run lint",
+      "npm --prefix backend/chat-service run format",
+      "npm --prefix backend/chat-service run test"
+    ],
+    "backend/websockets/**/*.{ts,js}": [
+      "npm --prefix backend/web-sockets-service run lint",
+      "npm --prefix backend/web-sockets-service run format",
+      "npm --prefix backend/web-sockets-service run test"
+    ],
+    "frontend/**/*.{ts,tsx,js,jsx}": [
+      "npm --prefix frontend run lint",
+      "npm --prefix frontend run format",
+      "npm --prefix frontend run test"
+    ]
+  }
 }

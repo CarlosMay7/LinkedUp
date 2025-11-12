@@ -52,13 +52,3 @@ export class Room extends Document {
 
 export type RoomDocument = Room & Document;
 export const RoomSchema = SchemaFactory.createForClass(Room);
-
-RoomSchema.pre('save', function(next) {
-  this.updatedAt = new Date();
-  next();
-});
-
-RoomSchema.pre('findOneAndUpdate', function(next) {
-  this.set({ updatedAt: new Date() });
-  next();
-});

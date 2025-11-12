@@ -1,9 +1,8 @@
-import { 
-  Injectable, 
-  NotFoundException, 
+import {
+  Injectable,
+  NotFoundException,
   BadRequestException,
   ConflictException,
-  InternalServerErrorException 
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -11,13 +10,17 @@ import { Room, RoomDocument } from './schemas/room.schema';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { RoomResponseDto } from './dto/room-response.dto';
+import { ValidationService } from '../common/validation.service';
 
 @Injectable()
 export class RoomService {
-  constructor(@InjectModel(Room.name) private roomModel: Model<RoomDocument>) {}
+  constructor(
+    @InjectModel(Room.name) private roomModel: Model<RoomDocument>,
+    private validationService: ValidationService,
+  ) {}
 
   // === PRIVATE HELPER METHODS ===
-  
+
   private toRoomResponseDto(room: RoomDocument): RoomResponseDto {
     return {
       id: room._id.toString(),
@@ -29,33 +32,22 @@ export class RoomService {
       updatedAt: room.updatedAt,
     };
   }
-
-  private validateObjectId(id: string, entity: string = 'ID'): void {
-    if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException(`Invalid ${entity} format`);
-    }
-  }
-
-  private validateObjectIds(ids: string[], entity: string = 'ID'): Types.ObjectId[] {
-    return ids.map(id => {
-      if (!Types.ObjectId.isValid(id)) {
-        throw new BadRequestException(`Invalid ${entity}: ${id}`);
-      }
-      return new Types.ObjectId(id);
-    });
-  }
-
   private async findRoomByIdOrThrow(roomId: string): Promise<RoomDocument> {
-    this.validateObjectId(roomId, 'room ID');
-    
-    const room = await this.roomModel.findById(new Types.ObjectId(roomId)).exec();
+    this.validationService.validateObjectId(roomId, 'room ID');
+
+    const room = await this.roomModel
+      .findById(new Types.ObjectId(roomId))
+      .exec();
     if (!room) {
       throw new NotFoundException(`Room with ID ${roomId} not found`);
     }
     return room;
   }
 
-  private async checkRoomNameAvailability(name: string, excludeRoomId?: string): Promise<void> {
+  private async checkRoomNameAvailability(
+    name: string,
+    excludeRoomId?: string,
+  ): Promise<void> {
     const query: any = { name };
     if (excludeRoomId) {
       query._id = { $ne: new Types.ObjectId(excludeRoomId) };
@@ -66,28 +58,15 @@ export class RoomService {
       throw new ConflictException('Room with this name already exists');
     }
   }
-
-  private handleServiceError(error: any, defaultMessage: string): never {
-    if (error instanceof BadRequestException || 
-        error instanceof NotFoundException || 
-        error instanceof ConflictException) {
-      throw error;
-    }
-
-    if (error.code === 11000) {
-      throw new ConflictException('Room with this name already exists');
-    }
-
-    if (error.name === 'ValidationError') {
-      throw new BadRequestException(error.message);
-    }
-
-    throw new InternalServerErrorException(defaultMessage);
-  }
-
   private prepareRoomCreationData(createRoomDto: CreateRoomDto) {
-    const membersObjectIds = this.validateObjectIds(createRoomDto.members, 'member ID');
-    this.validateObjectId(createRoomDto.createdBy, 'creator user ID');
+    const membersObjectIds = this.validationService.validateObjectIds(
+      createRoomDto.members,
+      'member ID',
+    );
+    this.validationService.validateObjectId(
+      createRoomDto.createdBy,
+      'creator user ID',
+    );
 
     return {
       name: createRoomDto.name,
@@ -99,22 +78,33 @@ export class RoomService {
 
   private prepareRoomUpdateData(updateRoomDto: UpdateRoomDto) {
     const allowedFields = ['name', 'description'];
-    const providedFields = Object.keys(updateRoomDto).filter(key => updateRoomDto[key] !== undefined);
-    
-    const invalidFields = providedFields.filter(field => !allowedFields.includes(field));
+    const providedFields = Object.keys(updateRoomDto).filter(
+      (key) => updateRoomDto[key] !== undefined,
+    );
+
+    const invalidFields = providedFields.filter(
+      (field) => !allowedFields.includes(field),
+    );
     if (invalidFields.length > 0) {
-      throw new BadRequestException(`Cannot update fields: ${invalidFields.join(', ')}`);
+      throw new BadRequestException(
+        `Cannot update fields: ${invalidFields.join(', ')}`,
+      );
     }
 
-    const hasAllowedField = providedFields.some(field => allowedFields.includes(field));
+    const hasAllowedField = providedFields.some((field) =>
+      allowedFields.includes(field),
+    );
     if (!hasAllowedField) {
-      throw new BadRequestException('At least one field (name or description) must be provided');
+      throw new BadRequestException(
+        'At least one field (name or description) must be provided',
+      );
     }
 
     const updateData: any = { updatedAt: new Date() };
-    
+
     if (updateRoomDto.name !== undefined) updateData.name = updateRoomDto.name;
-    if (updateRoomDto.description !== undefined) updateData.description = updateRoomDto.description;
+    if (updateRoomDto.description !== undefined)
+      updateData.description = updateRoomDto.description;
 
     return updateData;
   }
@@ -124,27 +114,24 @@ export class RoomService {
   async create(createRoomDto: CreateRoomDto): Promise<RoomResponseDto> {
     try {
       await this.checkRoomNameAvailability(createRoomDto.name);
-      
+
       const roomData = this.prepareRoomCreationData(createRoomDto);
       const createdRoom = new this.roomModel(roomData);
       const savedRoom = await createdRoom.save();
 
       return this.toRoomResponseDto(savedRoom);
     } catch (error) {
-      this.handleServiceError(error, 'Error creating room');
+      this.validationService.handleServiceError(error, 'Error creating room');
     }
   }
 
   async findAll(): Promise<RoomResponseDto[]> {
     try {
-      const rooms = await this.roomModel
-        .find()
-        .sort({ createdAt: -1 })
-        .exec();
-      
-      return rooms.map(room => this.toRoomResponseDto(room));
+      const rooms = await this.roomModel.find().sort({ createdAt: -1 }).exec();
+
+      return rooms.map((room) => this.toRoomResponseDto(room));
     } catch (error) {
-      this.handleServiceError(error, 'Error fetching rooms');
+      this.validationService.handleServiceError(error, 'Error fetching rooms');
     }
   }
 
@@ -153,41 +140,45 @@ export class RoomService {
       const room = await this.findRoomByIdOrThrow(roomId);
       return this.toRoomResponseDto(room);
     } catch (error) {
-      this.handleServiceError(error, 'Error fetching room');
+      this.validationService.handleServiceError(error, 'Error fetching room');
     }
   }
 
-  async updateRoom(roomId: string, updateRoomDto: UpdateRoomDto): Promise<RoomResponseDto> {
+  async updateRoom(
+    roomId: string,
+    updateRoomDto: UpdateRoomDto,
+  ): Promise<RoomResponseDto> {
     try {
       const room = await this.findRoomByIdOrThrow(roomId);
-      
+
       if (updateRoomDto.name && updateRoomDto.name !== room.name) {
         await this.checkRoomNameAvailability(updateRoomDto.name, roomId);
       }
 
       const updateData = this.prepareRoomUpdateData(updateRoomDto);
-      const updatedRoom = await this.roomModel.findByIdAndUpdate(
-        room._id,
-        updateData,
-        { new: true, runValidators: true }
-      ).exec();
+      const updatedRoom = await this.roomModel
+        .findByIdAndUpdate(room._id, updateData, {
+          new: true,
+          runValidators: true,
+        })
+        .exec();
 
       return this.toRoomResponseDto(updatedRoom);
     } catch (error) {
-      this.handleServiceError(error, 'Error updating room');
+      this.validationService.handleServiceError(error, 'Error updating room');
     }
   }
 
   async addMember(roomId: string, userId: string): Promise<RoomResponseDto> {
     try {
-      this.validateObjectId(roomId, 'room ID');
-      this.validateObjectId(userId, 'user ID');
+      this.validationService.validateObjectId(roomId, 'room ID');
+      this.validationService.validateObjectId(userId, 'user ID');
 
       const room = await this.findRoomByIdOrThrow(roomId);
       const userObjectId = new Types.ObjectId(userId);
 
-      const isAlreadyMember = room.members.some(member => 
-        member.equals(userObjectId)
+      const isAlreadyMember = room.members.some((member) =>
+        member.equals(userObjectId),
       );
 
       if (isAlreadyMember) {
@@ -199,34 +190,42 @@ export class RoomService {
 
       return this.toRoomResponseDto(updatedRoom);
     } catch (error) {
-      this.handleServiceError(error, 'Error adding member to room');
+      this.validationService.handleServiceError(
+        error,
+        'Error adding member to room',
+      );
     }
   }
 
   async findByMember(userId: string): Promise<RoomResponseDto[]> {
     try {
-      this.validateObjectId(userId, 'user ID');
+      this.validationService.validateObjectId(userId, 'user ID');
 
       const rooms = await this.roomModel
         .find({ members: new Types.ObjectId(userId) })
         .sort({ createdAt: -1 })
         .exec();
 
-      return rooms.map(room => this.toRoomResponseDto(room));
+      return rooms.map((room) => this.toRoomResponseDto(room));
     } catch (error) {
-      this.handleServiceError(error, 'Error fetching user rooms');
+      this.validationService.handleServiceError(
+        error,
+        'Error fetching user rooms',
+      );
     }
   }
 
   async removeMember(roomId: string, userId: string): Promise<RoomResponseDto> {
     try {
-      this.validateObjectId(roomId, 'room ID');
-      this.validateObjectId(userId, 'user ID');
+      this.validationService.validateObjectId(roomId, 'room ID');
+      this.validationService.validateObjectId(userId, 'user ID');
 
       const room = await this.findRoomByIdOrThrow(roomId);
-      
+
       const initialMemberCount = room.members.length;
-      room.members = room.members.filter(member => !member.equals(new Types.ObjectId(userId)));
+      room.members = room.members.filter(
+        (member) => !member.equals(new Types.ObjectId(userId)),
+      );
 
       if (room.members.length === initialMemberCount) {
         throw new NotFoundException('User is not a member of this room');
@@ -235,7 +234,10 @@ export class RoomService {
       const updatedRoom = await room.save();
       return this.toRoomResponseDto(updatedRoom);
     } catch (error) {
-      this.handleServiceError(error, 'Error removing member from room');
+      this.validationService.handleServiceError(
+        error,
+        'Error removing member from room',
+      );
     }
   }
 }

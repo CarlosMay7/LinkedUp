@@ -40,7 +40,7 @@ export class RoomResponseDto {
   createdAt: Date;
 
   @ApiProperty({
-    description: 'Room last update date', 
+    description: 'Room last update date',
     example: '2023-10-01T12:00:00.000Z',
   })
   updatedAt: Date;

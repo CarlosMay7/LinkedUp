@@ -1,11 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { RoomController } from './room.controller';
-import { RoomService } from './room.service';
-import { CreateRoomDto } from './dto/create-room.dto';
-import { UpdateRoomDto } from './dto/update-room.dto';
-import { RoomResponseDto } from './dto/room-response.dto';
+import { RoomController } from '../../../src/room/room.controller';
+import { RoomService } from '../../../src/room/room.service';
+import { CreateRoomDto } from '../../../src/room/dto/create-room.dto';
+import { UpdateRoomDto } from '../../../src/room/dto/update-room.dto';
+import { RoomResponseDto } from '../../../src/room/dto/room-response.dto';
 import { Types } from 'mongoose';
-import { BadRequestException, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  BadRequestException,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 
 const mockRoomResponse: RoomResponseDto = {
   id: new Types.ObjectId().toString(),
@@ -54,7 +58,10 @@ describe('RoomController', () => {
     const createRoomDto: CreateRoomDto = {
       name: 'Test Room',
       description: 'Test Description',
-      members: [new Types.ObjectId().toString(), new Types.ObjectId().toString()],
+      members: [
+        new Types.ObjectId().toString(),
+        new Types.ObjectId().toString(),
+      ],
       createdBy: new Types.ObjectId().toString(),
     };
 
@@ -68,14 +75,18 @@ describe('RoomController', () => {
     });
 
     it('should handle service errors', async () => {
-      jest.spyOn(service, 'create').mockRejectedValue(new ConflictException('Room already exists'));
+      jest
+        .spyOn(service, 'create')
+        .mockRejectedValue(new ConflictException('Room already exists'));
 
-      await expect(controller.create(createRoomDto)).rejects.toThrow(ConflictException);
+      await expect(controller.create(createRoomDto)).rejects.toThrow(
+        ConflictException,
+      );
     });
   });
 
   describe('findAll', () => {
-    it('should return all rooms when no member filter', async () => {
+    it('should return all rooms', async () => {
       const mockRooms = [mockRoomResponse, mockRoomResponse];
       jest.spyOn(service, 'findAll').mockResolvedValue(mockRooms);
 
@@ -85,15 +96,45 @@ describe('RoomController', () => {
       expect(service.findAll).toHaveBeenCalled();
     });
 
-    it('should return rooms by member when member filter provided', async () => {
+    it('should handle errors gracefully', async () => {
+      jest
+        .spyOn(service, 'findAll')
+        .mockRejectedValue(new Error('Database error'));
+
+      await expect(controller.findAll()).rejects.toThrow();
+    });
+  });
+
+  describe('findByMember', () => {
+    it('should return rooms by member ID', async () => {
       const memberId = new Types.ObjectId().toString();
       const mockRooms = [mockRoomResponse];
       jest.spyOn(service, 'findByMember').mockResolvedValue(mockRooms);
 
-      const result = await controller.findAll(memberId);
+      const result = await controller.findByMember(memberId);
 
       expect(result).toEqual(mockRooms);
       expect(service.findByMember).toHaveBeenCalledWith(memberId);
+    });
+
+    it('should handle errors when member has no rooms', async () => {
+      const memberId = new Types.ObjectId().toString();
+      jest.spyOn(service, 'findByMember').mockResolvedValue([]);
+
+      const result = await controller.findByMember(memberId);
+
+      expect(result).toEqual([]);
+    });
+
+    it('should handle service errors', async () => {
+      const memberId = new Types.ObjectId().toString();
+      jest
+        .spyOn(service, 'findByMember')
+        .mockRejectedValue(new BadRequestException('Invalid user ID'));
+
+      await expect(controller.findByMember(memberId)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
@@ -110,16 +151,24 @@ describe('RoomController', () => {
 
     it('should handle not found error', async () => {
       const roomId = new Types.ObjectId().toString();
-      jest.spyOn(service, 'findOne').mockRejectedValue(new NotFoundException('Room not found'));
+      jest
+        .spyOn(service, 'findOne')
+        .mockRejectedValue(new NotFoundException('Room not found'));
 
-      await expect(controller.findOne(roomId)).rejects.toThrow(NotFoundException);
+      await expect(controller.findOne(roomId)).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('should handle bad request error', async () => {
       const roomId = 'invalid-id';
-      jest.spyOn(service, 'findOne').mockRejectedValue(new BadRequestException('Invalid room ID format'));
+      jest
+        .spyOn(service, 'findOne')
+        .mockRejectedValue(new BadRequestException('Invalid room ID format'));
 
-      await expect(controller.findOne(roomId)).rejects.toThrow(BadRequestException);
+      await expect(controller.findOne(roomId)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
@@ -142,16 +191,24 @@ describe('RoomController', () => {
 
     it('should handle update errors - conflict', async () => {
       const roomId = new Types.ObjectId().toString();
-      jest.spyOn(service, 'updateRoom').mockRejectedValue(new ConflictException('Name already exists'));
+      jest
+        .spyOn(service, 'updateRoom')
+        .mockRejectedValue(new ConflictException('Name already exists'));
 
-      await expect(controller.update(roomId, updateRoomDto)).rejects.toThrow(ConflictException);
+      await expect(controller.update(roomId, updateRoomDto)).rejects.toThrow(
+        ConflictException,
+      );
     });
 
     it('should handle update errors - not found', async () => {
       const roomId = new Types.ObjectId().toString();
-      jest.spyOn(service, 'updateRoom').mockRejectedValue(new NotFoundException('Room not found'));
+      jest
+        .spyOn(service, 'updateRoom')
+        .mockRejectedValue(new NotFoundException('Room not found'));
 
-      await expect(controller.update(roomId, updateRoomDto)).rejects.toThrow(NotFoundException);
+      await expect(controller.update(roomId, updateRoomDto)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -174,17 +231,25 @@ describe('RoomController', () => {
     it('should handle add member errors - conflict', async () => {
       const roomId = new Types.ObjectId().toString();
       const userId = new Types.ObjectId().toString();
-      jest.spyOn(service, 'addMember').mockRejectedValue(new ConflictException('User already member'));
+      jest
+        .spyOn(service, 'addMember')
+        .mockRejectedValue(new ConflictException('User already member'));
 
-      await expect(controller.addMember(roomId, userId)).rejects.toThrow(ConflictException);
+      await expect(controller.addMember(roomId, userId)).rejects.toThrow(
+        ConflictException,
+      );
     });
 
     it('should handle add member errors - not found', async () => {
       const roomId = new Types.ObjectId().toString();
       const userId = new Types.ObjectId().toString();
-      jest.spyOn(service, 'addMember').mockRejectedValue(new NotFoundException('Room not found'));
+      jest
+        .spyOn(service, 'addMember')
+        .mockRejectedValue(new NotFoundException('Room not found'));
 
-      await expect(controller.addMember(roomId, userId)).rejects.toThrow(NotFoundException);
+      await expect(controller.addMember(roomId, userId)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -194,7 +259,7 @@ describe('RoomController', () => {
       const userId = new Types.ObjectId().toString();
       const updatedRoom = {
         ...mockRoomResponse,
-        members: mockRoomResponse.members.filter(id => id !== userId),
+        members: mockRoomResponse.members.filter((id) => id !== userId),
       };
       jest.spyOn(service, 'removeMember').mockResolvedValue(updatedRoom);
 
@@ -207,17 +272,25 @@ describe('RoomController', () => {
     it('should handle remove member errors - not found', async () => {
       const roomId = new Types.ObjectId().toString();
       const userId = new Types.ObjectId().toString();
-      jest.spyOn(service, 'removeMember').mockRejectedValue(new NotFoundException('User not member'));
+      jest
+        .spyOn(service, 'removeMember')
+        .mockRejectedValue(new NotFoundException('User not member'));
 
-      await expect(controller.removeMember(roomId, userId)).rejects.toThrow(NotFoundException);
+      await expect(controller.removeMember(roomId, userId)).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('should handle remove member errors - bad request', async () => {
       const roomId = 'invalid-id';
       const userId = new Types.ObjectId().toString();
-      jest.spyOn(service, 'removeMember').mockRejectedValue(new BadRequestException('Invalid room ID'));
+      jest
+        .spyOn(service, 'removeMember')
+        .mockRejectedValue(new BadRequestException('Invalid room ID'));
 
-      await expect(controller.removeMember(roomId, userId)).rejects.toThrow(BadRequestException);
+      await expect(controller.removeMember(roomId, userId)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 });

@@ -1,6 +1,12 @@
 import { PartialType } from '@nestjs/swagger';
 import { CreateRoomDto } from './create-room.dto';
-import { IsOptional, IsString, MinLength, MaxLength, IsNotEmpty } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  MinLength,
+  MaxLength,
+  IsNotEmpty,
+} from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UpdateRoomDto extends PartialType(CreateRoomDto) {
@@ -18,7 +24,7 @@ export class UpdateRoomDto extends PartialType(CreateRoomDto) {
   name?: string;
 
   @ApiPropertyOptional({
-    description: 'Updated room description', 
+    description: 'Updated room description',
     example: 'Updated description',
     minLength: 1,
     maxLength: 500,
@@ -26,7 +32,9 @@ export class UpdateRoomDto extends PartialType(CreateRoomDto) {
   @IsOptional()
   @IsString()
   @IsNotEmpty({ message: 'Room description cannot be empty' })
-  @MinLength(1, { message: 'Room description must be at least 1 character long' })
+  @MinLength(1, {
+    message: 'Room description must be at least 1 character long',
+  })
   @MaxLength(500, { message: 'Room description cannot exceed 500 characters' })
   description?: string;
 }

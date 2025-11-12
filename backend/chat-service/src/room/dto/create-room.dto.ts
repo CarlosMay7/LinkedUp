@@ -1,4 +1,10 @@
-import { IsString, IsOptional, IsArray, IsNotEmpty, ArrayMinSize } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsArray,
+  IsNotEmpty,
+  ArrayMinSize,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateRoomDto {
