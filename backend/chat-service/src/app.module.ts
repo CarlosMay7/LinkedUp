@@ -4,6 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ChatModule } from './chat/chat.module';
 import { RoomModule } from './room/room.module';
 import { CommonModule } from './common/common.module';
+import { MessageModule } from './message/message.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -20,6 +21,7 @@ import { CommonModule } from './common/common.module';
     ChatModule,
     RoomModule,
     CommonModule,
+    MessageModule,
   ],
 })
 export class AppModule {}
