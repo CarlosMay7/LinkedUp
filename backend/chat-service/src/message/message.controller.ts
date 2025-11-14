@@ -253,7 +253,8 @@ export class MessageController {
         deletedCount: { type: 'number', example: 5 },
         message: {
           type: 'string',
-          example: 'Successfully deleted 5 messages from room 67409b2f88a7c7eae01c4e91',
+          example:
+            'Successfully deleted 5 messages from room 67409b2f88a7c7eae01c4e91',
         },
       },
     },

@@ -3,7 +3,8 @@ import { IsString, IsNotEmpty, IsOptional, IsMongoId } from 'class-validator';
 
 export class CreateMessageDto {
   @ApiPropertyOptional({
-    description: 'Room ID if the message belongs to a room (nullable for private messages)',
+    description:
+      'Room ID if the message belongs to a room (nullable for private messages)',
     example: '67409b2f88a7c7eae01c4e91',
   })
   @IsOptional()
@@ -28,7 +29,7 @@ export class CreateMessageDto {
 
   @ApiProperty({
     description: 'Text content of the message',
-    example: 'Hey, what\'s up?',
+    example: "Hey, what's up?",
   })
   @IsNotEmpty({ message: 'content is required' })
   @IsString({ message: 'content must be a string' })

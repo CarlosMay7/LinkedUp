@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Message, MessageDocument } from './schemas/message.schema';
@@ -194,11 +190,10 @@ export class MessageService {
   /**
    * Execute a query with sorting
    */
-  private async executeQuery(filter: Record<string, any>): Promise<MessageDocument[]> {
-    return await this.messageModel
-      .find(filter)
-      .sort({ sentAt: -1 })
-      .exec();
+  private async executeQuery(
+    filter: Record<string, any>,
+  ): Promise<MessageDocument[]> {
+    return await this.messageModel.find(filter).sort({ sentAt: -1 }).exec();
   }
 
   /**
@@ -256,9 +251,7 @@ export class MessageService {
     const result = await this.messageModel.deleteMany({ roomId }).exec();
 
     if (result.deletedCount === 0) {
-      throw new NotFoundException(
-        `No messages found for room ID ${roomId}`,
-      );
+      throw new NotFoundException(`No messages found for room ID ${roomId}`);
     }
 
     return {
