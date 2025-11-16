@@ -258,7 +258,6 @@
   opacity: 0.7;
 }
 
-/* GESTIÓN DE USUARIOS - MEJORADO */
 .users-section {
   background: white;
   border-radius: 12px;
@@ -266,7 +265,7 @@
   box-shadow: 0 4px 15px var(--shadow-color);
   margin-bottom: 1.5rem;
   border: 1px solid var(--secondary-color);
-  overflow-x: auto; /* Scroll horizontal cuando sea necesario */
+  overflow-x: auto; 
 }
 
 .users-section h2 {
@@ -277,7 +276,7 @@
 }
 
 .users-table {
-  min-width: 700px; /* Aumentado de 600px a 700px */
+  min-width: 700px; 
   border: 1px solid var(--secondary-color);
   border-radius: 8px;
   overflow: hidden;
@@ -311,40 +310,38 @@
   padding: 1rem 1.2rem;
   display: flex;
   align-items: center;
-  flex-shrink: 0; /* Evita que se compriman las celdas */
+  flex-shrink: 0; 
 }
 
-/* MEJORA: Columnas más anchas y mejor distribuidas */
 .col-usuario {
-  width: 280px; /* Aumentado de 200px a 280px */
+  width: 280px; 
   border-right: 1px solid var(--secondary-color);
   font-weight: 500;
   text-align: center;
   justify-content: center;
-  font-size: 0.95rem; /* Texto ligeramente más grande */
+  font-size: 0.95rem;
 }
 
 .col-mensajes {
-  width: 200px; /* Aumentado de 150px a 180px */
+  width: 200px; 
   border-right: 1px solid var(--secondary-color);
   justify-content: center;
   font-weight: 500;
-  font-size: 1rem; /* Texto más prominente */
+  font-size: 1rem; 
 }
 
 .col-acciones {
   flex: 1;
-  gap: 1rem; /* Aumentado de 0.8rem a 1rem */
-  min-width: 220px; /* Aumentado de 200px a 220px */
-  justify-content: flex-start; /* Cambiado de flex-start a center para mejor distribución */
+  gap: 1rem; 
+  min-width: 220px; 
+  justify-content: flex-start;
 }
 
-/* MEJORA: Botones más grandes y consistentes */
 .action-btn {
   font-family: 'Inter', sans-serif;
-  font-size: 0.9rem; /* Aumentado de 0.85rem a 0.9rem */
+  font-size: 0.9rem; 
   font-weight: 600;
-  padding: 0.7rem 1.2rem; /* Aumentado el padding */
+  padding: 0.7rem 1.2rem; 
   border: 1px solid var(--secondary-color);
   border-radius: 6px;
   background: white;
@@ -352,7 +349,7 @@
   transition: all 0.2s ease-in-out;
   color: var(--text-color);
   white-space: nowrap;
-  min-width: 95px; /* Ancho mínimo para consistencia */
+  min-width: 95px; 
   text-align: center;
   display: inline-flex;
   align-items: center;
@@ -360,8 +357,8 @@
 }
 
 .action-btn:hover {
-  transform: translateY(-2px); /* Efecto hover más pronunciado */
-  box-shadow: 0 4px 12px var(--shadow-color); /* Sombra más intensa */
+  transform: translateY(-2px); 
+  box-shadow: 0 4px 12px var(--shadow-color); 
 }
 
 .btn-advertir.active {
@@ -378,18 +375,18 @@
   box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
 }
 
-/* MEJORA: Estados más visibles y consistentes */
+
 .advertido, .bloqueado {
   font-weight: 600;
-  padding: 0.7rem 1.2rem; /* Padding consistente con botones */
+  padding: 0.7rem 1.2rem; 
   border-radius: 6px;
   white-space: nowrap;
-  min-width: 95px; /* Mismo ancho que los botones */
+  min-width: 95px; 
   text-align: center;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.9rem; /* Tamaño consistente */
+  font-size: 0.9rem; 
 }
 
 .advertido {
@@ -404,7 +401,6 @@
   border: 1px solid rgba(220, 53, 69, 0.3);
 }
 
-/* Separador */
 .separator {
   height: 2px;
   background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
@@ -412,7 +408,6 @@
   opacity: 0.6;
 }
 
-/* Acciones Automáticas */
 .auto-actions-section {
   background: white;
   border-radius: 12px;
@@ -447,14 +442,14 @@
   background: var(--background);
   font-weight: 600;
   color: var(--text-color);
-  transition: all 0.2s ease-in-out; /* MEJORA: Transición suave */
+  transition: all 0.2s ease-in-out; 
 }
 
 .threshold-input:focus {
   outline: none;
   border-color: var(--primary-color-dark);
   box-shadow: 0 0 0 3px rgba(199, 178, 160, 0.2);
-  transform: scale(1.02); /* MEJORA: Efecto de enfoque */
+  transform: scale(1.02); 
 }
 
 .save-section {
@@ -468,7 +463,6 @@
   font-weight: 700 !important;
 }
 
-/* MEJORA: Responsive mejorado para tablets */
 @media (max-width: 1024px) {
   .admin-page {
     padding: 1.5rem;
@@ -478,7 +472,6 @@
     gap: 2rem;
   }
   
-  /* Ajustes para tablets */
   .col-usuario {
     width: 240px;
   }
@@ -502,7 +495,6 @@
     width: 100%;
   }
   
-  /* Más ajustes para tablets pequeñas */
   .col-usuario {
     width: 220px;
   }
@@ -512,7 +504,6 @@
   }
 }
 
-/* Solo hacer vertical la tabla en móviles */
 @media (max-width: 768px) {
   .admin-page {
     padding: 1rem;
@@ -549,18 +540,16 @@
   
   .col-acciones {
     justify-content: center;
-    gap: 0.8rem; /* Aumentado para móviles */
+    gap: 0.8rem; 
     min-width: unset;
-    flex-wrap: wrap; /* MEJORA: Permite que los botones se envuelvan si es necesario */
+    flex-wrap: wrap; 
   }
   
-  /* MEJORA: Estados y botones full width en móviles */
   .action-btn, .advertido, .bloqueado {
-    min-width: 120px; /* Más anchos en móviles */
-    flex: 1; /* Ocupan espacio disponible */
+    min-width: 120px; 
+    flex: 1; 
   }
   
-  /* Eliminar el borde inferior del último elemento de cada fila */
   .table-row:last-child .col-usuario,
   .table-row:last-child .col-mensajes,
   .table-row:last-child .col-acciones {
@@ -590,17 +579,16 @@
   
   .col-acciones {
     flex-direction: column;
-    gap: 0.5rem; /* Más espacio entre botones en móviles */
+    gap: 0.5rem; 
   }
   
   .action-btn, .advertido, .bloqueado {
     width: 100%;
     justify-content: center;
-    min-width: unset; /* Remover ancho mínimo en móviles muy pequeños */
+    min-width: unset; 
   }
 }
 
-/* MEJORA: Loading styles mejorados */
 .loading {
   text-align: center;
   padding: 3rem;
@@ -628,14 +616,10 @@
   100% { transform: rotate(360deg); }
 }
 
-/* MEJORA: Estados vacíos en la tabla */
 .col-acciones:empty::before {
   content: "Sin acciones";
   color: var(--text-color);
   opacity: 0.5;
   font-style: italic;
 }
-
-/*}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}*/
-
 
