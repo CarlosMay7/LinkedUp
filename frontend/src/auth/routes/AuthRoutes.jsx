@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { LoginPage, CreateAccountPage } from '../pages';
 import { AuthLayout } from '../components/AuthLayout';
 import { LogoutPage } from '../pages/LogoutPage';
+import { ROUTES } from '../../config/constants';
 import '../auth.css';
 
 export const AuthRoutes = () => {
@@ -11,7 +12,10 @@ export const AuthRoutes = () => {
                 <Route path="login" element={<LoginPage />} />
                 <Route path="register" element={<CreateAccountPage />} />
                 <Route path="logout" element={<LogoutPage />} />
-                <Route path="/*" element={<Navigate to="/auth/login" />} />
+                <Route
+                    path="/*"
+                    element={<Navigate to={ROUTES.AUTH_LOGIN} />}
+                />
             </Route>
         </Routes>
     );

@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Error } from '../components/Error';
+import { Alert } from '../components/Alert';
 import { useAuth } from '../context/AuthContext';
+import { ROUTES } from '../../config/constants';
+import { getErrorMessage } from '../../infrastructure/errors/error-mapper';
 
 export const LoginPage = () => {
     const navigate = useNavigate();
@@ -15,14 +17,14 @@ export const LoginPage = () => {
         console.log(email, password);
         const { error } = await signIn({ email, password });
         if (error) {
-            return setError(error.message);
+            return setError(getErrorMessage(error));
         }
-        navigate('/');
+        navigate(ROUTES.ROOM);
     };
 
     return (
         <form onSubmit={handleLogin} className="form">
-            {error && <Error error={error} />}
+            {error && <Alert type="error">{error}</Alert>}
             <input
                 type="email"
                 placeholder="Email"

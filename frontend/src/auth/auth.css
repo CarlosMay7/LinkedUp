@@ -42,20 +42,6 @@
   border-bottom: 2px solid var(--primary-color); 
 }
 
-.error-message {
-  color: #D16449;
-  margin-bottom: 1rem;
-  font-weight: 500;
-}
-
-.error-message-container {
-  text-align: center;
-  margin-bottom: 1rem;
-  background-color: var(--background);
-  
-}
-
-/* Modal (auth) */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -87,7 +73,7 @@
 .modal-actions {
   display: flex;
   gap: 0.5rem;
-  justify-content: flex-end;
+  justify-content: center;
 }
 
 .button-secondary {
@@ -98,4 +84,27 @@
 .form-error {
   color: #D16449;
   margin: 0.5rem 0;
+}
+
+.alert {
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin: 0.75rem 0;
+  font-weight: 500;
+}
+
+.alert p {
+  margin: 0;
+}
+
+.alert--error {
+  background: #fff4f1;
+  color: #b23d23; /* matches error tone */
+  border: 1px solid #ffd6cc;
+}
+
+.alert--success {
+  background: #f0fff4;
+  color: #1a7f37;
+  border: 1px solid #b7f0c2;
 }

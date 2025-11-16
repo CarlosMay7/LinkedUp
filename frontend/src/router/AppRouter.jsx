@@ -2,9 +2,10 @@ import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { AuthRoutes } from '../auth/routes/AuthRoutes';
 import { ChatRoutes } from '../chat/routes/ChatRoutes';
 import { useAuth } from '../auth/context/AuthContext';
+import { ROUTES, USER_ROLES } from '../config/constants';
 
 const ProtectedAuthRoutes = () => {
-    const { user } = useAuth();
+    const { user, metaData } = useAuth();
     const location = useLocation();
 
     if (user && location.pathname === '/auth/logout') {
@@ -12,7 +13,10 @@ const ProtectedAuthRoutes = () => {
     }
 
     if (user) {
-        return <Navigate to="/" replace />;
+        if (metaData.role === USER_ROLES.ADMIN) {
+            return <Navigate to={ROUTES.ADMIN_DASHBOARD} replace />;
+        }
+        return <Navigate to={ROUTES.HOME} replace />;
     }
 
     return <AuthRoutes />;
@@ -28,7 +32,10 @@ export const AppRouter = () => {
             {user ? (
                 <Route path="/*" element={<ChatRoutes />} />
             ) : (
-                <Route path="/*" element={<Navigate to="/auth/login" />} />
+                <Route
+                    path="/*"
+                    element={<Navigate to={ROUTES.AUTH_LOGIN} />}
+                />
             )}
         </Routes>
     );

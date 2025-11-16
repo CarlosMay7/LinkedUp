@@ -67,7 +67,6 @@
   transform: scale(1.12);
 }
 
-/* --- Estilos de Página de Perfil --- */
 .profile-page {
   display: flex;
   justify-content: space-around;

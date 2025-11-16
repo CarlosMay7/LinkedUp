@@ -13,17 +13,12 @@ export const AccountConfirmationModal = ({ setShowSuccess }) => {
                 <div className="modal-actions">
                     <button
                         className="button"
-                        onClick={() =>
-                            navigate('/auth/login', { replace: true })
-                        }
+                        onClick={() => {
+                            setShowSuccess(false);
+                            navigate('/auth/login', { replace: true });
+                        }}
                     >
                         Go to Login
-                    </button>
-                    <button
-                        className="button button-secondary"
-                        onClick={() => setShowSuccess(false)}
-                    >
-                        Close
                     </button>
                 </div>
             </div>

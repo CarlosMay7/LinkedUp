@@ -1,12 +1,16 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../supabase/supabaseClient';
-import { useNavigate } from 'react-router-dom';
+// Removed navigation from context to keep it side-effect free
+import { AuthRepository } from '../../infrastructure/repositories/auth.repository';
+import { mapSupabaseError } from '../../infrastructure/errors/error-mapper';
+// Removed ROUTES from context
 
 const AuthContext = createContext();
 
+const authRepository = new AuthRepository(supabase);
+
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const navigate = useNavigate();
 
     useEffect(() => {
         let isMounted = true;
@@ -14,7 +18,7 @@ export const AuthProvider = ({ children }) => {
         const syncSession = async () => {
             const {
                 data: { session },
-            } = await supabase.auth.getSession();
+            } = await authRepository.getSession();
             if (!isMounted) {
                 return;
             }
@@ -24,40 +28,71 @@ export const AuthProvider = ({ children }) => {
 
         const {
             data: { subscription },
-        } = supabase.auth.onAuthStateChange((event, session) => {
+        } = authRepository.onAuthStateChange((event, session) => {
             setUser(session?.user || null);
-            if (event === 'SIGNED_OUT') {
-                navigate('/auth/login', { replace: true });
-            }
+            // Removed navigation logic to keep it side-effect free
         });
 
         return () => {
             isMounted = false;
             subscription.unsubscribe();
         };
-    }, [navigate]);
+    }, []);
 
     const signIn = async ({ email, password }) => {
-        return supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await authRepository.signIn({
+            email,
+            password,
+        });
+        return {
+            data,
+            error: error ? mapSupabaseError(error) : null,
+        };
     };
 
     const signUp = async ({ email, password, data, emailRedirectTo }) => {
-        return supabase.auth.signUp({
+        const { data: responseData, error } = await authRepository.signUp({
             email,
             password,
             options: { data, emailRedirectTo },
         });
+        return {
+            data: responseData,
+            error: error ? mapSupabaseError(error) : null,
+        };
     };
 
     const signOut = async () => {
-        return supabase.auth.signOut();
+        const { error } = await authRepository.signOut();
+        return {
+            error: error ? mapSupabaseError(error) : null,
+        };
+    };
+
+    const updateUser = async updates => {
+        const { data, error } = await authRepository.updateUser(updates);
+        const mappedError = error ? mapSupabaseError(error) : null;
+
+        if (!mappedError) {
+            const {
+                data: { user: freshUser },
+            } = await authRepository.getUser();
+            if (freshUser) {
+                setUser(freshUser);
+            }
+        }
+
+        return {
+            data,
+            error: mappedError,
+        };
     };
 
     const metaData = user?.user_metadata ?? {};
 
     return (
         <AuthContext.Provider
-            value={{ user, metaData, signIn, signUp, signOut }}
+            value={{ user, metaData, signIn, signUp, signOut, updateUser }}
         >
             {children}
         </AuthContext.Provider>

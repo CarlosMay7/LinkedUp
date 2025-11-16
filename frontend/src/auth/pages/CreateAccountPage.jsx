@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { avatars } from '../../assets/avatar';
 import { AccountConfirmationModal } from '../components/AccountConfirmationModal';
 import { useAuth } from '../context/AuthContext';
+import { Role } from '../../core/entities/Role';
+import { DEFAULTS, ROUTES } from '../../config/constants';
+import { getErrorMessage } from '../../infrastructure/errors/error-mapper';
 
 export const CreateAccountPage = () => {
     const { signUp } = useAuth();
@@ -10,27 +13,32 @@ export const CreateAccountPage = () => {
     const [password, setPassword] = useState('');
     const [showSuccess, setShowSuccess] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSubmit = async e => {
         e.preventDefault();
+        setIsSubmitting(true);
         const { error } = await signUp({
             email,
             password,
-            options: {
-                data: {
-                    username,
-                    role: 'student',
-                    profilePicture: avatars['avatar1.png'],
-                },
-                emailRedirectTo: window.location.origin + '/auth/login',
+            data: {
+                username,
+                role: Role.STUDENT,
+                profilePicture: avatars[DEFAULTS.AVATAR],
             },
+            emailRedirectTo: window.location.origin + ROUTES.AUTH_LOGIN,
         });
 
         if (error) {
-            setErrorMessage(error.message || 'Sign up failed');
+            setErrorMessage(getErrorMessage(error));
+            setIsSubmitting(false);
             return;
         }
 
+        setUsername('');
+        setEmail('');
+        setPassword('');
+        setIsSubmitting(false);
         setShowSuccess(true);
     };
 
@@ -39,7 +47,7 @@ export const CreateAccountPage = () => {
             <form onSubmit={handleSubmit} className="form">
                 <input
                     type="text"
-                    placeholder="Username"
+                    placeholder="Enter your name"
                     value={username}
                     onChange={e => setUsername(e.target.value)}
                     required
@@ -63,8 +71,12 @@ export const CreateAccountPage = () => {
                         {errorMessage}
                     </p>
                 )}
-                <button type="submit" className="button">
-                    Create Account
+                <button
+                    type="submit"
+                    className="button"
+                    disabled={isSubmitting}
+                >
+                    {isSubmitting ? 'Creating...' : 'Create Account'}
                 </button>
             </form>
 
