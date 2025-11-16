@@ -1,21 +1,33 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Error } from '../components/Error';
+import { useAuth } from '../context/AuthContext';
 
 export const LoginPage = () => {
-    const [username, setUsername] = useState('');
+    const navigate = useNavigate();
+    const { signIn } = useAuth();
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState(null);
 
-    const handleSubmit = e => {
+    const handleLogin = async e => {
         e.preventDefault();
-        console.log('Logging in with:', { username, password });
+        console.log(email, password);
+        const { error } = await signIn({ email, password });
+        if (error) {
+            return setError(error.message);
+        }
+        navigate('/');
     };
 
     return (
-        <form onSubmit={handleSubmit} className="form">
+        <form onSubmit={handleLogin} className="form">
+            {error && <Error error={error} />}
             <input
-                type="text"
-                placeholder="Username"
-                value={username}
-                onChange={e => setUsername(e.target.value)}
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
                 required
             />
             <input

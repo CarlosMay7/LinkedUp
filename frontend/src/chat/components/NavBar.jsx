@@ -39,7 +39,7 @@ export const NavBar = () => {
                 >
                     <img src={profileSrc} alt="profile" />
                 </Link>
-                <Link to="/logout" className="logout-icon">
+                <Link to="/auth/logout" className="logout-icon">
                     <img src={logoutSrc} alt="profile icon" />
                 </Link>
             </div>

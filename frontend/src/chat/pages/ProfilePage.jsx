@@ -1,9 +1,20 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { avatars } from '../../assets/avatar';
+import { useAuth } from '../../auth/context/AuthContext';
 
 export const ProfilePage = () => {
-    const [currentIcon, setCurrentIcon] = useState(avatars['avatar1.png']); //TODO current user icon
+    const { metaData } = useAuth();
+    const defaultIcon = avatars['avatar1.png'];
+    const [currentIcon, setCurrentIcon] = useState(
+        metaData?.profilePicture || defaultIcon
+    );
     const [isPickerOpen, setIsPickerOpen] = useState(false);
+
+    useEffect(() => {
+        if (metaData?.profilePicture) {
+            setCurrentIcon(metaData.profilePicture);
+        }
+    }, [metaData?.profilePicture]);
 
     const handleSelectIcon = icon => {
         setCurrentIcon(icon);
@@ -34,7 +45,7 @@ export const ProfilePage = () => {
                         <img
                             key={name}
                             src={src}
-                            alt={{ name }}
+                            alt={name}
                             className={`avatar-option ${
                                 src === currentIcon ? 'selected' : ''
                             }`}
