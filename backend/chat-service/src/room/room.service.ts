@@ -115,10 +115,7 @@ export class RoomService {
 
       return this.toRoomResponseDto(savedRoom);
     } catch (error) {
-      return this.validationService.handleServiceError(
-        error,
-        'Error creating room',
-      );
+      this.validationService.handleServiceError(error, 'Error creating room');
     }
   }
 
@@ -128,10 +125,7 @@ export class RoomService {
 
       return rooms.map((room) => this.toRoomResponseDto(room));
     } catch (error) {
-      return this.validationService.handleServiceError(
-        error,
-        'Error fetching rooms',
-      );
+      this.validationService.handleServiceError(error, 'Error fetching rooms');
     }
   }
 
@@ -140,10 +134,7 @@ export class RoomService {
       const room = await this.findRoomByIdOrThrow(roomId);
       return this.toRoomResponseDto(room);
     } catch (error) {
-      return this.validationService.handleServiceError(
-        error,
-        'Error fetching room',
-      );
+      this.validationService.handleServiceError(error, 'Error fetching room');
     }
   }
 
@@ -169,10 +160,7 @@ export class RoomService {
 
       return this.toRoomResponseDto(updatedRoom);
     } catch (error) {
-      return this.validationService.handleServiceError(
-        error,
-        'Error updating room',
-      );
+      this.validationService.handleServiceError(error, 'Error updating room');
     }
   }
 
@@ -191,7 +179,7 @@ export class RoomService {
 
       return this.toRoomResponseDto(updatedRoom);
     } catch (error) {
-      return this.validationService.handleServiceError(
+      this.validationService.handleServiceError(
         error,
         'Error adding member to room',
       );
@@ -207,7 +195,7 @@ export class RoomService {
 
       return rooms.map((room) => this.toRoomResponseDto(room));
     } catch (error) {
-      return this.validationService.handleServiceError(
+      this.validationService.handleServiceError(
         error,
         'Error fetching user rooms',
       );
@@ -228,7 +216,7 @@ export class RoomService {
       const updatedRoom = await room.save();
       return this.toRoomResponseDto(updatedRoom);
     } catch (error) {
-      return this.validationService.handleServiceError(
+      this.validationService.handleServiceError(
         error,
         'Error removing member from room',
       );

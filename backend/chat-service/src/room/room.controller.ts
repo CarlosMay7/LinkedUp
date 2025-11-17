@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { RoomService } from './room.service';
 import { CreateRoomDto } from './dto/create-room.dto';
@@ -51,7 +52,7 @@ export class RoomController {
     type: [RoomResponseDto],
   })
   async findByMember(
-    @Param('memberId') memberId: string,
+    @Param('memberId', ParseUUIDPipe) memberId: string,
   ): Promise<RoomResponseDto[]> {
     return this.roomService.findByMember(memberId);
   }
@@ -101,7 +102,7 @@ export class RoomController {
   @ApiResponse({ status: 409, description: 'User is already a member' })
   async addMember(
     @Param('id') roomId: string,
-    @Param('userId') userId: string,
+    @Param('userId', ParseUUIDPipe) userId: string,
   ): Promise<RoomResponseDto> {
     return this.roomService.addMember(roomId, userId);
   }
@@ -118,7 +119,7 @@ export class RoomController {
   @ApiResponse({ status: 404, description: 'Room not found' })
   async removeMember(
     @Param('id') roomId: string,
-    @Param('userId') userId: string,
+    @Param('userId', ParseUUIDPipe) userId: string,
   ): Promise<RoomResponseDto> {
     return this.roomService.removeMember(roomId, userId);
   }
