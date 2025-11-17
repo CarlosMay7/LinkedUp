@@ -1,11 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Types, HydratedDocument } from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 
 @Schema({
   timestamps: true,
 })
-export class Room extends Document {
+export class Room {
   @ApiProperty({
     description: 'Room name',
     example: 'Development Team',
@@ -50,5 +50,5 @@ export class Room extends Document {
   updatedAt: Date;
 }
 
-export type RoomDocument = Room & Document;
+export type RoomDocument = HydratedDocument<Room>;
 export const RoomSchema = SchemaFactory.createForClass(Room);

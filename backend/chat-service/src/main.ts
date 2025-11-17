@@ -4,7 +4,6 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  console.log('MONGO_URI:', process.env.MONGO_URI);
   const config = new DocumentBuilder()
     .setTitle('Chat Service API')
     .setDescription('API documentation for the Chat Service')

@@ -85,19 +85,32 @@ export class RoomService {
 
   private prepareRoomUpdateData(updateRoomDto: UpdateRoomDto): UpdateRoomDto {
     const allowedFields = ['name', 'description'];
+    const immutableFields = ['members', 'createdBy'];
     const providedFields = Object.keys(updateRoomDto).filter(
       (key) => updateRoomDto[key] !== undefined,
     );
 
+    // Check for immutable fields that should never be updated
+    const attemptedImmutableFields = providedFields.filter((field) =>
+      immutableFields.includes(field),
+    );
+    if (attemptedImmutableFields.length > 0) {
+      throw new BadRequestException(
+        `Cannot update immutable fields: ${attemptedImmutableFields.join(', ')}. Use dedicated endpoints to manage members.`,
+      );
+    }
+
+    // Check for invalid fields
     const invalidFields = providedFields.filter(
       (field) => !allowedFields.includes(field),
     );
     if (invalidFields.length > 0) {
       throw new BadRequestException(
-        `Cannot update fields: ${invalidFields.join(', ')}`,
+        `Invalid fields: ${invalidFields.join(', ')}. Allowed fields are: ${allowedFields.join(', ')}`,
       );
     }
 
+    // Ensure at least one allowed field is provided
     const hasAllowedField = providedFields.some((field) =>
       allowedFields.includes(field),
     );
@@ -107,7 +120,7 @@ export class RoomService {
       );
     }
 
-    const updateData: UpdateRoomDto = { updatedAt: new Date() };
+    const updateData: UpdateRoomDto = {};
 
     if (updateRoomDto.name !== undefined) updateData.name = updateRoomDto.name;
     if (updateRoomDto.description !== undefined)
