@@ -10,7 +10,7 @@ export const ChatRoutes = () => {
         <Routes>
             <Route element={<ChatLayout />}>
                 <Route path="profile" element={<ProfilePage />} />
-                <Route path="admin" element={<AdminPage />} /> 
+                <Route path="admin" element={<AdminPage />} />
                 <Route path="room/:id" element={<RoomPage />} />
                 <Route path="/*" element={<Navigate to={'/'} />} />
             </Route>
