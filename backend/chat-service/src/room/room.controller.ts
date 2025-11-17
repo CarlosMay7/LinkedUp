@@ -6,8 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  HttpStatus,
-  HttpCode,
 } from '@nestjs/common';
 import { RoomService } from './room.service';
 import { CreateRoomDto } from './dto/create-room.dto';
@@ -90,9 +88,8 @@ export class RoomController {
     return this.roomService.updateRoom(id, updateRoomDto);
   }
 
-  @Post(':id/members/:userId')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Add member to room' })
+  @Patch(':id/members/:userId')
+  @ApiOperation({ summary: 'Add member to room (partial update)' })
   @ApiParam({ name: 'id', description: 'Room ID' })
   @ApiParam({ name: 'userId', description: 'User ID to add' })
   @ApiResponse({

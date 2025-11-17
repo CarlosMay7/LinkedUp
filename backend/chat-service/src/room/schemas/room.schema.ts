@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Types, HydratedDocument } from 'mongoose';
+import { HydratedDocument } from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 
 @Schema({
@@ -24,18 +24,21 @@ export class Room {
 
   @ApiProperty({
     description: 'Array of user IDs who are members of the room',
-    example: ['507f1f77bcf86cd799439011', '507f1f77bcf86cd799439012'],
+    example: [
+      '550e8400-e29b-41d4-a716-446655440001',
+      '550e8400-e29b-41d4-a716-446655440002',
+    ],
     type: [String],
   })
-  @Prop({ type: [Types.ObjectId], ref: 'User', required: true })
-  members: Types.ObjectId[];
+  @Prop({ type: [String], required: true, index: true })
+  members: string[];
 
   @ApiProperty({
     description: 'User ID who created the room',
-    example: '507f1f77bcf86cd799439011',
+    example: '550e8400-e29b-41d4-a716-446655440003',
   })
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  createdBy: Types.ObjectId;
+  @Prop({ type: String, required: true })
+  createdBy: string;
 
   @ApiProperty({
     description: 'Room creation date',

@@ -11,7 +11,6 @@ import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { RoomResponseDto } from './dto/room-response.dto';
 import { ValidationService } from '../common/validation.service';
-import { RoomNameAvailabilityQuery } from './interfaces/room-query.interface';
 
 @Injectable()
 export class RoomService {
@@ -27,8 +26,8 @@ export class RoomService {
       id: room._id.toString(),
       name: room.name,
       description: room.description,
-      members: room.members.map((member) => member.toString()),
-      createdBy: room.createdBy.toString(),
+      members: room.members,
+      createdBy: room.createdBy,
       createdAt: room.createdAt,
       updatedAt: room.updatedAt,
     };
@@ -51,35 +50,12 @@ export class RoomService {
     return new Types.ObjectId(id);
   }
 
-  private async checkRoomNameAvailability(
-    name: string,
-    excludeRoomId?: string,
-  ): Promise<void> {
-    const query: RoomNameAvailabilityQuery = { name };
-    if (excludeRoomId) {
-      query._id = { $ne: new Types.ObjectId(excludeRoomId) };
-    }
-
-    const existingRoom = await this.roomModel.findOne(query).exec();
-    if (existingRoom) {
-      throw new ConflictException('Room with this name already exists');
-    }
-  }
   private prepareRoomCreationData(createRoomDto: CreateRoomDto) {
-    const membersObjectIds = this.validationService.validateObjectIds(
-      createRoomDto.members,
-      'member ID',
-    );
-    this.validationService.validateObjectId(
-      createRoomDto.createdBy,
-      'creator user ID',
-    );
-
     return {
       name: createRoomDto.name,
       description: createRoomDto.description,
-      members: membersObjectIds,
-      createdBy: new Types.ObjectId(createRoomDto.createdBy),
+      members: createRoomDto.members,
+      createdBy: createRoomDto.createdBy,
     };
   }
 
@@ -133,15 +109,16 @@ export class RoomService {
 
   async create(createRoomDto: CreateRoomDto): Promise<RoomResponseDto> {
     try {
-      await this.checkRoomNameAvailability(createRoomDto.name);
-
       const roomData = this.prepareRoomCreationData(createRoomDto);
       const createdRoom = new this.roomModel(roomData);
       const savedRoom = await createdRoom.save();
 
       return this.toRoomResponseDto(savedRoom);
     } catch (error) {
-      this.validationService.handleServiceError(error, 'Error creating room');
+      return this.validationService.handleServiceError(
+        error,
+        'Error creating room',
+      );
     }
   }
 
@@ -151,7 +128,10 @@ export class RoomService {
 
       return rooms.map((room) => this.toRoomResponseDto(room));
     } catch (error) {
-      this.validationService.handleServiceError(error, 'Error fetching rooms');
+      return this.validationService.handleServiceError(
+        error,
+        'Error fetching rooms',
+      );
     }
   }
 
@@ -160,7 +140,10 @@ export class RoomService {
       const room = await this.findRoomByIdOrThrow(roomId);
       return this.toRoomResponseDto(room);
     } catch (error) {
-      this.validationService.handleServiceError(error, 'Error fetching room');
+      return this.validationService.handleServiceError(
+        error,
+        'Error fetching room',
+      );
     }
   }
 
@@ -170,10 +153,6 @@ export class RoomService {
   ): Promise<RoomResponseDto> {
     try {
       const room = await this.findRoomByIdOrThrow(roomId);
-
-      if (updateRoomDto.name && updateRoomDto.name !== room.name) {
-        await this.checkRoomNameAvailability(updateRoomDto.name, roomId);
-      }
 
       const updateData = this.prepareRoomUpdateData(updateRoomDto);
       const updatedRoom = await this.roomModel
@@ -190,29 +169,29 @@ export class RoomService {
 
       return this.toRoomResponseDto(updatedRoom);
     } catch (error) {
-      this.validationService.handleServiceError(error, 'Error updating room');
+      return this.validationService.handleServiceError(
+        error,
+        'Error updating room',
+      );
     }
   }
 
   async addMember(roomId: string, userId: string): Promise<RoomResponseDto> {
     try {
       const room = await this.findRoomByIdOrThrow(roomId);
-      const userObjectId = this.validateAndConvertIdToObjectId(userId);
 
-      const isAlreadyMember = room.members.some((member) =>
-        member.equals(userObjectId),
-      );
+      const isAlreadyMember = room.members.includes(userId);
 
       if (isAlreadyMember) {
         throw new ConflictException('User is already a member of this room');
       }
 
-      room.members.push(userObjectId);
+      room.members.push(userId);
       const updatedRoom = await room.save();
 
       return this.toRoomResponseDto(updatedRoom);
     } catch (error) {
-      this.validationService.handleServiceError(
+      return this.validationService.handleServiceError(
         error,
         'Error adding member to room',
       );
@@ -221,16 +200,14 @@ export class RoomService {
 
   async findByMember(userId: string): Promise<RoomResponseDto[]> {
     try {
-      this.validationService.validateObjectId(userId, 'user ID');
-
       const rooms = await this.roomModel
-        .find({ members: new Types.ObjectId(userId) })
+        .find({ members: userId })
         .sort({ createdAt: -1 })
         .exec();
 
       return rooms.map((room) => this.toRoomResponseDto(room));
     } catch (error) {
-      this.validationService.handleServiceError(
+      return this.validationService.handleServiceError(
         error,
         'Error fetching user rooms',
       );
@@ -240,12 +217,9 @@ export class RoomService {
   async removeMember(roomId: string, userId: string): Promise<RoomResponseDto> {
     try {
       const room = await this.findRoomByIdOrThrow(roomId);
-      const userObjectId = this.validateAndConvertIdToObjectId(userId);
 
       const initialMemberCount = room.members.length;
-      room.members = room.members.filter(
-        (member) => !member.equals(userObjectId),
-      );
+      room.members = room.members.filter((member) => member !== userId);
 
       if (room.members.length === initialMemberCount) {
         throw new NotFoundException('User is not a member of this room');
@@ -254,7 +228,7 @@ export class RoomService {
       const updatedRoom = await room.save();
       return this.toRoomResponseDto(updatedRoom);
     } catch (error) {
-      this.validationService.handleServiceError(
+      return this.validationService.handleServiceError(
         error,
         'Error removing member from room',
       );

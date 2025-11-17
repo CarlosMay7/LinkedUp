@@ -22,14 +22,17 @@ export class RoomResponseDto {
 
   @ApiProperty({
     description: 'Array of member user IDs',
-    example: ['507f1f77bcf86cd799439011', '507f1f77bcf86cd799439012'],
+    example: [
+      '550e8400-e29b-41d4-a716-446655440001',
+      '550e8400-e29b-41d4-a716-446655440002',
+    ],
     type: [String],
   })
   members: string[];
 
   @ApiProperty({
     description: 'User ID who created the room',
-    example: '507f1f77bcf86cd799439011',
+    example: '550e8400-e29b-41d4-a716-446655440003',
   })
   createdBy: string;
 
