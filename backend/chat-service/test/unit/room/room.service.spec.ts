@@ -48,13 +48,14 @@ describe('RoomService', () => {
           throw new BadRequestException(`Invalid ObjectId: ${id}`);
         }
       }),
-      validateObjectIds: jest.fn((ids: string[]) => {
-        return ids.map((id) => {
-          if (!Types.ObjectId.isValid(id)) {
-            throw new BadRequestException(`Invalid ObjectId: ${id}`);
-          }
-          return new Types.ObjectId(id);
-        });
+      validateUUID: jest.fn((id: string, entity?: string) => {
+        const uuidRegex =
+          /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+        if (!uuidRegex.test(id)) {
+          throw new BadRequestException(
+            `Invalid ${entity || 'ID'} format: must be a valid UUID`,
+          );
+        }
       }),
       handleServiceError: jest.fn((error: any) => {
         if (error.code === 11000) {
@@ -254,6 +255,27 @@ describe('RoomService', () => {
       expect(result.description).toBe(updateRoomDto.description);
     });
 
+    it('should allow updating with the same name', async () => {
+      const roomId = mockRoomId.toString();
+      const updateDto = { name: 'Test Room' }; // Same name as mockRoom
+
+      const updatedRoom = { ...mockRoom, updatedAt: new Date() };
+
+      mockRoomModel.findById.mockReturnValue({
+        exec: jest.fn().mockResolvedValue(mockRoom),
+      });
+
+      // findOne should not be called since name is the same
+      mockRoomModel.findByIdAndUpdate.mockReturnValue({
+        exec: jest.fn().mockResolvedValue(updatedRoom),
+      });
+
+      const result = await service.updateRoom(roomId, updateDto);
+
+      expect(result.name).toBe(mockRoom.name);
+      expect(mockRoomModel.findOne).not.toHaveBeenCalled();
+    });
+
     it('should throw BadRequestException when no fields provided', async () => {
       const roomId = mockRoomId.toString();
       const emptyUpdateDto = {} as UpdateRoomDto;
@@ -272,16 +294,19 @@ describe('RoomService', () => {
       const roomId = mockRoomId.toString();
       const updateDto = { name: 'Existing Room' };
 
-      const duplicateError: any = new Error('E11000 duplicate key error');
-      duplicateError.code = 11000;
-      duplicateError.keyValue = { name: updateDto.name };
+      const existingRoom = {
+        _id: new Types.ObjectId(),
+        name: 'Existing Room',
+        members: [],
+        createdBy: mockCreatorId,
+      };
 
       mockRoomModel.findById.mockReturnValue({
         exec: jest.fn().mockResolvedValue(mockRoom),
       });
 
-      mockRoomModel.findByIdAndUpdate.mockReturnValue({
-        exec: jest.fn().mockRejectedValue(duplicateError),
+      mockRoomModel.findOne.mockReturnValue({
+        exec: jest.fn().mockResolvedValue(existingRoom),
       });
 
       await expect(service.updateRoom(roomId, updateDto)).rejects.toThrow(

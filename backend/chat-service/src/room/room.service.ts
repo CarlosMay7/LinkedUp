@@ -5,7 +5,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import { Room, RoomDocument } from './schemas/room.schema';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
@@ -33,21 +33,12 @@ export class RoomService {
     };
   }
   private async findRoomByIdOrThrow(roomId: string): Promise<RoomDocument> {
-    const objectId = this.validateAndConvertIdToObjectId(roomId, 'room ID');
-
-    const room = await this.roomModel.findById(objectId).exec();
+    this.validationService.validateObjectId(roomId, 'room ID');
+    const room = await this.roomModel.findById(roomId).exec();
     if (!room) {
       throw new NotFoundException(`Room with ID ${roomId} not found`);
     }
     return room;
-  }
-
-  private validateAndConvertIdToObjectId(
-    id: string,
-    entity: string = 'ID',
-  ): Types.ObjectId {
-    this.validationService.validateObjectId(id, entity);
-    return new Types.ObjectId(id);
   }
 
   private prepareRoomCreationData(createRoomDto: CreateRoomDto) {
@@ -146,6 +137,19 @@ export class RoomService {
       const room = await this.findRoomByIdOrThrow(roomId);
 
       const updateData = this.prepareRoomUpdateData(updateRoomDto);
+
+      // Check for duplicate room name if name is being updated
+      if (updateData.name && updateData.name !== room.name) {
+        const existingRoom = await this.roomModel
+          .findOne({ name: updateData.name })
+          .exec();
+        if (existingRoom) {
+          throw new ConflictException(
+            `Room with name '${updateData.name}' already exists`,
+          );
+        }
+      }
+
       const updatedRoom = await this.roomModel
         .findByIdAndUpdate(room._id, updateData, {
           new: true,
@@ -166,6 +170,7 @@ export class RoomService {
 
   async addMember(roomId: string, userId: string): Promise<RoomResponseDto> {
     try {
+      this.validationService.validateUUID(userId, 'user ID');
       const room = await this.findRoomByIdOrThrow(roomId);
 
       const isAlreadyMember = room.members.includes(userId);
@@ -188,6 +193,7 @@ export class RoomService {
 
   async findByMember(userId: string): Promise<RoomResponseDto[]> {
     try {
+      this.validationService.validateUUID(userId, 'user ID');
       const rooms = await this.roomModel
         .find({ members: userId })
         .sort({ createdAt: -1 })
@@ -204,6 +210,7 @@ export class RoomService {
 
   async removeMember(roomId: string, userId: string): Promise<RoomResponseDto> {
     try {
+      this.validationService.validateUUID(userId, 'user ID');
       const room = await this.findRoomByIdOrThrow(roomId);
 
       const initialMemberCount = room.members.length;

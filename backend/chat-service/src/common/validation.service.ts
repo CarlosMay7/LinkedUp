@@ -7,6 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Types } from 'mongoose';
+import { validate as isUUID } from 'uuid';
 
 @Injectable()
 export class ValidationService {
@@ -15,6 +16,14 @@ export class ValidationService {
   validateObjectId(id: string, entity: string = 'ID'): void {
     if (!Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Invalid ${entity} format`);
+    }
+  }
+
+  validateUUID(id: string, entity: string = 'ID'): void {
+    if (!isUUID(id)) {
+      throw new BadRequestException(
+        `Invalid ${entity} format: must be a valid UUID`,
+      );
     }
   }
 
