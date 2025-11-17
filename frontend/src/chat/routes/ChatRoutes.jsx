@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { ProfilePage } from '../pages/ProfilePage';
+import { AdminPage } from '../pages/admin/AdminPage';
 import { RoomPage } from '../pages/RoomPage';
 import { ChatLayout } from '../components/ChatLayout';
 import { ROUTES } from '../../config/constants';
@@ -12,6 +13,7 @@ export const ChatRoutes = () => {
                 <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
                 <Route path={`${ROUTES.ROOM}/:id`} element={<RoomPage />} />
                 <Route path="/*" element={<Navigate to={ROUTES.HOME} />} />
+                <Route path="admin" element={<AdminPage />} />
             </Route>
         </Routes>
     );
