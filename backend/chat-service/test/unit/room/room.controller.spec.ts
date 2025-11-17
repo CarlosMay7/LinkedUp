@@ -15,8 +15,8 @@ const mockRoomResponse: RoomResponseDto = {
   id: new Types.ObjectId().toString(),
   name: 'Test Room',
   description: 'Test Description',
-  members: [new Types.ObjectId().toString(), new Types.ObjectId().toString()],
-  createdBy: new Types.ObjectId().toString(),
+  members: ['550e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440002'],
+  createdBy: '550e8400-e29b-41d4-a716-446655440003',
   createdAt: new Date(),
   updatedAt: new Date(),
 };
@@ -59,10 +59,10 @@ describe('RoomController', () => {
       name: 'Test Room',
       description: 'Test Description',
       members: [
-        new Types.ObjectId().toString(),
-        new Types.ObjectId().toString(),
+        '550e8400-e29b-41d4-a716-446655440004',
+        '550e8400-e29b-41d4-a716-446655440005',
       ],
-      createdBy: new Types.ObjectId().toString(),
+      createdBy: '550e8400-e29b-41d4-a716-446655440006',
     };
 
     it('should create a room', async () => {
@@ -107,7 +107,7 @@ describe('RoomController', () => {
 
   describe('findByMember', () => {
     it('should return rooms by member ID', async () => {
-      const memberId = new Types.ObjectId().toString();
+      const memberId = '550e8400-e29b-41d4-a716-446655440007';
       const mockRooms = [mockRoomResponse];
       jest.spyOn(service, 'findByMember').mockResolvedValue(mockRooms);
 
@@ -118,7 +118,7 @@ describe('RoomController', () => {
     });
 
     it('should handle errors when member has no rooms', async () => {
-      const memberId = new Types.ObjectId().toString();
+      const memberId = '550e8400-e29b-41d4-a716-446655440008';
       jest.spyOn(service, 'findByMember').mockResolvedValue([]);
 
       const result = await controller.findByMember(memberId);
@@ -127,7 +127,7 @@ describe('RoomController', () => {
     });
 
     it('should handle service errors', async () => {
-      const memberId = new Types.ObjectId().toString();
+      const memberId = '550e8400-e29b-41d4-a716-446655440009';
       jest
         .spyOn(service, 'findByMember')
         .mockRejectedValue(new BadRequestException('Invalid user ID'));
@@ -215,7 +215,7 @@ describe('RoomController', () => {
   describe('addMember', () => {
     it('should add member to room', async () => {
       const roomId = new Types.ObjectId().toString();
-      const userId = new Types.ObjectId().toString();
+      const userId = '550e8400-e29b-41d4-a716-44665544000a';
       const updatedRoom = {
         ...mockRoomResponse,
         members: [...mockRoomResponse.members, userId],
@@ -230,7 +230,7 @@ describe('RoomController', () => {
 
     it('should handle add member errors - conflict', async () => {
       const roomId = new Types.ObjectId().toString();
-      const userId = new Types.ObjectId().toString();
+      const userId = '550e8400-e29b-41d4-a716-44665544000b';
       jest
         .spyOn(service, 'addMember')
         .mockRejectedValue(new ConflictException('User already member'));
@@ -242,7 +242,7 @@ describe('RoomController', () => {
 
     it('should handle add member errors - not found', async () => {
       const roomId = new Types.ObjectId().toString();
-      const userId = new Types.ObjectId().toString();
+      const userId = '550e8400-e29b-41d4-a716-44665544000c';
       jest
         .spyOn(service, 'addMember')
         .mockRejectedValue(new NotFoundException('Room not found'));
@@ -256,7 +256,7 @@ describe('RoomController', () => {
   describe('removeMember', () => {
     it('should remove member from room', async () => {
       const roomId = new Types.ObjectId().toString();
-      const userId = new Types.ObjectId().toString();
+      const userId = '550e8400-e29b-41d4-a716-44665544000d';
       const updatedRoom = {
         ...mockRoomResponse,
         members: mockRoomResponse.members.filter((id) => id !== userId),
@@ -271,7 +271,7 @@ describe('RoomController', () => {
 
     it('should handle remove member errors - not found', async () => {
       const roomId = new Types.ObjectId().toString();
-      const userId = new Types.ObjectId().toString();
+      const userId = '550e8400-e29b-41d4-a716-44665544000e';
       jest
         .spyOn(service, 'removeMember')
         .mockRejectedValue(new NotFoundException('User not member'));
@@ -283,7 +283,7 @@ describe('RoomController', () => {
 
     it('should handle remove member errors - bad request', async () => {
       const roomId = 'invalid-id';
-      const userId = new Types.ObjectId().toString();
+      const userId = '550e8400-e29b-41d4-a716-44665544000f';
       jest
         .spyOn(service, 'removeMember')
         .mockRejectedValue(new BadRequestException('Invalid room ID'));

@@ -41,15 +41,6 @@ export class RoomService {
     return room;
   }
 
-  private prepareRoomCreationData(createRoomDto: CreateRoomDto) {
-    return {
-      name: createRoomDto.name,
-      description: createRoomDto.description,
-      members: createRoomDto.members,
-      createdBy: createRoomDto.createdBy,
-    };
-  }
-
   private prepareRoomUpdateData(updateRoomDto: UpdateRoomDto): UpdateRoomDto {
     const allowedFields = ['name', 'description'];
     const immutableFields = ['members', 'createdBy'];
@@ -100,8 +91,7 @@ export class RoomService {
 
   async create(createRoomDto: CreateRoomDto): Promise<RoomResponseDto> {
     try {
-      const roomData = this.prepareRoomCreationData(createRoomDto);
-      const createdRoom = new this.roomModel(roomData);
+      const createdRoom = new this.roomModel(createRoomDto);
       const savedRoom = await createdRoom.save();
 
       return this.toRoomResponseDto(savedRoom);
