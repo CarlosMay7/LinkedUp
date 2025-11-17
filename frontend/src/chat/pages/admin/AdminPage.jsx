@@ -75,17 +75,17 @@ export const AdminPage = () => {
                 <h2>Manual User Management</h2>
                 <div className="users-table">
                     <div className="table-header">
-                        <div className="col-usuario">User</div>
-                        <div className="col-mensajes">Obscene Messages</div>
-                        <div className="col-acciones">Manual Actions</div>
+                        <div className="col-user">User</div>
+                        <div className="col-messages">Obscene Messages</div>
+                        <div className="col-actions">Manual Actions</div>
                     </div>
 
                     <div className="table-row">
-                        <div className="col-usuario">User_X</div>
-                        <div className="col-mensajes">15</div>
-                        <div className="col-acciones">
+                        <div className="col-user">User_X</div>
+                        <div className="col-messages">15</div>
+                        <div className="col-actions">
                             <button
-                                className={`action-btn btn-advertir ${manualActions.User_X === 'warn' ? 'active' : ''}`}
+                                className={`action-btn btn-warn ${manualActions.User_X === 'warn' ? 'active' : ''}`}
                                 onClick={() =>
                                     handleManualAction('User_X', 'warn')
                                 }
@@ -93,7 +93,7 @@ export const AdminPage = () => {
                                 Warn
                             </button>
                             <button
-                                className={`action-btn btn-bloquear ${manualActions.User_X === 'block' ? 'active' : ''}`}
+                                className={`action-btn btn-block ${manualActions.User_X === 'block' ? 'active' : ''}`}
                                 onClick={() =>
                                     handleManualAction('User_X', 'block')
                                 }
@@ -104,12 +104,12 @@ export const AdminPage = () => {
                     </div>
 
                     <div className="table-row">
-                        <div className="col-usuario">User_Y</div>
-                        <div className="col-mensajes">92</div>
-                        <div className="col-acciones">
-                            <span className="advertido">Warned</span>
+                        <div className="col-user">User_Y</div>
+                        <div className="col-messages">92</div>
+                        <div className="col-actions">
+                            <span className="warned">Warned</span>
                             <button
-                                className={`action-btn btn-bloquear ${manualActions.User_Y === 'block' ? 'active' : ''}`}
+                                className={`action-btn btn-block ${manualActions.User_Y === 'block' ? 'active' : ''}`}
                                 onClick={() =>
                                     handleManualAction('User_Y', 'block')
                                 }
@@ -120,10 +120,10 @@ export const AdminPage = () => {
                     </div>
 
                     <div className="table-row">
-                        <div className="col-usuario">User_Z</div>
-                        <div className="col-mensajes">101</div>
-                        <div className="col-acciones">
-                            <span className="bloqueado">Blocked</span>
+                        <div className="col-user">User_Z</div>
+                        <div className="col-messages">101</div>
+                        <div className="col-actions">
+                            <span className="blocked">Blocked</span>
                         </div>
                     </div>
                 </div>

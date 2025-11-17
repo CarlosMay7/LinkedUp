@@ -4,6 +4,7 @@ import { AdminPage } from '../pages/admin/AdminPage';
 import { RoomPage } from '../pages/RoomPage';
 import { ChatLayout } from '../components/ChatLayout';
 import { ROUTES } from '../../config/constants';
+import { LobbyPage } from '../pages/LobbyPage';
 import '../chat.css';
 
 export const ChatRoutes = () => {
@@ -14,6 +15,7 @@ export const ChatRoutes = () => {
                 <Route path={`${ROUTES.ROOM}/:id`} element={<RoomPage />} />
                 <Route path="/*" element={<Navigate to={ROUTES.HOME} />} />
                 <Route path="admin" element={<AdminPage />} />
+                <Route path="/" element={<LobbyPage />} />
             </Route>
         </Routes>
     );
