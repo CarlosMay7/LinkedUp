@@ -11,9 +11,9 @@ export const ChatRoutes = () => {
         <Routes>
             <Route element={<ChatLayout />}>
                 <Route path="profile" element={<ProfilePage />} />
-                <Route path="admin" element={<AdminPage />} /> 
+                <Route path="admin" element={<AdminPage />} />
                 <Route path="room/:id" element={<RoomPage />} />
-                <Route path="lobby" element={<LobbyPage />} />
+                <Route path="/" element={<LobbyPage />} />
                 <Route path="/*" element={<Navigate to={'/'} />} />
             </Route>
         </Routes>
