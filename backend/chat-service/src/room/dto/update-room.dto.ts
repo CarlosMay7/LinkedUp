@@ -6,8 +6,10 @@ import {
   MinLength,
   MaxLength,
   IsNotEmpty,
+  IsDate,
 } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 
 export class UpdateRoomDto extends PartialType(CreateRoomDto) {
   @ApiPropertyOptional({
@@ -37,4 +39,13 @@ export class UpdateRoomDto extends PartialType(CreateRoomDto) {
   })
   @MaxLength(500, { message: 'Room description cannot exceed 500 characters' })
   description?: string;
+
+  @ApiPropertyOptional({
+    description: 'Room update timestamp',
+    example: '2024-11-16T10:30:00Z',
+  })
+  @IsOptional()
+  @IsDate({ message: 'updatedAt must be a valid date' })
+  @Type(() => Date)
+  updatedAt?: Date;
 }

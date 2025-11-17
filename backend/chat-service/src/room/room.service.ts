@@ -11,6 +11,7 @@ import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { RoomResponseDto } from './dto/room-response.dto';
 import { ValidationService } from '../common/validation.service';
+import { RoomNameAvailabilityQuery } from './interfaces/room-query.interface';
 
 @Injectable()
 export class RoomService {
@@ -33,22 +34,28 @@ export class RoomService {
     };
   }
   private async findRoomByIdOrThrow(roomId: string): Promise<RoomDocument> {
-    this.validationService.validateObjectId(roomId, 'room ID');
+    const objectId = this.validateAndConvertIdToObjectId(roomId, 'room ID');
 
-    const room = await this.roomModel
-      .findById(new Types.ObjectId(roomId))
-      .exec();
+    const room = await this.roomModel.findById(objectId).exec();
     if (!room) {
       throw new NotFoundException(`Room with ID ${roomId} not found`);
     }
     return room;
   }
 
+  private validateAndConvertIdToObjectId(
+    id: string,
+    entity: string = 'ID',
+  ): Types.ObjectId {
+    this.validationService.validateObjectId(id, entity);
+    return new Types.ObjectId(id);
+  }
+
   private async checkRoomNameAvailability(
     name: string,
     excludeRoomId?: string,
   ): Promise<void> {
-    const query: any = { name };
+    const query: RoomNameAvailabilityQuery = { name };
     if (excludeRoomId) {
       query._id = { $ne: new Types.ObjectId(excludeRoomId) };
     }
@@ -76,7 +83,7 @@ export class RoomService {
     };
   }
 
-  private prepareRoomUpdateData(updateRoomDto: UpdateRoomDto) {
+  private prepareRoomUpdateData(updateRoomDto: UpdateRoomDto): UpdateRoomDto {
     const allowedFields = ['name', 'description'];
     const providedFields = Object.keys(updateRoomDto).filter(
       (key) => updateRoomDto[key] !== undefined,
@@ -100,7 +107,7 @@ export class RoomService {
       );
     }
 
-    const updateData: any = { updatedAt: new Date() };
+    const updateData: UpdateRoomDto = { updatedAt: new Date() };
 
     if (updateRoomDto.name !== undefined) updateData.name = updateRoomDto.name;
     if (updateRoomDto.description !== undefined)
@@ -163,6 +170,11 @@ export class RoomService {
         })
         .exec();
 
+      if (!updatedRoom)
+        throw new NotFoundException(
+          `Room with ID ${roomId} not found for update`,
+        );
+
       return this.toRoomResponseDto(updatedRoom);
     } catch (error) {
       this.validationService.handleServiceError(error, 'Error updating room');
@@ -171,11 +183,8 @@ export class RoomService {
 
   async addMember(roomId: string, userId: string): Promise<RoomResponseDto> {
     try {
-      this.validationService.validateObjectId(roomId, 'room ID');
-      this.validationService.validateObjectId(userId, 'user ID');
-
       const room = await this.findRoomByIdOrThrow(roomId);
-      const userObjectId = new Types.ObjectId(userId);
+      const userObjectId = this.validateAndConvertIdToObjectId(userId);
 
       const isAlreadyMember = room.members.some((member) =>
         member.equals(userObjectId),
@@ -217,14 +226,12 @@ export class RoomService {
 
   async removeMember(roomId: string, userId: string): Promise<RoomResponseDto> {
     try {
-      this.validationService.validateObjectId(roomId, 'room ID');
-      this.validationService.validateObjectId(userId, 'user ID');
-
       const room = await this.findRoomByIdOrThrow(roomId);
+      const userObjectId = this.validateAndConvertIdToObjectId(userId);
 
       const initialMemberCount = room.members.length;
       room.members = room.members.filter(
-        (member) => !member.equals(new Types.ObjectId(userId)),
+        (member) => !member.equals(userObjectId),
       );
 
       if (room.members.length === initialMemberCount) {
