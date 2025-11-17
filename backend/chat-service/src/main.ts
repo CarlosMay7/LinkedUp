@@ -9,14 +9,12 @@ async function bootstrap() {
     .setTitle('Chat Service API')
     .setDescription('API documentation for the Chat Service')
     .setVersion('1.0')
-    .addTag('rooms')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document); // <-- esto define el endpoint /api
+  SwaggerModule.setup('api', app, document);
   await app.listen(3002);
 
-  console.log(`🚀 Server running on http://localhost:3002`);
   console.log(`📘 Swagger docs available at http://localhost:3002/api`);
 }
 bootstrap();

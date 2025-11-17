@@ -3,7 +3,7 @@ import { Document, Types } from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 
 @Schema({
-  timestamps: true, // Para createdAt automático y como fallback
+  timestamps: true,
 })
 export class Room extends Document {
   @ApiProperty({
