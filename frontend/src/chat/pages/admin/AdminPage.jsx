@@ -1,64 +1,64 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 export const AdminPage = () => {
     const [manualActions, setManualActions] = useState({
-        Usuario_X: '',
-        Usuario_Y: '',
-        Usuario_Z: '',
-        Usuario_A: '',
+        User_X: '',
+        User_Y: '',
+        User_Z: '',
+        User_A: '',
     });
 
     const [autoBlockThreshold, setAutoBlockThreshold] = useState(100);
 
-    const handleManualAction = (usuario, accion) => {
+    const handleManualAction = (user, action) => {
         setManualActions(prev => ({
             ...prev,
-            [usuario]: accion,
+            [user]: action,
         }));
     };
 
     const handleSaveActions = () => {
-        console.log('Acciones guardadas:', {
+        console.log('Actions saved:', {
             manualActions,
             autoBlockThreshold,
         });
-        alert('Acciones guardadas correctamente');
+        alert('Actions saved successfully');
     };
 
     return (
         <div className="admin-page">
             <div className="admin-header">
-                <h1>Estadisticas Globales de Moderación</h1>
+                <h1>Global Moderation Statistics</h1>
             </div>
 
             <div className="stats-section">
                 <div className="stats-card">
                     <div className="stats-row">
                         <div className="total-words">
-                            <h3>Total Palabras</h3>
+                            <h3>Total Words</h3>
                             <div className="filtered-today">
-                                <span className="label">Filtradas (Hoy)</span>
+                                <span className="label">Filtered (Today)</span>
                                 <span className="value">
-                                    {/* Poner estadísticas */}11,204
+                                    {/* Add statistics */}11,204
                                 </span>
                             </div>
                         </div>
 
                         <div className="top-words">
-                            <h3>Top 10 Palabras</h3>
+                            <h3>Top 10 Words</h3>
                             <div className="words-list">
                                 <div className="word-item">
                                     <span className="rank">1.</span>
                                     <span className="word">
-                                        {/* Poner palabras */}Palabra_A
+                                        {/* Add words */}Word_A
                                     </span>
                                     <span className="count">
-                                        {/* Contador de palabra */}
+                                        {/* Word counter */}
                                     </span>
                                 </div>
                                 <div className="word-item">
                                     <span className="rank">2.</span>
-                                    <span className="word">Palabra_B</span>
+                                    <span className="word">Word_B</span>
                                     <span className="count">(310)</span>
                                 </div>
                                 <div className="word-item">
@@ -72,58 +72,58 @@ export const AdminPage = () => {
             </div>
 
             <div className="users-section">
-                <h2>Gestión Manual de Usuarios</h2>
+                <h2>Manual User Management</h2>
                 <div className="users-table">
                     <div className="table-header">
-                        <div className="col-usuario">Usuario</div>
-                        <div className="col-mensajes">Mensajes Obscenos</div>
-                        <div className="col-acciones">Acciones Manuales</div>
+                        <div className="col-user">User</div>
+                        <div className="col-messages">Obscene Messages</div>
+                        <div className="col-actions">Manual Actions</div>
                     </div>
 
                     <div className="table-row">
-                        <div className="col-usuario">Usuario_X</div>
-                        <div className="col-mensajes">15</div>
-                        <div className="col-acciones">
+                        <div className="col-user">User_X</div>
+                        <div className="col-messages">15</div>
+                        <div className="col-actions">
                             <button
-                                className={`action-btn btn-advertir ${manualActions.Usuario_X === 'advertir' ? 'active' : ''}`}
+                                className={`action-btn btn-warn ${manualActions.User_X === 'warn' ? 'active' : ''}`}
                                 onClick={() =>
-                                    handleManualAction('Usuario_X', 'advertir')
+                                    handleManualAction('User_X', 'warn')
                                 }
                             >
-                                Advertir
+                                Warn
                             </button>
                             <button
-                                className={`action-btn btn-bloquear ${manualActions.Usuario_X === 'bloquear' ? 'active' : ''}`}
+                                className={`action-btn btn-block ${manualActions.User_X === 'block' ? 'active' : ''}`}
                                 onClick={() =>
-                                    handleManualAction('Usuario_X', 'bloquear')
+                                    handleManualAction('User_X', 'block')
                                 }
                             >
-                                Bloquear
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="table-row">
-                        <div className="col-usuario">Usuario_Y</div>
-                        <div className="col-mensajes">92</div>
-                        <div className="col-acciones">
-                            <span className="advertido">Advertido</span>
-                            <button
-                                className={`action-btn btn-bloquear ${manualActions.Usuario_Y === 'bloquear' ? 'active' : ''}`}
-                                onClick={() =>
-                                    handleManualAction('Usuario_Y', 'bloquear')
-                                }
-                            >
-                                Bloquear
+                                Block
                             </button>
                         </div>
                     </div>
 
                     <div className="table-row">
-                        <div className="col-usuario">Usuario_Z</div>
-                        <div className="col-mensajes">101</div>
-                        <div className="col-acciones">
-                            <span className="bloqueado">Bloqueado</span>
+                        <div className="col-user">User_Y</div>
+                        <div className="col-messages">92</div>
+                        <div className="col-actions">
+                            <span className="warned">Warned</span>
+                            <button
+                                className={`action-btn btn-block ${manualActions.User_Y === 'block' ? 'active' : ''}`}
+                                onClick={() =>
+                                    handleManualAction('User_Y', 'block')
+                                }
+                            >
+                                Block
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="table-row">
+                        <div className="col-user">User_Z</div>
+                        <div className="col-messages">101</div>
+                        <div className="col-actions">
+                            <span className="blocked">Blocked</span>
                         </div>
                     </div>
                 </div>
@@ -132,10 +132,10 @@ export const AdminPage = () => {
             <div className="separator"></div>
 
             <div className="auto-actions-section">
-                <h3>Acciones Automáticas</h3>
+                <h3>Automatic Actions</h3>
                 <div className="auto-block">
                     <p>
-                        Bloquear cuenta automáticamente al superar
+                        Automatically block account after exceeding
                         <input
                             type="number"
                             value={autoBlockThreshold}
@@ -144,14 +144,14 @@ export const AdminPage = () => {
                             }
                             className="threshold-input"
                         />
-                        mensajes obscenos.
+                        obscene messages.
                     </p>
                 </div>
             </div>
 
             <div className="save-section">
                 <button className="button btn-save" onClick={handleSaveActions}>
-                    GUARDAR ACCIONES
+                    SAVE ACTIONS
                 </button>
             </div>
         </div>
