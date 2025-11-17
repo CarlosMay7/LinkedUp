@@ -25,6 +25,12 @@ html {
   --background: #fdfaf6;
   --text-color: #6f5e53;
   --shadow-color: rgba(215, 192, 174, 0.4);
+  --card-bg: #FDFBF8;
+  --card-shadow: rgba(111, 94, 83, 0.1);
+  --text-dark: #6F5E53;
+  --text-light: #9E8F83;
+  --border-color: #EAE1D9;
+  --icon-bg: #F4E9DE;
 }
 
 a {

@@ -10,6 +10,7 @@ export const NavBar = () => {
     const paths = {
         '/profile': 'Profile',
         '/admin': 'Admin Panel',
+        '/lobby': 'Lobby',
     };
 
     const title = paths[pathname] || '';
