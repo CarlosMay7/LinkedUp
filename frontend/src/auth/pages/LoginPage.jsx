@@ -14,12 +14,11 @@ export const LoginPage = () => {
 
     const handleLogin = async e => {
         e.preventDefault();
-        console.log(email, password);
         const { error } = await signIn({ email, password });
         if (error) {
             return setError(getErrorMessage(error));
         }
-        navigate(ROUTES.ROOM);
+        navigate(ROUTES.HOME);
     };
 
     return (

@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '../../config/constants';
 
 export const AccountConfirmationModal = ({ setShowSuccess }) => {
     const navigate = useNavigate();
@@ -15,7 +16,7 @@ export const AccountConfirmationModal = ({ setShowSuccess }) => {
                         className="button"
                         onClick={() => {
                             setShowSuccess(false);
-                            navigate('/auth/login', { replace: true });
+                            navigate(ROUTES.AUTH_LOGIN, { replace: true });
                         }}
                     >
                         Go to Login

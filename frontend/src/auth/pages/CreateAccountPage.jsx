@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { avatars } from '../../assets/avatar';
 import { AccountConfirmationModal } from '../components/AccountConfirmationModal';
 import { useAuth } from '../context/AuthContext';
-import { Role } from '../../core/entities/Role';
 import { DEFAULTS, ROUTES } from '../../config/constants';
 import { getErrorMessage } from '../../infrastructure/errors/error-mapper';
+import { Alert } from '../components/Alert';
 
 export const CreateAccountPage = () => {
     const { signUp } = useAuth();
@@ -12,7 +12,7 @@ export const CreateAccountPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showSuccess, setShowSuccess] = useState(false);
-    const [errorMessage, setErrorMessage] = useState('');
+    const [error, setError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSubmit = async e => {
@@ -23,14 +23,14 @@ export const CreateAccountPage = () => {
             password,
             data: {
                 username,
-                role: Role.STUDENT,
+                role: DEFAULTS.ROLE,
                 profilePicture: avatars[DEFAULTS.AVATAR],
             },
             emailRedirectTo: window.location.origin + ROUTES.AUTH_LOGIN,
         });
 
         if (error) {
-            setErrorMessage(getErrorMessage(error));
+            setError(getErrorMessage(error));
             setIsSubmitting(false);
             return;
         }
@@ -45,6 +45,7 @@ export const CreateAccountPage = () => {
     return (
         <>
             <form onSubmit={handleSubmit} className="form">
+                {error && <Alert type="error">{error}</Alert>}
                 <input
                     type="text"
                     placeholder="Enter your name"
@@ -66,11 +67,6 @@ export const CreateAccountPage = () => {
                     onChange={e => setPassword(e.target.value)}
                     required
                 />
-                {errorMessage && (
-                    <p className="form-error" role="alert">
-                        {errorMessage}
-                    </p>
-                )}
                 <button
                     type="submit"
                     className="button"

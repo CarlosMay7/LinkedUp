@@ -30,9 +30,6 @@ export const ProfilePage = () => {
             />
 
             <form className="form profile-form" onSubmit={handleSubmit}>
-                <h3 style={{ marginTop: '2rem', marginBottom: '0.5rem' }}>
-                    Change password
-                </h3>
                 <div className="form-row">
                     <div className="form-group">
                         <label htmlFor="name">Name</label>

@@ -65,7 +65,7 @@ export const mapSupabaseError = error => {
     }
 
     return new AuthError(
-        AuthError.CODES.UPDATE_FAILED,
+        AuthError.CODES.AUTH_ERROR,
         error.message || 'An authentication error occurred',
         error
     );

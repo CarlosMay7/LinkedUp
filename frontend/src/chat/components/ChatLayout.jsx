@@ -8,7 +8,9 @@ export const ChatLayout = () => {
     return (
         <div className="chat-wrapper">
             <NavBar />
-            <div className={`${isLobby ? 'lobby-content' : 'container content'}`}>
+            <div
+                className={`${isLobby ? 'lobby-content' : 'container content'}`}
+            >
                 <Outlet />
             </div>
         </div>

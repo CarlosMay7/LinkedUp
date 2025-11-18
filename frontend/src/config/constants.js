@@ -5,10 +5,12 @@ export const TIMEOUTS = {
 
 export const ROUTES = {
     HOME: '/',
+    AUTH: '/auth',
     AUTH_LOGIN: '/auth/login',
     AUTH_REGISTER: '/auth/register',
     AUTH_LOGOUT: '/auth/logout',
-    PROFILE: 'profile',
+    PROFILE: '/profile',
+    ADMIN: '/admin',
     ROOM: '/room',
 };
 

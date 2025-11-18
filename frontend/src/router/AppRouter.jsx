@@ -8,13 +8,13 @@ const ProtectedAuthRoutes = () => {
     const { user, metaData } = useAuth();
     const location = useLocation();
 
-    if (user && location.pathname === '/auth/logout') {
+    if (user && location.pathname === ROUTES.AUTH_LOGOUT) {
         return <AuthRoutes />;
     }
 
     if (user) {
         if (metaData.role === USER_ROLES.ADMIN) {
-            return <Navigate to={ROUTES.ADMIN_DASHBOARD} replace />;
+            return <Navigate to={ROUTES.ADMIN} replace />;
         }
         return <Navigate to={ROUTES.HOME} replace />;
     }
@@ -27,7 +27,10 @@ export const AppRouter = () => {
 
     return (
         <Routes>
-            <Route path="/auth/*" element={<ProtectedAuthRoutes />} />
+            <Route
+                path={`${ROUTES.AUTH}/*`}
+                element={<ProtectedAuthRoutes />}
+            />
 
             {user ? (
                 <Route path="/*" element={<ChatRoutes />} />
