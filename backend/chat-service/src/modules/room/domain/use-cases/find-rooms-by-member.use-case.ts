@@ -15,7 +15,14 @@ export class FindRoomsByMemberUseCase {
   ) {}
 
   async execute(userId: string): Promise<RoomEntity[]> {
-    this.validationService.validateUUID(userId, 'user ID');
-    return this.roomRepository.findByMember(userId);
+    try {
+      this.validationService.validateUUID(userId, 'user ID');
+      return await this.roomRepository.findByMember(userId);
+    } catch (error) {
+      this.validationService.handleServiceError(
+        error,
+        'Failed to retrieve rooms by member',
+      );
+    }
   }
 }

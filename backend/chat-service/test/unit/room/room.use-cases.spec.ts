@@ -12,6 +12,7 @@ import { UpdateRoomUseCase } from '../../../src/modules/room/domain/use-cases/up
 import { AddMemberUseCase } from '../../../src/modules/room/domain/use-cases/add-member.use-case';
 import { RemoveMemberUseCase } from '../../../src/modules/room/domain/use-cases/remove-member.use-case';
 import { FindRoomsByMemberUseCase } from '../../../src/modules/room/domain/use-cases/find-rooms-by-member.use-case';
+import { DeleteRoomUseCase } from '../../../src/modules/room/domain/use-cases/delete-room.use-case';
 import { ROOM_REPOSITORY } from '../../../src/modules/room/domain/interfaces/room.repository';
 import { RoomEntity } from '../../../src/modules/room/domain/entities/room.entity';
 import { CreateRoomDto } from '../../../src/modules/room/infrastructure/controllers/dto/dto/create-room.dto';
@@ -19,7 +20,6 @@ import { UpdateRoomDto } from '../../../src/modules/room/infrastructure/controll
 import { ValidationService } from '../../../src/modules/common/validation.service';
 
 const mockRoomEntity = new RoomEntity(
-  new Types.ObjectId().toString(),
   'Test Room',
   'Test Description',
   [
@@ -27,6 +27,7 @@ const mockRoomEntity = new RoomEntity(
     '550e8400-e29b-41d4-a716-446655440002',
   ],
   '550e8400-e29b-41d4-a716-446655440003',
+  new Types.ObjectId().toString(),
 );
 
 const mockRoomRepository = {
@@ -35,13 +36,16 @@ const mockRoomRepository = {
   findById: jest.fn(),
   findByName: jest.fn(),
   findByMember: jest.fn(),
-  update: jest.fn(),
   save: jest.fn(),
+  delete: jest.fn(),
 };
 
 const mockValidationService = {
   validateObjectId: jest.fn(),
   validateUUID: jest.fn(),
+  handleServiceError: jest.fn((error) => {
+    throw error;
+  }),
 };
 
 describe('Room Use Cases', () => {
@@ -52,6 +56,7 @@ describe('Room Use Cases', () => {
   let addMemberUseCase: AddMemberUseCase;
   let removeMemberUseCase: RemoveMemberUseCase;
   let findRoomsByMemberUseCase: FindRoomsByMemberUseCase;
+  let deleteRoomUseCase: DeleteRoomUseCase;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -63,6 +68,7 @@ describe('Room Use Cases', () => {
         AddMemberUseCase,
         RemoveMemberUseCase,
         FindRoomsByMemberUseCase,
+        DeleteRoomUseCase,
         {
           provide: ROOM_REPOSITORY,
           useValue: mockRoomRepository,
@@ -83,6 +89,7 @@ describe('Room Use Cases', () => {
     findRoomsByMemberUseCase = module.get<FindRoomsByMemberUseCase>(
       FindRoomsByMemberUseCase,
     );
+    deleteRoomUseCase = module.get<DeleteRoomUseCase>(DeleteRoomUseCase);
   });
 
   afterEach(() => {
@@ -222,18 +229,18 @@ describe('Room Use Cases', () => {
 
     it('should throw ConflictException if new name already exists', async () => {
       const existingRoom = new RoomEntity(
-        new Types.ObjectId().toString(), // Different ID
         'Updated Room',
         'Other Description',
         [],
         '550e8400-e29b-41d4-a716-446655440007',
+        new Types.ObjectId().toString(), // Different ID
       );
       const roomToUpdate = new RoomEntity(
-        roomId,
         'Old Name', // Different name
         'Old Description',
         ['550e8400-e29b-41d4-a716-446655440001'],
         '550e8400-e29b-41d4-a716-446655440003',
+        roomId,
       );
       mockValidationService.validateObjectId.mockReturnValue(undefined);
       mockRoomRepository.findById.mockResolvedValue(roomToUpdate);
@@ -389,6 +396,56 @@ describe('Room Use Cases', () => {
       await expect(
         findRoomsByMemberUseCase.execute('invalid-id'),
       ).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('DeleteRoomUseCase', () => {
+    const roomId = new Types.ObjectId().toString();
+
+    it('should delete a room successfully', async () => {
+      mockValidationService.validateObjectId.mockReturnValue(undefined);
+      mockRoomRepository.findById.mockResolvedValue(mockRoomEntity);
+      mockRoomRepository.delete.mockResolvedValue(true);
+
+      await deleteRoomUseCase.execute(roomId);
+
+      expect(mockValidationService.validateObjectId).toHaveBeenCalledWith(
+        roomId,
+        'room ID',
+      );
+      expect(mockRoomRepository.findById).toHaveBeenCalledWith(roomId);
+      expect(mockRoomRepository.delete).toHaveBeenCalledWith(roomId);
+    });
+
+    it('should throw NotFoundException if room does not exist', async () => {
+      mockValidationService.validateObjectId.mockReturnValue(undefined);
+      mockRoomRepository.findById.mockResolvedValue(null);
+
+      await expect(deleteRoomUseCase.execute(roomId)).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(mockRoomRepository.delete).not.toHaveBeenCalled();
+    });
+
+    it('should throw BadRequestException if room id is invalid', async () => {
+      mockValidationService.validateObjectId.mockImplementation(() => {
+        throw new BadRequestException('Invalid room ID format');
+      });
+
+      await expect(deleteRoomUseCase.execute('invalid-id')).rejects.toThrow(
+        BadRequestException,
+      );
+      expect(mockRoomRepository.delete).not.toHaveBeenCalled();
+    });
+
+    it('should throw Error if delete operation fails', async () => {
+      mockValidationService.validateObjectId.mockReturnValue(undefined);
+      mockRoomRepository.findById.mockResolvedValue(mockRoomEntity);
+      mockRoomRepository.delete.mockResolvedValue(false);
+
+      await expect(deleteRoomUseCase.execute(roomId)).rejects.toThrow(
+        'Failed to delete room',
+      );
     });
   });
 });

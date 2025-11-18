@@ -11,11 +11,11 @@ export class RoomMongoRepository implements IRoomRepository {
 
   private toEntity(doc: RoomDocument): RoomEntity {
     return new RoomEntity(
-      doc._id.toString(),
       doc.name,
       doc.description,
       doc.members,
       doc.createdBy,
+      doc._id.toString(),
     );
   }
 
@@ -48,19 +48,6 @@ export class RoomMongoRepository implements IRoomRepository {
     return rooms.map((room) => this.toEntity(room));
   }
 
-  async update(
-    id: string,
-    room: Partial<RoomEntity>,
-  ): Promise<RoomEntity | null> {
-    const updatedRoom = await this.roomModel
-      .findByIdAndUpdate(id, room, {
-        new: true,
-        runValidators: true,
-      })
-      .exec();
-    return updatedRoom ? this.toEntity(updatedRoom) : null;
-  }
-
   async save(room: RoomEntity): Promise<RoomEntity> {
     const updatedRoom = await this.roomModel
       .findByIdAndUpdate(
@@ -82,5 +69,10 @@ export class RoomMongoRepository implements IRoomRepository {
     }
 
     return this.toEntity(updatedRoom);
+  }
+
+  async delete(id: string): Promise<boolean> {
+    const result = await this.roomModel.deleteOne({ _id: id }).exec();
+    return result.deletedCount > 0;
   }
 }

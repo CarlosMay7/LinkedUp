@@ -15,19 +15,26 @@ export class RemoveMemberUseCase {
   ) {}
 
   async execute(roomId: string, userId: string): Promise<RoomEntity> {
-    this.validationService.validateObjectId(roomId, 'room ID');
-    this.validationService.validateUUID(userId, 'user ID');
+    try {
+      this.validationService.validateObjectId(roomId, 'room ID');
+      this.validationService.validateUUID(userId, 'user ID');
 
-    const room = await this.roomRepository.findById(roomId);
-    if (!room) {
-      throw new NotFoundException(`Room with ID ${roomId} not found`);
+      const room = await this.roomRepository.findById(roomId);
+      if (!room) {
+        throw new NotFoundException(`Room with ID ${roomId} not found`);
+      }
+
+      const wasRemoved = room.removeMember(userId);
+      if (!wasRemoved) {
+        throw new NotFoundException('User is not a member of this room');
+      }
+
+      return await this.roomRepository.save(room);
+    } catch (error) {
+      this.validationService.handleServiceError(
+        error,
+        'Failed to remove member from room',
+      );
     }
-
-    const wasRemoved = room.removeMember(userId);
-    if (!wasRemoved) {
-      throw new NotFoundException('User is not a member of this room');
-    }
-
-    return this.roomRepository.save(room);
   }
 }

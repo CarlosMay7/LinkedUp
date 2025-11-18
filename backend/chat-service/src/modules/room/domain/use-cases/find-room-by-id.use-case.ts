@@ -15,13 +15,20 @@ export class FindRoomByIdUseCase {
   ) {}
 
   async execute(roomId: string): Promise<RoomEntity> {
-    this.validationService.validateObjectId(roomId, 'room ID');
+    try {
+      this.validationService.validateObjectId(roomId, 'room ID');
 
-    const room = await this.roomRepository.findById(roomId);
-    if (!room) {
-      throw new NotFoundException(`Room with ID ${roomId} not found`);
+      const room = await this.roomRepository.findById(roomId);
+      if (!room) {
+        throw new NotFoundException(`Room with ID ${roomId} not found`);
+      }
+
+      return room;
+    } catch (error) {
+      this.validationService.handleServiceError(
+        error,
+        'Failed to retrieve room',
+      );
     }
-
-    return room;
   }
 }

@@ -19,6 +19,7 @@ import { UpdateRoomUseCase } from '../../domain/use-cases/update-room.use-case';
 import { AddMemberUseCase } from '../../domain/use-cases/add-member.use-case';
 import { RemoveMemberUseCase } from '../../domain/use-cases/remove-member.use-case';
 import { FindRoomsByMemberUseCase } from '../../domain/use-cases/find-rooms-by-member.use-case';
+import { DeleteRoomUseCase } from '../../domain/use-cases/delete-room.use-case';
 import { RoomMapper } from '../mappers/room.mapper';
 
 @ApiTags('room')
@@ -32,6 +33,7 @@ export class RoomController {
     private readonly addMemberUseCase: AddMemberUseCase,
     private readonly removeMemberUseCase: RemoveMemberUseCase,
     private readonly findRoomsByMemberUseCase: FindRoomsByMemberUseCase,
+    private readonly deleteRoomUseCase: DeleteRoomUseCase,
   ) {}
 
   @Post()
@@ -43,6 +45,7 @@ export class RoomController {
   })
   @ApiResponse({ status: 400, description: 'Invalid input data' })
   @ApiResponse({ status: 409, description: 'Room already exists' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
   async create(@Body() createRoomDto: CreateRoomDto): Promise<RoomResponseDto> {
     const room = await this.createRoomUseCase.execute(createRoomDto);
     return RoomMapper.toDto(room);
@@ -55,6 +58,7 @@ export class RoomController {
     description: 'List of all rooms',
     type: [RoomResponseDto],
   })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
   async findAll(): Promise<RoomResponseDto[]> {
     const rooms = await this.findAllRoomsUseCase.execute();
     return RoomMapper.toDtoArray(rooms);
@@ -68,6 +72,8 @@ export class RoomController {
     description: 'List of rooms the member belongs to',
     type: [RoomResponseDto],
   })
+  @ApiResponse({ status: 400, description: 'Invalid member ID format' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
   async findByMember(
     @Param('memberId', ParseUUIDPipe) memberId: string,
   ): Promise<RoomResponseDto[]> {
@@ -85,6 +91,7 @@ export class RoomController {
   })
   @ApiResponse({ status: 404, description: 'Room not found' })
   @ApiResponse({ status: 400, description: 'Invalid room ID format' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
   async findOne(@Param('id') id: string): Promise<RoomResponseDto> {
     const room = await this.findRoomByIdUseCase.execute(id);
     return RoomMapper.toDto(room);
@@ -101,6 +108,7 @@ export class RoomController {
   @ApiResponse({ status: 400, description: 'Invalid input data' })
   @ApiResponse({ status: 404, description: 'Room not found' })
   @ApiResponse({ status: 409, description: 'Room name already exists' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
   async update(
     @Param('id') id: string,
     @Body() updateRoomDto: UpdateRoomDto,
@@ -118,8 +126,10 @@ export class RoomController {
     description: 'Member added successfully',
     type: RoomResponseDto,
   })
+  @ApiResponse({ status: 400, description: 'Invalid room or user ID format' })
   @ApiResponse({ status: 404, description: 'Room not found' })
   @ApiResponse({ status: 409, description: 'User is already a member' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
   async addMember(
     @Param('id') roomId: string,
     @Param('userId', ParseUUIDPipe) userId: string,
@@ -137,12 +147,28 @@ export class RoomController {
     description: 'Member removed successfully',
     type: RoomResponseDto,
   })
+  @ApiResponse({ status: 400, description: 'Invalid room or user ID format' })
   @ApiResponse({ status: 404, description: 'Room not found' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
   async removeMember(
     @Param('id') roomId: string,
     @Param('userId', ParseUUIDPipe) userId: string,
   ): Promise<RoomResponseDto> {
     const room = await this.removeMemberUseCase.execute(roomId, userId);
     return RoomMapper.toDto(room);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete a room' })
+  @ApiParam({ name: 'id', description: 'Room ID' })
+  @ApiResponse({
+    status: 204,
+    description: 'Room deleted successfully',
+  })
+  @ApiResponse({ status: 404, description: 'Room not found' })
+  @ApiResponse({ status: 400, description: 'Invalid room ID format' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  async remove(@Param('id') id: string): Promise<void> {
+    await this.deleteRoomUseCase.execute(id);
   }
 }

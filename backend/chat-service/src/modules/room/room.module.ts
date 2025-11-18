@@ -18,6 +18,7 @@ import { UpdateRoomUseCase } from './domain/use-cases/update-room.use-case';
 import { AddMemberUseCase } from './domain/use-cases/add-member.use-case';
 import { RemoveMemberUseCase } from './domain/use-cases/remove-member.use-case';
 import { FindRoomsByMemberUseCase } from './domain/use-cases/find-rooms-by-member.use-case';
+import { DeleteRoomUseCase } from './domain/use-cases/delete-room.use-case';
 
 // Common
 import { CommonModule } from '../common/common.module';
@@ -42,6 +43,7 @@ import { CommonModule } from '../common/common.module';
     AddMemberUseCase,
     RemoveMemberUseCase,
     FindRoomsByMemberUseCase,
+    DeleteRoomUseCase,
   ],
   exports: [
     ROOM_REPOSITORY,
@@ -52,6 +54,7 @@ import { CommonModule } from '../common/common.module';
     AddMemberUseCase,
     RemoveMemberUseCase,
     FindRoomsByMemberUseCase,
+    DeleteRoomUseCase,
   ],
 })
 export class RoomModule {}

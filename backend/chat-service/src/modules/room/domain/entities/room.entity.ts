@@ -1,11 +1,24 @@
 export class RoomEntity {
+  public readonly id?: string;
+
   constructor(
-    public readonly id: string | null = null,
-    public name: string,
-    public description: string | undefined,
-    public members: string[],
-    public readonly createdBy: string,
-  ) {}
+    name: string,
+    description: string,
+    members: string[],
+    createdBy: string,
+    id?: string,
+  ) {
+    this.id = id;
+    this.name = name;
+    this.description = description;
+    this.members = members;
+    this.createdBy = createdBy;
+  }
+
+  public name: string;
+  public description: string;
+  public members: string[];
+  public readonly createdBy: string;
 
   addMember(userId: string): void {
     this.members.push(userId);

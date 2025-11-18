@@ -10,6 +10,7 @@ import { UpdateRoomUseCase } from '../../../src/modules/room/domain/use-cases/up
 import { AddMemberUseCase } from '../../../src/modules/room/domain/use-cases/add-member.use-case';
 import { RemoveMemberUseCase } from '../../../src/modules/room/domain/use-cases/remove-member.use-case';
 import { FindRoomsByMemberUseCase } from '../../../src/modules/room/domain/use-cases/find-rooms-by-member.use-case';
+import { DeleteRoomUseCase } from '../../../src/modules/room/domain/use-cases/delete-room.use-case';
 import { Types } from 'mongoose';
 import {
   BadRequestException,
@@ -18,7 +19,6 @@ import {
 } from '@nestjs/common';
 
 const mockRoomEntity = new RoomEntity(
-  new Types.ObjectId().toString(),
   'Test Room',
   'Test Description',
   [
@@ -26,6 +26,7 @@ const mockRoomEntity = new RoomEntity(
     '550e8400-e29b-41d4-a716-446655440002',
   ],
   '550e8400-e29b-41d4-a716-446655440003',
+  new Types.ObjectId().toString(),
 );
 
 const mockCreateRoomUseCase = {
@@ -56,6 +57,10 @@ const mockFindRoomsByMemberUseCase = {
   execute: jest.fn(),
 };
 
+const mockDeleteRoomUseCase = {
+  execute: jest.fn(),
+};
+
 describe('RoomController', () => {
   let controller: RoomController;
   let createRoomUseCase: CreateRoomUseCase;
@@ -65,6 +70,7 @@ describe('RoomController', () => {
   let addMemberUseCase: AddMemberUseCase;
   let removeMemberUseCase: RemoveMemberUseCase;
   let findRoomsByMemberUseCase: FindRoomsByMemberUseCase;
+  let deleteRoomUseCase: DeleteRoomUseCase;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -98,6 +104,10 @@ describe('RoomController', () => {
           provide: FindRoomsByMemberUseCase,
           useValue: mockFindRoomsByMemberUseCase,
         },
+        {
+          provide: DeleteRoomUseCase,
+          useValue: mockDeleteRoomUseCase,
+        },
       ],
     }).compile();
 
@@ -111,6 +121,7 @@ describe('RoomController', () => {
     findRoomsByMemberUseCase = module.get<FindRoomsByMemberUseCase>(
       FindRoomsByMemberUseCase,
     );
+    deleteRoomUseCase = module.get<DeleteRoomUseCase>(DeleteRoomUseCase);
   });
 
   afterEach(() => {
@@ -251,11 +262,11 @@ describe('RoomController', () => {
     it('should update a room', async () => {
       const roomId = new Types.ObjectId().toString();
       const updatedEntity = new RoomEntity(
-        roomId,
         updateRoomDto.name,
         updateRoomDto.description,
         mockRoomEntity.members,
         mockRoomEntity.createdBy,
+        roomId,
       );
       jest.spyOn(updateRoomUseCase, 'execute').mockResolvedValue(updatedEntity);
 
@@ -296,11 +307,11 @@ describe('RoomController', () => {
       const roomId = new Types.ObjectId().toString();
       const userId = '550e8400-e29b-41d4-a716-44665544000a';
       const updatedEntity = new RoomEntity(
-        mockRoomEntity.id,
         mockRoomEntity.name,
         mockRoomEntity.description,
         [...mockRoomEntity.members, userId],
         mockRoomEntity.createdBy,
+        mockRoomEntity.id,
       );
       jest.spyOn(addMemberUseCase, 'execute').mockResolvedValue(updatedEntity);
 
@@ -340,11 +351,11 @@ describe('RoomController', () => {
       const roomId = new Types.ObjectId().toString();
       const userId = '550e8400-e29b-41d4-a716-44665544000d';
       const updatedEntity = new RoomEntity(
-        mockRoomEntity.id,
         mockRoomEntity.name,
         mockRoomEntity.description,
         mockRoomEntity.members.filter((id) => id !== userId),
         mockRoomEntity.createdBy,
+        mockRoomEntity.id,
       );
       jest
         .spyOn(removeMemberUseCase, 'execute')
@@ -376,6 +387,39 @@ describe('RoomController', () => {
         .mockRejectedValue(new BadRequestException('Invalid room ID'));
 
       await expect(controller.removeMember(roomId, userId)).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+  });
+
+  describe('remove', () => {
+    it('should delete a room', async () => {
+      const roomId = new Types.ObjectId().toString();
+      jest.spyOn(deleteRoomUseCase, 'execute').mockResolvedValue(undefined);
+
+      await controller.remove(roomId);
+
+      expect(deleteRoomUseCase.execute).toHaveBeenCalledWith(roomId);
+    });
+
+    it('should handle delete errors - not found', async () => {
+      const roomId = new Types.ObjectId().toString();
+      jest
+        .spyOn(deleteRoomUseCase, 'execute')
+        .mockRejectedValue(new NotFoundException('Room not found'));
+
+      await expect(controller.remove(roomId)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('should handle delete errors - bad request', async () => {
+      const roomId = 'invalid-id';
+      jest
+        .spyOn(deleteRoomUseCase, 'execute')
+        .mockRejectedValue(new BadRequestException('Invalid room ID'));
+
+      await expect(controller.remove(roomId)).rejects.toThrow(
         BadRequestException,
       );
     });

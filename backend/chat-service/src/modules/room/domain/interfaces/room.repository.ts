@@ -6,8 +6,8 @@ export interface IRoomRepository {
   findById(id: string): Promise<RoomEntity | null>;
   findByName(name: string): Promise<RoomEntity | null>;
   findByMember(userId: string): Promise<RoomEntity[]>;
-  update(id: string, room: Partial<RoomEntity>): Promise<RoomEntity | null>;
   save(room: RoomEntity): Promise<RoomEntity>;
+  delete(id: string): Promise<boolean>;
 }
 
 export const ROOM_REPOSITORY = Symbol('ROOM_REPOSITORY');
