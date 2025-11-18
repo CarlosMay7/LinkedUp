@@ -15,7 +15,10 @@ const mockRoomResponse: RoomResponseDto = {
   id: new Types.ObjectId().toString(),
   name: 'Test Room',
   description: 'Test Description',
-  members: ['550e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440002'],
+  members: [
+    '550e8400-e29b-41d4-a716-446655440001',
+    '550e8400-e29b-41d4-a716-446655440002',
+  ],
   createdBy: '550e8400-e29b-41d4-a716-446655440003',
   createdAt: new Date(),
   updatedAt: new Date(),
