@@ -6,11 +6,11 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Room, RoomDocument } from './schemas/room.schema';
-import { CreateRoomDto } from './dto/create-room.dto';
-import { UpdateRoomDto } from './dto/update-room.dto';
-import { RoomResponseDto } from './dto/room-response.dto';
-import { ValidationService } from '../common/validation.service';
+import { Room, RoomDocument } from '../../infrastructure/repository/schemas/room.schema';
+import { CreateRoomDto } from '../../infrastructure/controllers/dto/create-room.dto';
+import { UpdateRoomDto } from '../../infrastructure/controllers/dto/update-room.dto';
+import { RoomResponseDto } from '../../infrastructure/controllers/dto/room-response.dto';
+import { ValidationService } from '../../../common/validation.service';
 
 @Injectable()
 export class RoomService {

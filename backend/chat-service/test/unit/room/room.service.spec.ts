@@ -1,16 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
-import { RoomService } from '../../../src/room/room.service';
-import { Room } from '../../../src/room/schemas/room.schema';
-import { CreateRoomDto } from '../../../src/room/dto/create-room.dto';
-import { UpdateRoomDto } from '../../../src/room/dto/update-room.dto';
+import { RoomService } from '../../../src/modules/room/domain/use-cases/room.service';
+import { Room } from '../../../src/modules/room/infrastructure/repository/schemas/room.schema';
+import { CreateRoomDto } from '../../../src/modules/room/infrastructure/controllers/dto/create-room.dto';
+import { UpdateRoomDto } from '../../../src/modules/room/infrastructure/controllers/dto/update-room.dto';
 import {
   BadRequestException,
   ConflictException,
   NotFoundException,
 } from '@nestjs/common';
-import { ValidationService } from '../../../src/common/validation.service';
+import { ValidationService } from '../../../src/modules/common/validation.service';
 
 // === Mock Data ===
 const mockRoomId = new Types.ObjectId();

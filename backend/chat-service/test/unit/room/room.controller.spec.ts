@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { RoomController } from '../../../src/room/room.controller';
-import { RoomService } from '../../../src/room/room.service';
-import { CreateRoomDto } from '../../../src/room/dto/create-room.dto';
-import { UpdateRoomDto } from '../../../src/room/dto/update-room.dto';
-import { RoomResponseDto } from '../../../src/room/dto/room-response.dto';
+import { RoomController } from '../../../src/modules/room/infrastructure/controllers/room.controller';
+import { RoomService } from '../../../src/modules/room/domain/use-cases/room.service';
+import { CreateRoomDto } from '../../../src/modules/room/infrastructure/controllers/dto/create-room.dto';
+import { UpdateRoomDto } from '../../../src/modules/room/infrastructure/controllers/dto/update-room.dto';
+import { RoomResponseDto } from '../../../src/modules/room/infrastructure/controllers/dto/room-response.dto';
 import { Types } from 'mongoose';
 import {
   BadRequestException,

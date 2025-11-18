@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ChatModule } from './chat/chat.module';
-import { RoomModule } from './room/room.module';
-import { CommonModule } from './common/common.module';
+import { ChatModule } from './modules/chat/chat.module';
+import { RoomModule } from './modules/room/room.module';
+import { CommonModule } from './modules/common/common.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
