@@ -1,10 +1,24 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  console.log('MONGO_URI:', process.env.MONGO_URI);
+
+  const configService = app.get(ConfigService);
+  const port = configService.get<number>('PORT') || 3001;
+
+  // Enable global validation
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+
   const config = new DocumentBuilder()
     .setTitle('Chat Service API')
     .setDescription('API documentation for the Chat Service')
@@ -13,8 +27,9 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
-  await app.listen(3002);
+  await app.listen(port);
 
-  console.log(`📘 Swagger docs available at http://localhost:3002/api`);
+  console.log(`🚀 Application is running on: http://localhost:${port}`);
+  console.log(`📘 Swagger docs available at http://localhost:${port}/api`);
 }
 bootstrap();

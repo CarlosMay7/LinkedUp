@@ -10,12 +10,15 @@ export const NavBar = () => {
     const paths = {
         '/profile': 'Profile',
         '/admin': 'Admin Panel',
+        '/lobby': 'Lobby',
     };
 
     const title = paths[pathname] || '';
 
     return (
-        <nav className="container navbar">
+        <nav
+            className={`container navbar ${pathname.includes('room') ? 'dont-show' : ''}`}
+        >
             <div className="nav-logo">
                 <Link to="/" className="logo">
                     <img
