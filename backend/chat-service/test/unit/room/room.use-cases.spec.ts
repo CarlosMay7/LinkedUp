@@ -111,7 +111,12 @@ describe('Room Use Cases', () => {
       mockRoomRepository.findByName.mockResolvedValue(null);
       mockRoomRepository.create.mockResolvedValue(mockRoomEntity);
 
-      const result = await createRoomUseCase.execute(createRoomDto);
+      const result = await createRoomUseCase.execute(
+        createRoomDto.name,
+        createRoomDto.description,
+        createRoomDto.members,
+        createRoomDto.createdBy,
+      );
 
       expect(mockRoomRepository.findByName).toHaveBeenCalledWith(
         createRoomDto.name,
@@ -123,9 +128,14 @@ describe('Room Use Cases', () => {
     it('should throw ConflictException if room name already exists', async () => {
       mockRoomRepository.findByName.mockResolvedValue(mockRoomEntity);
 
-      await expect(createRoomUseCase.execute(createRoomDto)).rejects.toThrow(
-        ConflictException,
-      );
+      await expect(
+        createRoomUseCase.execute(
+          createRoomDto.name,
+          createRoomDto.description,
+          createRoomDto.members,
+          createRoomDto.createdBy,
+        ),
+      ).rejects.toThrow(ConflictException);
       expect(mockRoomRepository.findByName).toHaveBeenCalledWith(
         createRoomDto.name,
       );
@@ -206,7 +216,11 @@ describe('Room Use Cases', () => {
       mockRoomRepository.findByName.mockResolvedValue(null);
       mockRoomRepository.save.mockResolvedValue(mockRoomEntity);
 
-      const result = await updateRoomUseCase.execute(roomId, updateRoomDto);
+      const result = await updateRoomUseCase.execute(
+        roomId,
+        updateRoomDto.name,
+        updateRoomDto.description,
+      );
 
       expect(mockValidationService.validateObjectId).toHaveBeenCalledWith(
         roomId,
@@ -222,7 +236,11 @@ describe('Room Use Cases', () => {
       mockRoomRepository.findById.mockResolvedValue(null);
 
       await expect(
-        updateRoomUseCase.execute(roomId, updateRoomDto),
+        updateRoomUseCase.execute(
+          roomId,
+          updateRoomDto.name,
+          updateRoomDto.description,
+        ),
       ).rejects.toThrow(NotFoundException);
       expect(mockRoomRepository.save).not.toHaveBeenCalled();
     });
@@ -247,7 +265,11 @@ describe('Room Use Cases', () => {
       mockRoomRepository.findByName.mockResolvedValue(existingRoom);
 
       await expect(
-        updateRoomUseCase.execute(roomId, updateRoomDto),
+        updateRoomUseCase.execute(
+          roomId,
+          updateRoomDto.name,
+          updateRoomDto.description,
+        ),
       ).rejects.toThrow(ConflictException);
       expect(mockRoomRepository.save).not.toHaveBeenCalled();
     });
@@ -255,9 +277,9 @@ describe('Room Use Cases', () => {
     it('should throw BadRequestException if no fields provided', async () => {
       mockValidationService.validateObjectId.mockReturnValue(undefined);
 
-      await expect(updateRoomUseCase.execute(roomId, {})).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        updateRoomUseCase.execute(roomId, undefined, undefined),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 

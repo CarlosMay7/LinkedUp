@@ -148,7 +148,12 @@ describe('RoomController', () => {
 
       expect(result).toHaveProperty('id');
       expect(result).toHaveProperty('name', mockRoomEntity.name);
-      expect(createRoomUseCase.execute).toHaveBeenCalledWith(createRoomDto);
+      expect(createRoomUseCase.execute).toHaveBeenCalledWith(
+        createRoomDto.name,
+        createRoomDto.description,
+        createRoomDto.members,
+        createRoomDto.createdBy,
+      );
     });
 
     it('should handle service errors', async () => {
@@ -275,7 +280,8 @@ describe('RoomController', () => {
       expect(result).toHaveProperty('name', updateRoomDto.name);
       expect(updateRoomUseCase.execute).toHaveBeenCalledWith(
         roomId,
-        updateRoomDto,
+        updateRoomDto.name,
+        updateRoomDto.description,
       );
     });
 
