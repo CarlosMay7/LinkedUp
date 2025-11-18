@@ -1,9 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../supabase/supabaseClient';
-// Removed navigation from context to keep it side-effect free
 import { AuthRepository } from '../../infrastructure/repositories/auth.repository';
 import { mapSupabaseError } from '../../infrastructure/errors/error-mapper';
-// Removed ROUTES from context
 
 const AuthContext = createContext();
 
@@ -30,7 +28,6 @@ export const AuthProvider = ({ children }) => {
             data: { subscription },
         } = authRepository.onAuthStateChange((event, session) => {
             setUser(session?.user || null);
-            // Removed navigation logic to keep it side-effect free
         });
 
         return () => {
