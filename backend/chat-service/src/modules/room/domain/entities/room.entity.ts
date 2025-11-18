@@ -1,6 +1,6 @@
 export class RoomEntity {
   constructor(
-    public readonly id: string,
+    public readonly id: string | null = null,
     public name: string,
     public description: string | undefined,
     public members: string[],
@@ -8,9 +8,6 @@ export class RoomEntity {
   ) {}
 
   addMember(userId: string): void {
-    if (this.members.includes(userId)) {
-      throw new Error('User is already a member of this room');
-    }
     this.members.push(userId);
   }
 

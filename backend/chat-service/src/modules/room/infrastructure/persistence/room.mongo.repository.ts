@@ -19,7 +19,7 @@ export class RoomMongoRepository implements IRoomRepository {
     );
   }
 
-  async create(room: Omit<RoomEntity, 'id'>): Promise<RoomEntity> {
+  async create(room: RoomEntity): Promise<RoomEntity> {
     const createdRoom = new this.roomModel(room);
     const savedRoom = await createdRoom.save();
     return this.toEntity(savedRoom);

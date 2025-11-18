@@ -1,7 +1,7 @@
 import { RoomEntity } from '../entities/room.entity';
 
 export interface IRoomRepository {
-  create(room: Omit<RoomEntity, 'id'>): Promise<RoomEntity>;
+  create(room: RoomEntity): Promise<RoomEntity>;
   findAll(): Promise<RoomEntity[]>;
   findById(id: string): Promise<RoomEntity | null>;
   findByName(name: string): Promise<RoomEntity | null>;
