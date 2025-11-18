@@ -1,13 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../auth/context/AuthContext';
 import { PasswordChange } from '../../core/entities/Password';
-import { TIMEOUTS, VALIDATION_MESSAGES, DEFAULTS } from '../../config/constants';
+import {
+    TIMEOUTS,
+    VALIDATION_MESSAGES,
+    DEFAULTS,
+} from '../../config/constants';
 import { getErrorMessage } from '../../infrastructure/errors/error-mapper';
 import { avatars } from '../../assets/avatar';
 
 export const useProfileForm = () => {
     const { metaData, user, signIn, updateUser } = useAuth();
-    const [currentIcon, setCurrentIcon] = useState(metaData?.profilePicture ?? avatars[DEFAULTS.AVATAR]);
+    const [currentIcon, setCurrentIcon] = useState(
+        metaData?.profilePicture ?? avatars[DEFAULTS.AVATAR]
+    );
     const [name, setName] = useState(metaData?.username || '');
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
