@@ -8,16 +8,31 @@ import {
   Delete,
   ParseUUIDPipe,
 } from '@nestjs/common';
-import { RoomService } from './room.service';
-import { CreateRoomDto } from './dto/create-room.dto';
-import { UpdateRoomDto } from './dto/update-room.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
-import { RoomResponseDto } from './dto/room-response.dto';
+import { CreateRoomDto } from './dto/dto/create-room.dto';
+import { UpdateRoomDto } from './dto/dto/update-room.dto';
+import { RoomResponseDto } from './dto/dto/room-response.dto';
+import { CreateRoomUseCase } from '../../domain/use-cases/create-room.use-case';
+import { FindAllRoomsUseCase } from '../../domain/use-cases/find-all-rooms.use-case';
+import { FindRoomByIdUseCase } from '../../domain/use-cases/find-room-by-id.use-case';
+import { UpdateRoomUseCase } from '../../domain/use-cases/update-room.use-case';
+import { AddMemberUseCase } from '../../domain/use-cases/add-member.use-case';
+import { RemoveMemberUseCase } from '../../domain/use-cases/remove-member.use-case';
+import { FindRoomsByMemberUseCase } from '../../domain/use-cases/find-rooms-by-member.use-case';
+import { RoomMapper } from '../mappers/room.mapper';
 
 @ApiTags('room')
 @Controller('room')
 export class RoomController {
-  constructor(private readonly roomService: RoomService) {}
+  constructor(
+    private readonly createRoomUseCase: CreateRoomUseCase,
+    private readonly findAllRoomsUseCase: FindAllRoomsUseCase,
+    private readonly findRoomByIdUseCase: FindRoomByIdUseCase,
+    private readonly updateRoomUseCase: UpdateRoomUseCase,
+    private readonly addMemberUseCase: AddMemberUseCase,
+    private readonly removeMemberUseCase: RemoveMemberUseCase,
+    private readonly findRoomsByMemberUseCase: FindRoomsByMemberUseCase,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a new room' })
@@ -29,7 +44,8 @@ export class RoomController {
   @ApiResponse({ status: 400, description: 'Invalid input data' })
   @ApiResponse({ status: 409, description: 'Room already exists' })
   async create(@Body() createRoomDto: CreateRoomDto): Promise<RoomResponseDto> {
-    return this.roomService.create(createRoomDto);
+    const room = await this.createRoomUseCase.execute(createRoomDto);
+    return RoomMapper.toDto(room);
   }
 
   @Get()
@@ -40,7 +56,8 @@ export class RoomController {
     type: [RoomResponseDto],
   })
   async findAll(): Promise<RoomResponseDto[]> {
-    return this.roomService.findAll();
+    const rooms = await this.findAllRoomsUseCase.execute();
+    return RoomMapper.toDtoArray(rooms);
   }
 
   @Get('member/:memberId')
@@ -54,7 +71,8 @@ export class RoomController {
   async findByMember(
     @Param('memberId', ParseUUIDPipe) memberId: string,
   ): Promise<RoomResponseDto[]> {
-    return this.roomService.findByMember(memberId);
+    const rooms = await this.findRoomsByMemberUseCase.execute(memberId);
+    return RoomMapper.toDtoArray(rooms);
   }
 
   @Get(':id')
@@ -68,7 +86,8 @@ export class RoomController {
   @ApiResponse({ status: 404, description: 'Room not found' })
   @ApiResponse({ status: 400, description: 'Invalid room ID format' })
   async findOne(@Param('id') id: string): Promise<RoomResponseDto> {
-    return this.roomService.findOne(id);
+    const room = await this.findRoomByIdUseCase.execute(id);
+    return RoomMapper.toDto(room);
   }
 
   @Patch(':id')
@@ -86,7 +105,8 @@ export class RoomController {
     @Param('id') id: string,
     @Body() updateRoomDto: UpdateRoomDto,
   ): Promise<RoomResponseDto> {
-    return this.roomService.updateRoom(id, updateRoomDto);
+    const room = await this.updateRoomUseCase.execute(id, updateRoomDto);
+    return RoomMapper.toDto(room);
   }
 
   @Patch(':id/members/:userId')
@@ -104,7 +124,8 @@ export class RoomController {
     @Param('id') roomId: string,
     @Param('userId', ParseUUIDPipe) userId: string,
   ): Promise<RoomResponseDto> {
-    return this.roomService.addMember(roomId, userId);
+    const room = await this.addMemberUseCase.execute(roomId, userId);
+    return RoomMapper.toDto(room);
   }
 
   @Delete(':id/members/:userId')
@@ -121,6 +142,7 @@ export class RoomController {
     @Param('id') roomId: string,
     @Param('userId', ParseUUIDPipe) userId: string,
   ): Promise<RoomResponseDto> {
-    return this.roomService.removeMember(roomId, userId);
+    const room = await this.removeMemberUseCase.execute(roomId, userId);
+    return RoomMapper.toDto(room);
   }
 }
