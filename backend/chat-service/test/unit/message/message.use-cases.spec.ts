@@ -1,8 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { CreateMessageUseCase } from '../../../src/modules/message/domain/use-cases/create-message.use-case';
 import { FindAllMessagesUseCase } from '../../../src/modules/message/domain/use-cases/find-all-messages.use-case';
@@ -89,9 +86,8 @@ describe('Message Use Cases', () => {
       ],
     }).compile();
 
-    createMessageUseCase = module.get<CreateMessageUseCase>(
-      CreateMessageUseCase,
-    );
+    createMessageUseCase =
+      module.get<CreateMessageUseCase>(CreateMessageUseCase);
     findAllMessagesUseCase = module.get<FindAllMessagesUseCase>(
       FindAllMessagesUseCase,
     );
@@ -107,12 +103,10 @@ describe('Message Use Cases', () => {
     findMessagesByRoomUseCase = module.get<FindMessagesByRoomUseCase>(
       FindMessagesByRoomUseCase,
     );
-    updateMessageUseCase = module.get<UpdateMessageUseCase>(
-      UpdateMessageUseCase,
-    );
-    deleteMessageUseCase = module.get<DeleteMessageUseCase>(
-      DeleteMessageUseCase,
-    );
+    updateMessageUseCase =
+      module.get<UpdateMessageUseCase>(UpdateMessageUseCase);
+    deleteMessageUseCase =
+      module.get<DeleteMessageUseCase>(DeleteMessageUseCase);
     deleteMessagesByRoomUseCase = module.get<DeleteMessagesByRoomUseCase>(
       DeleteMessagesByRoomUseCase,
     );
@@ -418,9 +412,9 @@ describe('Message Use Cases', () => {
       const messageId = new Types.ObjectId().toString();
       mockMessageRepository.findById.mockResolvedValue(mockRoomMessage);
 
-      await expect(
-        updateMessageUseCase.execute(messageId, ''),
-      ).rejects.toThrow('Content cannot be empty');
+      await expect(updateMessageUseCase.execute(messageId, '')).rejects.toThrow(
+        'Content cannot be empty',
+      );
     });
   });
 
@@ -478,9 +472,9 @@ describe('Message Use Cases', () => {
         new NotFoundException(`No messages found for room ID ${roomId}`),
       );
 
-      await expect(
-        deleteMessagesByRoomUseCase.execute(roomId),
-      ).rejects.toThrow(NotFoundException);
+      await expect(deleteMessagesByRoomUseCase.execute(roomId)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

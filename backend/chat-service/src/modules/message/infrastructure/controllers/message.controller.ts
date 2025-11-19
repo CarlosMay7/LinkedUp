@@ -60,10 +60,6 @@ export class MessageController {
     description: 'Invalid input data or validation error',
   })
   @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: 'Invalid input data or validation error',
-  })
-  @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Internal server error',
   })
@@ -122,10 +118,6 @@ export class MessageController {
     description: 'Invalid user IDs format',
   })
   @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: 'Invalid user IDs format',
-  })
-  @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Internal server error',
   })
@@ -164,10 +156,6 @@ export class MessageController {
     description: 'Invalid user IDs format',
   })
   @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: 'Invalid user IDs format',
-  })
-  @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Internal server error',
   })
@@ -196,10 +184,6 @@ export class MessageController {
     type: [MessageResponseDto],
   })
   @ApiBadRequestResponse({
-    description: 'Invalid room ID format',
-  })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
     description: 'Invalid room ID format',
   })
   @ApiResponse({
@@ -233,14 +217,6 @@ export class MessageController {
     description: 'Message not found',
   })
   @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: 'Invalid message ID format',
-  })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: 'Message not found',
-  })
-  @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Internal server error',
   })
@@ -266,14 +242,6 @@ export class MessageController {
     description: 'Invalid message ID format or invalid input data',
   })
   @ApiNotFoundResponse({
-    description: 'Message not found',
-  })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: 'Invalid message ID format or invalid input data',
-  })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
     description: 'Message not found',
   })
   @ApiResponse({
@@ -311,14 +279,6 @@ export class MessageController {
     description: 'Message not found',
   })
   @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: 'Invalid message ID format',
-  })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: 'Message not found',
-  })
-  @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Internal server error',
   })
@@ -353,14 +313,6 @@ export class MessageController {
     description: 'Invalid room ID format',
   })
   @ApiNotFoundResponse({
-    description: 'No messages found in this room',
-  })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: 'Invalid room ID format',
-  })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
     description: 'No messages found in this room',
   })
   @ApiResponse({
