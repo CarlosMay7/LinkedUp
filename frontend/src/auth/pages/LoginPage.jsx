@@ -1,21 +1,34 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Alert } from '../components/Alert';
+import { useAuth } from '../context/AuthContext';
+import { ROUTES } from '../../config/constants';
+import { getErrorMessage } from '../../infrastructure/errors/error-mapper';
 
 export const LoginPage = () => {
-    const [username, setUsername] = useState('');
+    const navigate = useNavigate();
+    const { signIn } = useAuth();
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState(null);
 
-    const handleSubmit = e => {
+    const handleLogin = async e => {
         e.preventDefault();
-        console.log('Logging in with:', { username, password });
+        const { error } = await signIn({ email, password });
+        if (error) {
+            return setError(getErrorMessage(error));
+        }
+        navigate(ROUTES.HOME);
     };
 
     return (
-        <form onSubmit={handleSubmit} className="form">
+        <form onSubmit={handleLogin} className="form">
+            {error && <Alert type="error">{error}</Alert>}
             <input
-                type="text"
-                placeholder="Username"
-                value={username}
-                onChange={e => setUsername(e.target.value)}
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
                 required
             />
             <input
