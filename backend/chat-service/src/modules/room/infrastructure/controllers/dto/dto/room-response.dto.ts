@@ -35,16 +35,4 @@ export class RoomResponseDto {
     example: '550e8400-e29b-41d4-a716-446655440003',
   })
   createdBy: string;
-
-  @ApiProperty({
-    description: 'Room creation date',
-    example: '2023-10-01T12:00:00.000Z',
-  })
-  createdAt: Date;
-
-  @ApiProperty({
-    description: 'Room last update date',
-    example: '2023-10-01T12:00:00.000Z',
-  })
-  updatedAt: Date;
 }
