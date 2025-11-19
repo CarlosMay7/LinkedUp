@@ -47,7 +47,12 @@ export class RoomController {
   @ApiResponse({ status: 409, description: 'Room already exists' })
   @ApiResponse({ status: 500, description: 'Internal server error' })
   async create(@Body() createRoomDto: CreateRoomDto): Promise<RoomResponseDto> {
-    const room = await this.createRoomUseCase.execute(createRoomDto);
+    const room = await this.createRoomUseCase.execute(
+      createRoomDto.name,
+      createRoomDto.description,
+      createRoomDto.members,
+      createRoomDto.createdBy,
+    );
     return RoomMapper.toDto(room);
   }
 
@@ -113,7 +118,11 @@ export class RoomController {
     @Param('id') id: string,
     @Body() updateRoomDto: UpdateRoomDto,
   ): Promise<RoomResponseDto> {
-    const room = await this.updateRoomUseCase.execute(id, updateRoomDto);
+    const room = await this.updateRoomUseCase.execute(
+      id,
+      updateRoomDto.name,
+      updateRoomDto.description,
+    );
     return RoomMapper.toDto(room);
   }
 
