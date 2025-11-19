@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
 // Infrastructure
-import { Message, MessageSchema } from '../../message/schemas/message.schema';
+import { Message, MessageSchema } from './infrastructure/persistence/schemas/message.schema';
 import { MessageMongoRepository } from './infrastructure/persistence/message.mongo.repository';
 import { MessageController } from './infrastructure/controllers/message.controller';
 

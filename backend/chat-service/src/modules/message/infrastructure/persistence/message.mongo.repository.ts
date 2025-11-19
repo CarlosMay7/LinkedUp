@@ -6,7 +6,7 @@ import { MessageEntity } from '../../domain/entities/message.entity';
 import {
   Message,
   MessageDocument,
-} from '../../../../message/schemas/message.schema';
+} from './schemas/message.schema';
 
 @Injectable()
 export class MessageMongoRepository implements IMessageRepository {
