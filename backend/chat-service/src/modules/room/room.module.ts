@@ -22,11 +22,12 @@ import { DeleteRoomUseCase } from './domain/use-cases/delete-room.use-case';
 
 // Common
 import { CommonModule } from '../common/common.module';
+import { forwardRef } from '@nestjs/common';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Room.name, schema: RoomSchema }]),
-    CommonModule,
+    forwardRef(() => CommonModule),
   ],
   controllers: [RoomController],
   providers: [
