@@ -1,11 +1,22 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../supabase/supabaseClient';
 import { AuthRepository } from '../../infrastructure/repositories/auth.repository';
+import { SignInUseCase } from '../../core/use-cases/auth/sign-in.use-case';
+import { SignUpUseCase } from '../../core/use-cases/auth/sign-up.use-case';
+import { SignOutUseCase } from '../../core/use-cases/auth/sign-out.use-case';
+import { UpdateUserUseCase } from '../../core/use-cases/auth/update-user.use-case';
+import { GetSessionUseCase } from '../../core/use-cases/auth/get-session.use-case';
 import { mapSupabaseError } from '../../infrastructure/errors/error-mapper';
+import { User } from '../../core/entities/User';
 
 const AuthContext = createContext();
 
 const authRepository = new AuthRepository(supabase);
+const signInUseCase = new SignInUseCase(authRepository);
+const signUpUseCase = new SignUpUseCase(authRepository);
+const signOutUseCase = new SignOutUseCase(authRepository);
+const updateUserUseCase = new UpdateUserUseCase(authRepository);
+const getSessionUseCase = new GetSessionUseCase(authRepository);
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
@@ -14,20 +25,22 @@ export const AuthProvider = ({ children }) => {
         let isMounted = true;
 
         const syncSession = async () => {
-            const {
-                data: { session },
-            } = await authRepository.getSession();
-            if (!isMounted) {
-                return;
+            try {
+                const { session } = await getSessionUseCase.execute();
+                if (!isMounted) {
+                    return;
+                }
+                setUser(session?.user ? User.fromSupabase(session.user) : null);
+            } catch (error) {
+                console.error('Error syncing session:', error);
             }
-            setUser(session?.user || null);
         };
         syncSession();
 
         const {
             data: { subscription },
         } = authRepository.onAuthStateChange((event, session) => {
-            setUser(session?.user || null);
+            setUser(session?.user ? User.fromSupabase(session.user) : null);
         });
 
         return () => {
@@ -37,55 +50,68 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const signIn = async ({ email, password }) => {
-        const { data, error } = await authRepository.signIn({
-            email,
-            password,
-        });
-        return {
-            data,
-            error: error ? mapSupabaseError(error) : null,
-        };
+        try {
+            const data = await signInUseCase.execute({ email, password });
+            return { data, error: null };
+        } catch (error) {
+            return {
+                data: null,
+                error: mapSupabaseError(error),
+            };
+        }
     };
 
     const signUp = async ({ email, password, data, emailRedirectTo }) => {
-        const { data: responseData, error } = await authRepository.signUp({
-            email,
-            password,
-            options: { data, emailRedirectTo },
-        });
-        return {
-            data: responseData,
-            error: error ? mapSupabaseError(error) : null,
-        };
+        try {
+            const responseData = await signUpUseCase.execute({
+                email,
+                password,
+                data,
+                emailRedirectTo,
+            });
+            return { data: responseData, error: null };
+        } catch (error) {
+            return {
+                data: null,
+                error: mapSupabaseError(error),
+            };
+        }
     };
 
     const signOut = async () => {
-        const { error } = await authRepository.signOut();
-        return {
-            error: error ? mapSupabaseError(error) : null,
-        };
+        try {
+            await signOutUseCase.execute();
+            return { error: null };
+        } catch (error) {
+            return {
+                error: mapSupabaseError(error),
+            };
+        }
     };
 
     const updateUser = async updates => {
-        const { data, error } = await authRepository.updateUser(updates);
-        const mappedError = error ? mapSupabaseError(error) : null;
+        try {
+            const data = await updateUserUseCase.execute(updates);
 
-        if (!mappedError) {
-            const {
-                data: { user: freshUser },
-            } = await authRepository.getUser();
-            if (freshUser) {
-                setUser(freshUser);
+            const { session } = await getSessionUseCase.execute();
+            if (session?.user) {
+                setUser(User.fromSupabase(session.user));
             }
-        }
 
-        return {
-            data,
-            error: mappedError,
-        };
+            return { data, error: null };
+        } catch (error) {
+            return {
+                data: null,
+                error: mapSupabaseError(error),
+            };
+        }
     };
 
-    const metaData = user?.user_metadata ?? {};
+    const metaData = {
+        username: user?.username,
+        role: user?.role,
+        avatar: user?.avatar,
+    };
 
     return (
         <AuthContext.Provider

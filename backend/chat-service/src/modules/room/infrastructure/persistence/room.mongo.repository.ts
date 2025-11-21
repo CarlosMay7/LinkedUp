@@ -15,6 +15,7 @@ export class RoomMongoRepository implements IRoomRepository {
       doc.description,
       doc.members,
       doc.createdBy,
+      doc.isDirectMessage,
       doc._id.toString(),
     );
   }
@@ -35,9 +36,13 @@ export class RoomMongoRepository implements IRoomRepository {
     return room ? this.toEntity(room) : null;
   }
 
-  async findByName(name: string): Promise<RoomEntity | null> {
-    const room = await this.roomModel.findOne({ name }).exec();
-    return room ? this.toEntity(room) : null;
+  async findByName(name: string): Promise<RoomEntity[]> {
+    const trimmedName = name.trim();
+    const rooms = await this.roomModel
+      .find({ name: { $regex: trimmedName, $options: 'i' } })
+      .sort({ createdAt: -1 })
+      .exec();
+    return rooms.map((room) => this.toEntity(room));
   }
 
   async findByMember(userId: string): Promise<RoomEntity[]> {

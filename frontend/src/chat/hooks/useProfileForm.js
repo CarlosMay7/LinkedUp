@@ -10,11 +10,11 @@ import { getErrorMessage } from '../../infrastructure/errors/error-mapper';
 import { avatars } from '../../assets/avatar';
 
 export const useProfileForm = () => {
-    const { metaData, user, signIn, updateUser } = useAuth();
+    const { user, signIn, updateUser } = useAuth();
     const [currentIcon, setCurrentIcon] = useState(
-        metaData?.profilePicture ?? avatars[DEFAULTS.AVATAR]
+        user?.avatar ?? avatars[DEFAULTS.AVATAR]
     );
-    const [name, setName] = useState(metaData?.username || '');
+    const [name, setName] = useState(user?.username || '');
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -24,7 +24,7 @@ export const useProfileForm = () => {
     });
 
     const email = user?.email || '';
-    const role = metaData?.role || '';
+    const role = user?.role || '';
 
     useEffect(() => {
         if (resultMessage.type) {
@@ -92,10 +92,7 @@ export const useProfileForm = () => {
             setNewPassword('');
         }
 
-        if (
-            name !== metaData?.username ||
-            currentIcon !== metaData?.profilePicture
-        ) {
+        if (name !== user?.username || currentIcon !== user?.avatar) {
             const { error: dataError } = await updateUser({
                 data: {
                     username: name,

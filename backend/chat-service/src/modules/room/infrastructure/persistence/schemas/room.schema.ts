@@ -34,6 +34,14 @@ export class Room {
   members: string[];
 
   @ApiProperty({
+    description: 'Defines if the room used for a direct message between users',
+    example: false,
+    type: Boolean,
+  })
+  @Prop({ type: Boolean, required: true, default: false })
+  isDirectMessage: boolean;
+
+  @ApiProperty({
     description: 'User ID who created the room',
     example: '550e8400-e29b-41d4-a716-446655440003',
   })
