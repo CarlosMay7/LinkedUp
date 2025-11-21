@@ -47,6 +47,7 @@ const mockMessageRepository = {
 const mockValidationService = {
   validateObjectId: jest.fn(),
   validateUUID: jest.fn(),
+  validateRoomExists: jest.fn(),
   handleServiceError: jest.fn((error) => {
     throw error;
   }),

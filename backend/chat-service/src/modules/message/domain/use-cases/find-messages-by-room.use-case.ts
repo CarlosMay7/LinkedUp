@@ -18,6 +18,9 @@ export class FindMessagesByRoomUseCase {
     try {
       this.validationService.validateObjectId(roomId, 'Room ID');
 
+      // Validate that the room exists
+      await this.validationService.validateRoomExists(roomId);
+
       return await this.messageRepository.findByRoom(roomId);
     } catch (error) {
       this.validationService.handleServiceError(

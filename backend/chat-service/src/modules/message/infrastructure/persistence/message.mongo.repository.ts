@@ -3,10 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { IMessageRepository } from '../../domain/interfaces/message.repository';
 import { MessageEntity } from '../../domain/entities/message.entity';
-import {
-  Message,
-  MessageDocument,
-} from './schemas/message.schema';
+import { Message, MessageDocument } from './schemas/message.schema';
 
 @Injectable()
 export class MessageMongoRepository implements IMessageRepository {

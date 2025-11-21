@@ -19,6 +19,9 @@ export class DeleteMessagesByRoomUseCase {
     try {
       this.validationService.validateObjectId(roomId, 'Room ID');
 
+      // Validate that the room exists
+      await this.validationService.validateRoomExists(roomId);
+
       return await this.messageRepository.deleteByRoom(roomId);
     } catch (error) {
       this.validationService.handleServiceError(
