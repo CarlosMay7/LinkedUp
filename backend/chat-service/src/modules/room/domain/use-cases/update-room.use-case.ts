@@ -42,8 +42,11 @@ export class UpdateRoomUseCase {
 
       // Check for duplicate room name if name is being updated
       if (name && name !== room.name) {
-        const existingRoom = await this.roomRepository.findByName(name);
-        if (existingRoom) {
+        const existingRooms = await this.roomRepository.findByName(name);
+        const exactMatch = existingRooms.find(
+          (r) => r.name.toLowerCase() === name.toLowerCase() && r.id !== roomId,
+        );
+        if (exactMatch) {
           throw new ConflictException(
             `Room with name '${name}' already exists`,
           );

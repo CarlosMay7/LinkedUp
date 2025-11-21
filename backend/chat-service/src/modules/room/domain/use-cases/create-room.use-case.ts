@@ -18,16 +18,20 @@ export class CreateRoomUseCase {
     name: string,
     description: string,
     members: string[],
+    isDirectMessage: boolean,
     createdBy: string,
   ): Promise<RoomEntity> {
     try {
       // Check if room name already exists
-      const existingRoom = await this.roomRepository.findByName(name);
-      if (existingRoom) {
+      const existingRooms = await this.roomRepository.findByName(name);
+      const exactMatch = existingRooms.find(
+        (room) => room.name.toLowerCase() === name.toLowerCase(),
+      );
+      if (exactMatch) {
         throw new ConflictException(`Room with name '${name}' already exists`);
       }
 
-      const roomEntity = new RoomEntity(name, description, members, createdBy);
+      const roomEntity = new RoomEntity(name, description, members, createdBy, isDirectMessage);
 
       return await this.roomRepository.create(roomEntity);
     } catch (error) {

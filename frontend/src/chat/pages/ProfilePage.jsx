@@ -1,5 +1,5 @@
 import { avatars } from '../../assets/avatar';
-import { Alert } from '../../auth/components/Alert';
+import { Alert } from '../../components/Alert';
 import { AvatarPicker } from '../components/AvatarPicker';
 import { useProfileForm } from '../hooks/useProfileForm';
 import { Role } from '../../core/entities/Role';

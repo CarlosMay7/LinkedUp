@@ -7,6 +7,7 @@ import {
   MinLength,
   MaxLength,
   IsUUID,
+  IsBoolean,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -57,4 +58,13 @@ export class CreateRoomDto {
   @IsUUID('4', { message: 'Creator user ID must be a valid UUID' })
   @IsNotEmpty({ message: 'Creator user ID is required' })
   createdBy: string;
+
+  @ApiPropertyOptional({
+    description: 'Defines if the room is used for a direct message between users',
+    example: false,
+    default: false,
+  })
+  @IsBoolean({ message: 'isDirectMessage must be a boolean value' })
+  @IsOptional()
+  isDirectMessage?: boolean = false;
 }

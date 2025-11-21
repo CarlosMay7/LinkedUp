@@ -15,6 +15,7 @@ import { RoomResponseDto } from './dto/dto/room-response.dto';
 import { CreateRoomUseCase } from '../../domain/use-cases/create-room.use-case';
 import { FindAllRoomsUseCase } from '../../domain/use-cases/find-all-rooms.use-case';
 import { FindRoomByIdUseCase } from '../../domain/use-cases/find-room-by-id.use-case';
+import { FindRoomByNameUseCase } from '../../domain/use-cases/find-room-by-name.use-case';
 import { UpdateRoomUseCase } from '../../domain/use-cases/update-room.use-case';
 import { AddMemberUseCase } from '../../domain/use-cases/add-member.use-case';
 import { RemoveMemberUseCase } from '../../domain/use-cases/remove-member.use-case';
@@ -29,6 +30,7 @@ export class RoomController {
     private readonly createRoomUseCase: CreateRoomUseCase,
     private readonly findAllRoomsUseCase: FindAllRoomsUseCase,
     private readonly findRoomByIdUseCase: FindRoomByIdUseCase,
+    private readonly findRoomByNameUseCase: FindRoomByNameUseCase,
     private readonly updateRoomUseCase: UpdateRoomUseCase,
     private readonly addMemberUseCase: AddMemberUseCase,
     private readonly removeMemberUseCase: RemoveMemberUseCase,
@@ -51,6 +53,7 @@ export class RoomController {
       createRoomDto.name,
       createRoomDto.description,
       createRoomDto.members,
+      createRoomDto.isDirectMessage ?? false,
       createRoomDto.createdBy,
     );
     return RoomMapper.toDto(room);
@@ -83,6 +86,21 @@ export class RoomController {
     @Param('memberId', ParseUUIDPipe) memberId: string,
   ): Promise<RoomResponseDto[]> {
     const rooms = await this.findRoomsByMemberUseCase.execute(memberId);
+    return RoomMapper.toDtoArray(rooms);
+  }
+
+  @Get('search/:name')
+  @ApiOperation({ summary: 'Search rooms by name' })
+  @ApiParam({ name: 'name', description: 'Room name to search' })
+  @ApiResponse({
+    status: 200,
+    description: 'Rooms found',
+    type: [RoomResponseDto],
+  })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  async findByName(@Param('name') name: string): Promise<RoomResponseDto[]> {
+    const decodedName = decodeURIComponent(name);
+    const rooms = await this.findRoomByNameUseCase.execute(decodedName);
     return RoomMapper.toDtoArray(rooms);
   }
 
