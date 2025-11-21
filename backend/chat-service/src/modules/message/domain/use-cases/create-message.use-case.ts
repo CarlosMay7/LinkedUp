@@ -36,6 +36,8 @@ export class CreateMessageUseCase {
       // Validate IDs
       if (roomId) {
         this.validationService.validateObjectId(roomId, 'Room ID');
+        // Validate that the room exists
+        await this.validationService.validateRoomExists(roomId);
       }
       this.validationService.validateUUID(senderId, 'Sender ID');
       if (receiverId) {
