@@ -7,6 +7,7 @@ import { CreateRoomUseCase } from '../../../src/modules/room/domain/use-cases/cr
 import { FindAllRoomsUseCase } from '../../../src/modules/room/domain/use-cases/find-all-rooms.use-case';
 import { FindRoomByIdUseCase } from '../../../src/modules/room/domain/use-cases/find-room-by-id.use-case';
 import { UpdateRoomUseCase } from '../../../src/modules/room/domain/use-cases/update-room.use-case';
+import { FindRoomByNameUseCase } from '../../../src/modules/room/domain/use-cases/find-room-by-name.use-case';
 import { AddMemberUseCase } from '../../../src/modules/room/domain/use-cases/add-member.use-case';
 import { RemoveMemberUseCase } from '../../../src/modules/room/domain/use-cases/remove-member.use-case';
 import { FindRoomsByMemberUseCase } from '../../../src/modules/room/domain/use-cases/find-rooms-by-member.use-case';
@@ -43,6 +44,10 @@ const mockFindRoomByIdUseCase = {
 };
 
 const mockUpdateRoomUseCase = {
+  execute: jest.fn(),
+};
+
+const mockFindRoomByNameUseCase = {
   execute: jest.fn(),
 };
 
@@ -88,6 +93,10 @@ describe('RoomController', () => {
         {
           provide: FindRoomByIdUseCase,
           useValue: mockFindRoomByIdUseCase,
+        },
+        {
+          provide: FindRoomByNameUseCase,
+          useValue: mockFindRoomByNameUseCase,
         },
         {
           provide: UpdateRoomUseCase,
@@ -153,6 +162,7 @@ describe('RoomController', () => {
         createRoomDto.name,
         createRoomDto.description,
         createRoomDto.members,
+        false,
         createRoomDto.createdBy,
       );
     });

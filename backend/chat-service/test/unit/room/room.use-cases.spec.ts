@@ -133,7 +133,15 @@ describe('Room Use Cases', () => {
     });
 
     it('should throw ConflictException if room name already exists', async () => {
-      mockRoomRepository.findByName.mockResolvedValue([mockRoomEntity]);
+      const existingRoom = new RoomEntity(
+        createRoomDto.name,
+        'Other Description',
+        [],
+        '550e8400-e29b-41d4-a716-446655440007',
+        false,
+        new Types.ObjectId().toString(),
+      );
+      mockRoomRepository.findByName.mockResolvedValue([existingRoom]);
 
       await expect(
         createRoomUseCase.execute(
