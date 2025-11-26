@@ -26,6 +26,7 @@ const mockRoomEntity = new RoomEntity(
     '550e8400-e29b-41d4-a716-446655440002',
   ],
   '550e8400-e29b-41d4-a716-446655440003',
+  false,
   new Types.ObjectId().toString(),
 );
 
@@ -271,6 +272,7 @@ describe('RoomController', () => {
         updateRoomDto.description,
         mockRoomEntity.members,
         mockRoomEntity.createdBy,
+        false,
         roomId,
       );
       jest.spyOn(updateRoomUseCase, 'execute').mockResolvedValue(updatedEntity);
@@ -317,6 +319,7 @@ describe('RoomController', () => {
         mockRoomEntity.description,
         [...mockRoomEntity.members, userId],
         mockRoomEntity.createdBy,
+        false,
         mockRoomEntity.id,
       );
       jest.spyOn(addMemberUseCase, 'execute').mockResolvedValue(updatedEntity);
@@ -361,6 +364,7 @@ describe('RoomController', () => {
         mockRoomEntity.description,
         mockRoomEntity.members.filter((id) => id !== userId),
         mockRoomEntity.createdBy,
+        false,
         mockRoomEntity.id,
       );
       jest
