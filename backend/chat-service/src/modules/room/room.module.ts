@@ -14,6 +14,7 @@ import { ROOM_REPOSITORY } from './domain/interfaces/room.repository';
 import { CreateRoomUseCase } from './domain/use-cases/create-room.use-case';
 import { FindAllRoomsUseCase } from './domain/use-cases/find-all-rooms.use-case';
 import { FindRoomByIdUseCase } from './domain/use-cases/find-room-by-id.use-case';
+import { FindRoomByNameUseCase } from './domain/use-cases/find-room-by-name.use-case';
 import { UpdateRoomUseCase } from './domain/use-cases/update-room.use-case';
 import { AddMemberUseCase } from './domain/use-cases/add-member.use-case';
 import { RemoveMemberUseCase } from './domain/use-cases/remove-member.use-case';
@@ -40,6 +41,7 @@ import { forwardRef } from '@nestjs/common';
     CreateRoomUseCase,
     FindAllRoomsUseCase,
     FindRoomByIdUseCase,
+    FindRoomByNameUseCase,
     UpdateRoomUseCase,
     AddMemberUseCase,
     RemoveMemberUseCase,
@@ -51,6 +53,7 @@ import { forwardRef } from '@nestjs/common';
     CreateRoomUseCase,
     FindAllRoomsUseCase,
     FindRoomByIdUseCase,
+    FindRoomByNameUseCase,
     UpdateRoomUseCase,
     AddMemberUseCase,
     RemoveMemberUseCase,

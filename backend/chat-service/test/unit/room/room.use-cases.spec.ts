@@ -8,6 +8,7 @@ import { Types } from 'mongoose';
 import { CreateRoomUseCase } from '../../../src/modules/room/domain/use-cases/create-room.use-case';
 import { FindAllRoomsUseCase } from '../../../src/modules/room/domain/use-cases/find-all-rooms.use-case';
 import { FindRoomByIdUseCase } from '../../../src/modules/room/domain/use-cases/find-room-by-id.use-case';
+import { FindRoomByNameUseCase } from '../../../src/modules/room/domain/use-cases/find-room-by-name.use-case';
 import { UpdateRoomUseCase } from '../../../src/modules/room/domain/use-cases/update-room.use-case';
 import { AddMemberUseCase } from '../../../src/modules/room/domain/use-cases/add-member.use-case';
 import { RemoveMemberUseCase } from '../../../src/modules/room/domain/use-cases/remove-member.use-case';
@@ -27,6 +28,7 @@ const mockRoomEntity = new RoomEntity(
     '550e8400-e29b-41d4-a716-446655440002',
   ],
   '550e8400-e29b-41d4-a716-446655440003',
+  false,
   new Types.ObjectId().toString(),
 );
 
@@ -52,6 +54,7 @@ describe('Room Use Cases', () => {
   let createRoomUseCase: CreateRoomUseCase;
   let findAllRoomsUseCase: FindAllRoomsUseCase;
   let findRoomByIdUseCase: FindRoomByIdUseCase;
+  let findRoomByNameUseCase: FindRoomByNameUseCase;
   let updateRoomUseCase: UpdateRoomUseCase;
   let addMemberUseCase: AddMemberUseCase;
   let removeMemberUseCase: RemoveMemberUseCase;
@@ -64,6 +67,7 @@ describe('Room Use Cases', () => {
         CreateRoomUseCase,
         FindAllRoomsUseCase,
         FindRoomByIdUseCase,
+        FindRoomByNameUseCase,
         UpdateRoomUseCase,
         AddMemberUseCase,
         RemoveMemberUseCase,
@@ -83,6 +87,7 @@ describe('Room Use Cases', () => {
     createRoomUseCase = module.get<CreateRoomUseCase>(CreateRoomUseCase);
     findAllRoomsUseCase = module.get<FindAllRoomsUseCase>(FindAllRoomsUseCase);
     findRoomByIdUseCase = module.get<FindRoomByIdUseCase>(FindRoomByIdUseCase);
+    findRoomByNameUseCase = module.get<FindRoomByNameUseCase>(FindRoomByNameUseCase);
     updateRoomUseCase = module.get<UpdateRoomUseCase>(UpdateRoomUseCase);
     addMemberUseCase = module.get<AddMemberUseCase>(AddMemberUseCase);
     removeMemberUseCase = module.get<RemoveMemberUseCase>(RemoveMemberUseCase);
@@ -105,16 +110,18 @@ describe('Room Use Cases', () => {
         '550e8400-e29b-41d4-a716-446655440005',
       ],
       createdBy: '550e8400-e29b-41d4-a716-446655440006',
+      isDirectMessage: false,
     };
 
     it('should create a room successfully', async () => {
-      mockRoomRepository.findByName.mockResolvedValue(null);
+      mockRoomRepository.findByName.mockResolvedValue([]);
       mockRoomRepository.create.mockResolvedValue(mockRoomEntity);
 
       const result = await createRoomUseCase.execute(
         createRoomDto.name,
         createRoomDto.description,
         createRoomDto.members,
+        createRoomDto.isDirectMessage,
         createRoomDto.createdBy,
       );
 
@@ -126,13 +133,22 @@ describe('Room Use Cases', () => {
     });
 
     it('should throw ConflictException if room name already exists', async () => {
-      mockRoomRepository.findByName.mockResolvedValue(mockRoomEntity);
+      const existingRoom = new RoomEntity(
+        createRoomDto.name,
+        'Other Description',
+        [],
+        '550e8400-e29b-41d4-a716-446655440007',
+        false,
+        new Types.ObjectId().toString(),
+      );
+      mockRoomRepository.findByName.mockResolvedValue([existingRoom]);
 
       await expect(
         createRoomUseCase.execute(
           createRoomDto.name,
           createRoomDto.description,
           createRoomDto.members,
+          createRoomDto.isDirectMessage,
           createRoomDto.createdBy,
         ),
       ).rejects.toThrow(ConflictException);
@@ -203,6 +219,30 @@ describe('Room Use Cases', () => {
     });
   });
 
+  describe('FindRoomByNameUseCase', () => {
+    const roomName = 'Test Room';
+
+    it('should return rooms by name', async () => {
+      mockRoomRepository.findByName.mockResolvedValue([mockRoomEntity]);
+
+      const result = await findRoomByNameUseCase.execute(roomName);
+
+      expect(mockRoomRepository.findByName).toHaveBeenCalledWith(roomName);
+      expect(result).toEqual([mockRoomEntity]);
+      expect(result).toHaveLength(1);
+    });
+
+    it('should return empty array if no rooms found', async () => {
+      mockRoomRepository.findByName.mockResolvedValue([]);
+
+      const result = await findRoomByNameUseCase.execute(roomName);
+
+      expect(mockRoomRepository.findByName).toHaveBeenCalledWith(roomName);
+      expect(result).toEqual([]);
+      expect(result).toHaveLength(0);
+    });
+  });
+
   describe('UpdateRoomUseCase', () => {
     const roomId = new Types.ObjectId().toString();
     const updateRoomDto: UpdateRoomDto = {
@@ -213,7 +253,7 @@ describe('Room Use Cases', () => {
     it('should update room name and description', async () => {
       mockValidationService.validateObjectId.mockReturnValue(undefined);
       mockRoomRepository.findById.mockResolvedValue(mockRoomEntity);
-      mockRoomRepository.findByName.mockResolvedValue(null);
+      mockRoomRepository.findByName.mockResolvedValue([]);
       mockRoomRepository.save.mockResolvedValue(mockRoomEntity);
 
       const result = await updateRoomUseCase.execute(
@@ -251,6 +291,7 @@ describe('Room Use Cases', () => {
         'Other Description',
         [],
         '550e8400-e29b-41d4-a716-446655440007',
+        false,
         new Types.ObjectId().toString(), // Different ID
       );
       const roomToUpdate = new RoomEntity(
@@ -258,11 +299,12 @@ describe('Room Use Cases', () => {
         'Old Description',
         ['550e8400-e29b-41d4-a716-446655440001'],
         '550e8400-e29b-41d4-a716-446655440003',
+        false,
         roomId,
       );
       mockValidationService.validateObjectId.mockReturnValue(undefined);
       mockRoomRepository.findById.mockResolvedValue(roomToUpdate);
-      mockRoomRepository.findByName.mockResolvedValue(existingRoom);
+      mockRoomRepository.findByName.mockResolvedValue([existingRoom]);
 
       await expect(
         updateRoomUseCase.execute(

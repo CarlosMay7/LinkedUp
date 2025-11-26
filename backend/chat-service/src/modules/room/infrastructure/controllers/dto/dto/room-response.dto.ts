@@ -35,4 +35,10 @@ export class RoomResponseDto {
     example: '550e8400-e29b-41d4-a716-446655440003',
   })
   createdBy: string;
+
+  @ApiProperty({
+    description: 'Defines if the room is used for a direct message between users',
+    example: false,
+  })
+  isDirectMessage: boolean;
 }

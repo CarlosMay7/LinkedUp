@@ -6,6 +6,7 @@ export class RoomEntity {
     description: string,
     members: string[],
     createdBy: string,
+    isDirectMessage: boolean,
     id?: string,
   ) {
     this.id = id;
@@ -13,12 +14,14 @@ export class RoomEntity {
     this.description = description;
     this.members = members;
     this.createdBy = createdBy;
+    this.isDirectMessage = isDirectMessage;
   }
 
   public name: string;
   public description: string;
   public members: string[];
   public readonly createdBy: string;
+  public readonly isDirectMessage: boolean;
 
   addMember(userId: string): void {
     this.members.push(userId);

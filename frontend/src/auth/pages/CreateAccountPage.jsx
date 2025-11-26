@@ -4,7 +4,7 @@ import { AccountConfirmationModal } from '../components/AccountConfirmationModal
 import { useAuth } from '../context/AuthContext';
 import { DEFAULTS, ROUTES } from '../../config/constants';
 import { getErrorMessage } from '../../infrastructure/errors/error-mapper';
-import { Alert } from '../components/Alert';
+import { Alert } from '../../components/Alert';
 
 export const CreateAccountPage = () => {
     const { signUp } = useAuth();

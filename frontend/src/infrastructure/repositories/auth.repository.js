@@ -1,6 +1,6 @@
 export class AuthRepository {
-    constructor(supabaseClient) {
-        this.client = supabaseClient;
+    constructor(dbClient) {
+        this.client = dbClient;
     }
 
     async signIn({ email, password }) {

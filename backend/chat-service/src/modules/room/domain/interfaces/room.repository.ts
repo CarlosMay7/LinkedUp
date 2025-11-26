@@ -4,7 +4,7 @@ export interface IRoomRepository {
   create(room: RoomEntity): Promise<RoomEntity>;
   findAll(): Promise<RoomEntity[]>;
   findById(id: string): Promise<RoomEntity | null>;
-  findByName(name: string): Promise<RoomEntity | null>;
+  findByName(name: string): Promise<RoomEntity[]>;
   findByMember(userId: string): Promise<RoomEntity[]>;
   save(room: RoomEntity): Promise<RoomEntity>;
   delete(id: string): Promise<boolean>;

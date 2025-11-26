@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Alert } from '../components/Alert';
+import { Alert } from '../../components/Alert';
 import { useAuth } from '../context/AuthContext';
 import { ROUTES } from '../../config/constants';
 import { getErrorMessage } from '../../infrastructure/errors/error-mapper';

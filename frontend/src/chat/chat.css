@@ -662,6 +662,7 @@
 
 .room-content {
   display: flex;
+  justify-content: center;
   gap: 2rem;
   margin-top: 1rem;
 }
@@ -881,13 +882,15 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  max-height: 400px; 
+  max-height: 52vh; 
   overflow-y: auto;
+  scrollbar-width: none;
 }
 
 .user-item {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 1rem;
 }
 

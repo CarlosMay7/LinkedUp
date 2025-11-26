@@ -9,6 +9,7 @@ export class RoomMapper {
     dto.description = entity.description;
     dto.members = entity.members;
     dto.createdBy = entity.createdBy;
+    dto.isDirectMessage = entity.isDirectMessage;
     return dto;
   }
 
