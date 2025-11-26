@@ -6,7 +6,6 @@ import {
 } from '../interfaces/message.repository';
 import { ValidationService } from '../../../common/validation.service';
 import { ICreateMessageDto } from '../interfaces/icreate-message.dto';
-import { MessageEventPublisher } from '../interfaces/message.event.publisher';
 
 @Injectable()
 export class CreateMessageUseCase {
@@ -14,9 +13,6 @@ export class CreateMessageUseCase {
     @Inject(MESSAGE_REPOSITORY)
     private readonly messageRepository: IMessageRepository,
     private readonly validationService: ValidationService,
-    @Optional()
-    @Inject('MESSAGE_EVENT_PUBLISHER')
-    private readonly publisher?: MessageEventPublisher,
   ) {}
 
   async execute(data : ICreateMessageDto  ): Promise<MessageEntity> {
@@ -57,19 +53,7 @@ export class CreateMessageUseCase {
         data.receiverId,
       );
 
-
-      const created = await this.messageRepository.create(message);
-
-        // Publish to Kafka (if publisher provided). Errors in publishing should not break creation.
-      if (this.publisher) {
-        try {
-          await this.publisher.publishProcessedMessage(created);
-        } catch (publishErr) {
-          this.validationService.handleServiceError(publishErr, 'Failed to publish message event');
-        }
-      }
-
-      return created;
+      return await this.messageRepository.create(message);
 
     } catch (error) {
       this.validationService.handleServiceError(

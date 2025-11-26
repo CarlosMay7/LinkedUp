@@ -1,9 +1,10 @@
 import { MessageEventService } from '../../../src/modules/message/infrastructure/events/message-event.service';
-import { MessageKafkaProducer } from '../../../src/modules/message/infrastructure/events/message.kafka.producer';
-import { MessageKafkaAdapter } from '../../../src/modules/message/infrastructure/events/message.kafka.adapter';
+import { MessageKafkaProducer } from '../../../src/modules/message/infrastructure/events/Kafka/message.kafka.producer';
+import { MessageKafkaAdapter } from '../../../src/modules/message/infrastructure/events/Kafka/message.kafka.adapter';
 import { MessageMapper } from '../../../src/modules/message/infrastructure/mappers/message.mapper';
 import { MessageEntity } from '../../../src/modules/message/domain/entities/message.entity';
 import { Types } from 'mongoose';
+import { MessageResponseDto } from 'src/modules/message/infrastructure/controllers/dto/message-response.dto';
 
 const mockMessageEntity = new MessageEntity(
   '550e8400-e29b-41d4-a716-446655440001',
@@ -42,7 +43,7 @@ describe('Kafka integrations (unit)', () => {
         receiverId: undefined,
       };
 
-      await svc.handleIncomingKafkaEvent(payload);
+      await svc.handleIncomingEvent(payload);
 
       expect(mockCreateUseCase.execute).toHaveBeenCalledWith({
         content: payload.content,
@@ -97,7 +98,9 @@ describe('Kafka integrations (unit)', () => {
         undefined,
       );
 
-      await kafkaProducer.publish('some.topic', messageEntity);
+      const messageDto = MessageMapper.toDto(messageEntity);
+
+      await kafkaProducer.publish('some.topic', messageDto);
 
       expect(producer.connect).toHaveBeenCalled();
       expect(producer.send).toHaveBeenCalledWith({

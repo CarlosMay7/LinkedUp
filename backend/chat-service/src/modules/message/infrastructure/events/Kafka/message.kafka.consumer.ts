@@ -1,7 +1,7 @@
 import { Injectable, OnModuleInit, OnModuleDestroy, Inject, Logger } from '@nestjs/common';
 import { Kafka, Consumer } from 'kafkajs';
-import { MessageEventService } from './message-event.service';
-import { KafkaMessagePayload } from './data/kafka.message.payload';
+import { MessageEventService } from '../message-event.service';
+import { MessagePayload } from '../data/message.payload';
 
 @Injectable()
 export class MessageKafkaConsumer implements OnModuleInit, OnModuleDestroy {
@@ -23,8 +23,8 @@ export class MessageKafkaConsumer implements OnModuleInit, OnModuleDestroy {
         try {
           const value = message.value?.toString();
           if (!value) return;
-          const payload = JSON.parse(value) as KafkaMessagePayload;
-          await this.messageEventService.handleIncomingKafkaEvent(payload);
+          const payload = JSON.parse(value) as MessagePayload;
+          await this.messageEventService.handleIncomingEvent(payload);
         } catch (err) {
           this.logger.error('Error processing Kafka message', err as any);
         }

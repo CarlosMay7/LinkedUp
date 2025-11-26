@@ -9,6 +9,13 @@ import {
 } from './infrastructure/persistence/schemas/message.schema';
 import { MessageMongoRepository } from './infrastructure/persistence/message.mongo.repository';
 import { MessageController } from './infrastructure/controllers/message.controller';
+//KAFFA
+import { MESSAGE_EVENT_ADAPTER } from './infrastructure/events/message-event.adapter';
+import { MessageEventService } from './infrastructure/events/message-event.service';
+import { MessageKafkaAdapter } from './infrastructure/events/Kafka/message.kafka.adapter';
+import { MessageKafkaProducer } from './infrastructure/events/Kafka/message.kafka.producer';
+import { MessageKafkaConsumer } from './infrastructure/events/Kafka/message.kafka.consumer';
+
 
 // Domain
 import { MESSAGE_REPOSITORY } from './domain/interfaces/message.repository';
@@ -37,10 +44,19 @@ import { CommonModule } from '../common/common.module';
       provide: MESSAGE_REPOSITORY,
       useClass: MessageMongoRepository,
     },
+    //event handler
+    MessageEventService,
     {
     provide: 'KAFKA_CLIENT',
     useFactory: () => new Kafka({ brokers: ['broker:9092'] }),
     },
+    {
+      provide: MESSAGE_EVENT_ADAPTER,
+      useClass: MessageKafkaAdapter,
+    },
+    // Kafka Infrastructure
+    MessageKafkaProducer,
+    MessageKafkaConsumer,
     // Use Cases
     CreateMessageUseCase,
     FindAllMessagesUseCase,

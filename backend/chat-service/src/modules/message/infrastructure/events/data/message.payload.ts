@@ -1,4 +1,4 @@
-export interface KafkaMessagePayload {
+export interface MessagePayload {
   messageId?: string;
   senderId: string;             
   receiverId?: string;          
