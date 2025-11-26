@@ -38,7 +38,6 @@ export const LobbyPage = () => {
     };
 
     const openChatWithUser = userToChat => {
-        console.log(rooms);
         const existingRoom = rooms.find(
             room =>
                 room.isDirectMessage &&

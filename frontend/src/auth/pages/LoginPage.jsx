@@ -18,7 +18,6 @@ export const LoginPage = () => {
         if (error) {
             return setError(getErrorMessage(error));
         }
-        console.log('pasé');
         navigate(ROUTES.HOME);
     };
 

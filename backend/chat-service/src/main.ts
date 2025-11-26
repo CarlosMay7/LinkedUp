@@ -12,7 +12,7 @@ async function bootstrap() {
   
  app.enableCors({
    origin: [configService.get<string>('FRONTEND_URL') || 'http://localhost:5173'], 
-  //  credentials: true Use when JWT implemented
+  // credentials: true Use when JWT implemented
  });
 
   // Enable global validation

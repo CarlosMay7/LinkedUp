@@ -34,7 +34,7 @@ export class Room {
   members: string[];
 
   @ApiProperty({
-    description: 'Defines if the room used for a direct message between users',
+    description: 'Defines if the room is used for a direct message between users',
     example: false,
     type: Boolean,
   })
