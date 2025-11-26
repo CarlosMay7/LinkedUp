@@ -28,6 +28,7 @@ const mockRoomEntity = new RoomEntity(
     '550e8400-e29b-41d4-a716-446655440002',
   ],
   '550e8400-e29b-41d4-a716-446655440003',
+  false,
   new Types.ObjectId().toString(),
 );
 
@@ -108,6 +109,7 @@ describe('Room Use Cases', () => {
         '550e8400-e29b-41d4-a716-446655440005',
       ],
       createdBy: '550e8400-e29b-41d4-a716-446655440006',
+      isDirectMessage: false,
     };
 
     it('should create a room successfully', async () => {
@@ -118,6 +120,7 @@ describe('Room Use Cases', () => {
         createRoomDto.name,
         createRoomDto.description,
         createRoomDto.members,
+        createRoomDto.isDirectMessage,
         createRoomDto.createdBy,
       );
 
@@ -136,6 +139,7 @@ describe('Room Use Cases', () => {
           createRoomDto.name,
           createRoomDto.description,
           createRoomDto.members,
+          createRoomDto.isDirectMessage,
           createRoomDto.createdBy,
         ),
       ).rejects.toThrow(ConflictException);
@@ -278,6 +282,7 @@ describe('Room Use Cases', () => {
         'Other Description',
         [],
         '550e8400-e29b-41d4-a716-446655440007',
+        false,
         new Types.ObjectId().toString(), // Different ID
       );
       const roomToUpdate = new RoomEntity(
@@ -285,6 +290,7 @@ describe('Room Use Cases', () => {
         'Old Description',
         ['550e8400-e29b-41d4-a716-446655440001'],
         '550e8400-e29b-41d4-a716-446655440003',
+        false,
         roomId,
       );
       mockValidationService.validateObjectId.mockReturnValue(undefined);
