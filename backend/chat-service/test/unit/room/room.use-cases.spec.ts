@@ -67,6 +67,7 @@ describe('Room Use Cases', () => {
         CreateRoomUseCase,
         FindAllRoomsUseCase,
         FindRoomByIdUseCase,
+        FindRoomByNameUseCase,
         UpdateRoomUseCase,
         AddMemberUseCase,
         RemoveMemberUseCase,
