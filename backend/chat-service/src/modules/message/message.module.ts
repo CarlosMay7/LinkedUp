@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { Kafka } from 'kafkajs';
 
 // Infrastructure
 import {
@@ -36,6 +37,10 @@ import { CommonModule } from '../common/common.module';
       provide: MESSAGE_REPOSITORY,
       useClass: MessageMongoRepository,
     },
+    {
+    provide: 'KAFKA_CLIENT',
+    useFactory: () => new Kafka({ brokers: ['broker:9092'] }),
+    },
     // Use Cases
     CreateMessageUseCase,
     FindAllMessagesUseCase,
@@ -46,6 +51,7 @@ import { CommonModule } from '../common/common.module';
     UpdateMessageUseCase,
     DeleteMessageUseCase,
     DeleteMessagesByRoomUseCase,
+    
   ],
   exports: [
     MESSAGE_REPOSITORY,

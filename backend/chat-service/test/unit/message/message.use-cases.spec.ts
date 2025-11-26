@@ -13,6 +13,7 @@ import { DeleteMessagesByRoomUseCase } from '../../../src/modules/message/domain
 import { MESSAGE_REPOSITORY } from '../../../src/modules/message/domain/interfaces/message.repository';
 import { MessageEntity } from '../../../src/modules/message/domain/entities/message.entity';
 import { ValidationService } from '../../../src/modules/common/validation.service';
+import { CreateMessageDto } from 'src/modules/message/infrastructure/controllers/dto/create-message.dto';
 
 const mockRoomMessage = new MessageEntity(
   '550e8400-e29b-41d4-a716-446655440001',
@@ -122,25 +123,23 @@ describe('Message Use Cases', () => {
 
   describe('CreateMessageUseCase', () => {
     it('should create a room message successfully', async () => {
-      const roomId = new Types.ObjectId().toString();
-      const senderId = '550e8400-e29b-41d4-a716-446655440001';
-      const content = 'Test message';
+      const createDto: CreateMessageDto = {
+              roomId: new Types.ObjectId().toString(),
+              senderId: '550e8400-e29b-41d4-a716-446655440001',
+              receiverId: undefined,
+              content: 'Private message'
+            };
 
       mockMessageRepository.create.mockResolvedValue(mockRoomMessage);
 
-      const result = await createMessageUseCase.execute(
-        roomId,
-        senderId,
-        undefined,
-        content,
-      );
+      const result = await createMessageUseCase.execute(createDto);
 
       expect(mockValidationService.validateObjectId).toHaveBeenCalledWith(
-        roomId,
+        createDto.roomId,
         'Room ID',
       );
       expect(mockValidationService.validateUUID).toHaveBeenCalledWith(
-        senderId,
+        createDto.senderId,
         'Sender ID',
       );
       expect(mockMessageRepository.create).toHaveBeenCalled();
@@ -148,25 +147,23 @@ describe('Message Use Cases', () => {
     });
 
     it('should create a private message successfully', async () => {
-      const senderId = '550e8400-e29b-41d4-a716-446655440001';
-      const receiverId = '550e8400-e29b-41d4-a716-446655440002';
-      const content = 'Private message';
+      const createDto: CreateMessageDto = {
+              roomId: undefined,
+              senderId: '550e8400-e29b-41d4-a716-446655440001',
+              receiverId:'550e8400-e29b-41d4-a716-446655440002',
+              content: 'Private message'
+            };
 
       mockMessageRepository.create.mockResolvedValue(mockPrivateMessage);
 
-      const result = await createMessageUseCase.execute(
-        undefined,
-        senderId,
-        receiverId,
-        content,
-      );
+      const result = await createMessageUseCase.execute(createDto);
 
       expect(mockValidationService.validateUUID).toHaveBeenCalledWith(
-        senderId,
+        createDto.senderId,
         'Sender ID',
       );
       expect(mockValidationService.validateUUID).toHaveBeenCalledWith(
-        receiverId,
+        createDto.receiverId,
         'Receiver ID',
       );
       expect(mockMessageRepository.create).toHaveBeenCalled();
@@ -174,22 +171,28 @@ describe('Message Use Cases', () => {
     });
 
     it('should throw error if neither roomId nor receiverId provided', async () => {
-      const senderId = '550e8400-e29b-41d4-a716-446655440001';
-      const content = 'Test message';
+      const createDto: CreateMessageDto = {
+              roomId: undefined,
+              senderId: '550e8400-e29b-41d4-a716-446655440001',
+              receiverId: undefined,
+              content: 'Test message',
+            };
 
       await expect(
-        createMessageUseCase.execute(undefined, senderId, undefined, content),
+        createMessageUseCase.execute(createDto),
       ).rejects.toThrow('Either roomId or receiverId must be provided');
     });
 
     it('should throw error if both roomId and receiverId provided', async () => {
-      const roomId = new Types.ObjectId().toString();
-      const senderId = '550e8400-e29b-41d4-a716-446655440001';
-      const receiverId = '550e8400-e29b-41d4-a716-446655440002';
-      const content = 'Test message';
 
+      const createDto: CreateMessageDto = {
+              roomId: new Types.ObjectId().toString(),
+              senderId: '550e8400-e29b-41d4-a716-446655440001',
+              receiverId: '550e8400-e29b-41d4-a716-446655440002',
+              content: 'Test message',
+            };
       await expect(
-        createMessageUseCase.execute(roomId, senderId, receiverId, content),
+        createMessageUseCase.execute(createDto),
       ).rejects.toThrow('A message cannot have both roomId and receiverId');
     });
   });
