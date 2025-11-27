@@ -5,6 +5,7 @@ import {
   MESSAGE_REPOSITORY,
 } from '../interfaces/message.repository';
 import { ValidationService } from '../../../common/validation.service';
+import { ICreateMessageDto } from '../interfaces/icreate-message.dto';
 
 @Injectable()
 export class CreateMessageUseCase {
@@ -14,13 +15,11 @@ export class CreateMessageUseCase {
     private readonly validationService: ValidationService,
   ) {}
 
-  async execute(
-    roomId: string | undefined,
-    senderId: string,
-    receiverId: string | undefined,
-    content: string,
-  ): Promise<MessageEntity> {
+  async execute(data: ICreateMessageDto): Promise<MessageEntity> {
     try {
+      const roomId = data.roomId;
+      const receiverId = data.receiverId;
+      const senderId = data.senderId;
       // Validate that either roomId or receiverId is provided
       if (!roomId && !receiverId) {
         throw new Error(
@@ -46,12 +45,12 @@ export class CreateMessageUseCase {
 
       // Create new message entity
       const message = new MessageEntity(
-        senderId,
-        content,
+        data.senderId,
+        data.content,
         new Date(),
         undefined,
-        roomId,
-        receiverId,
+        data.roomId,
+        data.receiverId,
       );
 
       return await this.messageRepository.create(message);

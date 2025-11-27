@@ -3,6 +3,9 @@ import { supabase } from '../../auth/supabase/supabaseClient';
 import { UserRepository } from '../../infrastructure/repositories/user.repository';
 import { GetAllUsersUseCase } from '../../core/use-cases/user/get-all-users.use-case';
 import { SearchUsersByUsernameUseCase } from '../../core/use-cases/user/search-users-by-username.use-case';
+import { BlockUserUseCase } from '../../core/use-cases/user/block-user.use-case';
+import { UnblockUserUseCase } from '../../core/use-cases/user/unblock-user.use-case';
+import { WarnUserUseCase } from '../../core/use-cases/user/warn-user.use-case';
 import { useAuth } from '../../auth/context/AuthContext';
 
 // Dependency Injection
@@ -11,6 +14,9 @@ const getAllUsersUseCase = new GetAllUsersUseCase(userRepository);
 const searchUsersByUsernameUseCase = new SearchUsersByUsernameUseCase(
     userRepository
 );
+const blockUserUseCase = new BlockUserUseCase(userRepository);
+const unblockUserUseCase = new UnblockUserUseCase(userRepository);
+const warnUserUseCase = new WarnUserUseCase(userRepository);
 
 export const useUsers = () => {
     const { user } = useAuth();
@@ -52,6 +58,36 @@ export const useUsers = () => {
         }
     };
 
+    const blockUser = async userId => {
+        try {
+            await blockUserUseCase.execute(userId);
+            await fetchUsers();
+        } catch (err) {
+            setError(err.message);
+            console.error('Error blocking user:', err);
+        }
+    };
+
+    const unblockUser = async userId => {
+        try {
+            await unblockUserUseCase.execute(userId);
+            await fetchUsers();
+        } catch (err) {
+            setError(err.message);
+            console.error('Error unblocking user:', err);
+        }
+    };
+
+    const warnUser = async userId => {
+        try {
+            await warnUserUseCase.execute(userId);
+            await fetchUsers();
+        } catch (err) {
+            setError(err.message);
+            console.error('Error warning user:', err);
+        }
+    };
+
     useEffect(() => {
         fetchUsers();
     }, []);
@@ -62,5 +98,8 @@ export const useUsers = () => {
         error,
         fetchUsers,
         searchUsers,
+        blockUser,
+        unblockUser,
+        warnUser,
     };
 };

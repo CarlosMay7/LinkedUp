@@ -1,10 +1,6 @@
-version: "3.9"
-services:
-  auth-service:
-    build: backend/auth-service
-    ports:
-      - "3001:3000"
+version: '3.9'
 
+services:
   chat-service:
     build: backend/chat-service
     ports:
@@ -18,4 +14,29 @@ services:
   frontend:
     build: ./frontend
     ports:
-      - "8080:80"
+  zookeeper:
+    image: wurstmeister/zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: wurstmeister/kafka
+    container_name: kafka
+    ports:
+      - "9092:9092"     # internal listener for containers
+      - "29092:29092"   # external listener for your local machine
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:29092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,EXTERNAL://localhost:29092
+
+      # Assign protocols for both listeners
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+
+      # Kafka needs to know which listener to use internally
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+
+    depends_on:
+      - zookeeper
