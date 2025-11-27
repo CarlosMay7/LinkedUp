@@ -1,4 +1,4 @@
-import { Inject, Injectable, Optional } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { MessageEntity } from '../entities/message.entity';
 import {
   IMessageRepository,
@@ -15,11 +15,11 @@ export class CreateMessageUseCase {
     private readonly validationService: ValidationService,
   ) {}
 
-  async execute(data : ICreateMessageDto  ): Promise<MessageEntity> {
+  async execute(data: ICreateMessageDto): Promise<MessageEntity> {
     try {
       const roomId = data.roomId;
-      const receiverId = data.receiverId
-      const senderId = data.senderId
+      const receiverId = data.receiverId;
+      const senderId = data.senderId;
       // Validate that either roomId or receiverId is provided
       if (!roomId && !receiverId) {
         throw new Error(
@@ -54,7 +54,6 @@ export class CreateMessageUseCase {
       );
 
       return await this.messageRepository.create(message);
-
     } catch (error) {
       this.validationService.handleServiceError(
         error,

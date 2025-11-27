@@ -1,4 +1,10 @@
-import { Injectable, OnModuleInit, OnModuleDestroy, Inject, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  OnModuleInit,
+  OnModuleDestroy,
+  Inject,
+  Logger,
+} from '@nestjs/common';
 import { Kafka, Consumer } from 'kafkajs';
 import { MessageEventService } from '../message-event.service';
 import { MessagePayload } from '../data/message.payload';
@@ -14,9 +20,14 @@ export class MessageKafkaConsumer implements OnModuleInit, OnModuleDestroy {
   ) {}
 
   async onModuleInit(): Promise<void> {
-    this.consumer = this.kafkaClient.consumer({ groupId: 'chat-service-consumer' });
+    this.consumer = this.kafkaClient.consumer({
+      groupId: 'chat-service-consumer',
+    });
     await this.consumer.connect();
-    await this.consumer.subscribe({ topic: 'message.created', fromBeginning: false });
+    await this.consumer.subscribe({
+      topic: 'message.created',
+      fromBeginning: false,
+    });
 
     await this.consumer.run({
       eachMessage: async ({ message }) => {

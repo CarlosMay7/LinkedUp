@@ -4,7 +4,6 @@ import { MessageKafkaAdapter } from '../../../src/modules/message/infrastructure
 import { MessageMapper } from '../../../src/modules/message/infrastructure/mappers/message.mapper';
 import { MessageEntity } from '../../../src/modules/message/domain/entities/message.entity';
 import { Types } from 'mongoose';
-import { MessageResponseDto } from 'src/modules/message/infrastructure/controllers/dto/message-response.dto';
 
 const mockMessageEntity = new MessageEntity(
   '550e8400-e29b-41d4-a716-446655440001',
@@ -31,8 +30,12 @@ describe('Kafka integrations (unit)', () => {
         undefined,
       );
 
-      const mockCreateUseCase = { execute: jest.fn().mockResolvedValue(created) } as any;
-      const mockPublisher = { publishProcessedMessage: jest.fn().mockResolvedValue(undefined) } as any;
+      const mockCreateUseCase = {
+        execute: jest.fn().mockResolvedValue(created),
+      } as any;
+      const mockPublisher = {
+        publishProcessedMessage: jest.fn().mockResolvedValue(undefined),
+      } as any;
 
       const svc = new MessageEventService(mockCreateUseCase, mockPublisher);
 
@@ -51,13 +54,17 @@ describe('Kafka integrations (unit)', () => {
         roomId: payload.roomId,
         receiverId: payload.receiverId,
       });
-      expect(mockPublisher.publishProcessedMessage).toHaveBeenCalledWith(created);
+      expect(mockPublisher.publishProcessedMessage).toHaveBeenCalledWith(
+        created,
+      );
     });
   });
 
   describe('MessageKafkaAdapter', () => {
     it('should call producer.publish with the processed topic and entity', async () => {
-      const producerMock = { publish: jest.fn().mockResolvedValue(undefined) } as any;
+      const producerMock = {
+        publish: jest.fn().mockResolvedValue(undefined),
+      } as any;
       const adapter = new MessageKafkaAdapter(producerMock);
 
       const entity = new MessageEntity(
@@ -71,7 +78,10 @@ describe('Kafka integrations (unit)', () => {
 
       await adapter.publishProcessedMessage(entity);
 
-      expect(producerMock.publish).toHaveBeenCalledWith('message.processed', entity);
+      expect(producerMock.publish).toHaveBeenCalledWith(
+        'message.processed',
+        entity,
+      );
     });
   });
 

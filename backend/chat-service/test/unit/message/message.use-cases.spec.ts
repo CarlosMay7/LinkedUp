@@ -124,11 +124,11 @@ describe('Message Use Cases', () => {
   describe('CreateMessageUseCase', () => {
     it('should create a room message successfully', async () => {
       const createDto: CreateMessageDto = {
-              roomId: new Types.ObjectId().toString(),
-              senderId: '550e8400-e29b-41d4-a716-446655440001',
-              receiverId: undefined,
-              content: 'Private message'
-            };
+        roomId: new Types.ObjectId().toString(),
+        senderId: '550e8400-e29b-41d4-a716-446655440001',
+        receiverId: undefined,
+        content: 'Private message',
+      };
 
       mockMessageRepository.create.mockResolvedValue(mockRoomMessage);
 
@@ -148,11 +148,11 @@ describe('Message Use Cases', () => {
 
     it('should create a private message successfully', async () => {
       const createDto: CreateMessageDto = {
-              roomId: undefined,
-              senderId: '550e8400-e29b-41d4-a716-446655440001',
-              receiverId:'550e8400-e29b-41d4-a716-446655440002',
-              content: 'Private message'
-            };
+        roomId: undefined,
+        senderId: '550e8400-e29b-41d4-a716-446655440001',
+        receiverId: '550e8400-e29b-41d4-a716-446655440002',
+        content: 'Private message',
+      };
 
       mockMessageRepository.create.mockResolvedValue(mockPrivateMessage);
 
@@ -172,28 +172,27 @@ describe('Message Use Cases', () => {
 
     it('should throw error if neither roomId nor receiverId provided', async () => {
       const createDto: CreateMessageDto = {
-              roomId: undefined,
-              senderId: '550e8400-e29b-41d4-a716-446655440001',
-              receiverId: undefined,
-              content: 'Test message',
-            };
+        roomId: undefined,
+        senderId: '550e8400-e29b-41d4-a716-446655440001',
+        receiverId: undefined,
+        content: 'Test message',
+      };
 
-      await expect(
-        createMessageUseCase.execute(createDto),
-      ).rejects.toThrow('Either roomId or receiverId must be provided');
+      await expect(createMessageUseCase.execute(createDto)).rejects.toThrow(
+        'Either roomId or receiverId must be provided',
+      );
     });
 
     it('should throw error if both roomId and receiverId provided', async () => {
-
       const createDto: CreateMessageDto = {
-              roomId: new Types.ObjectId().toString(),
-              senderId: '550e8400-e29b-41d4-a716-446655440001',
-              receiverId: '550e8400-e29b-41d4-a716-446655440002',
-              content: 'Test message',
-            };
-      await expect(
-        createMessageUseCase.execute(createDto),
-      ).rejects.toThrow('A message cannot have both roomId and receiverId');
+        roomId: new Types.ObjectId().toString(),
+        senderId: '550e8400-e29b-41d4-a716-446655440001',
+        receiverId: '550e8400-e29b-41d4-a716-446655440002',
+        content: 'Test message',
+      };
+      await expect(createMessageUseCase.execute(createDto)).rejects.toThrow(
+        'A message cannot have both roomId and receiverId',
+      );
     });
   });
 

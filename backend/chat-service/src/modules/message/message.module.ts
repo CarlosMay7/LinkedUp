@@ -16,7 +16,6 @@ import { MessageKafkaAdapter } from './infrastructure/events/Kafka/message.kafka
 import { MessageKafkaProducer } from './infrastructure/events/Kafka/message.kafka.producer';
 import { MessageKafkaConsumer } from './infrastructure/events/Kafka/message.kafka.consumer';
 
-
 // Domain
 import { MESSAGE_REPOSITORY } from './domain/interfaces/message.repository';
 import { CreateMessageUseCase } from './domain/use-cases/create-message.use-case';
@@ -47,8 +46,8 @@ import { CommonModule } from '../common/common.module';
     //event handler
     MessageEventService,
     {
-    provide: 'KAFKA_CLIENT',
-    useFactory: () => new Kafka({ brokers: ['localhost:29092'] }),
+      provide: 'KAFKA_CLIENT',
+      useFactory: () => new Kafka({ brokers: ['localhost:29092'] }),
     },
     {
       provide: MESSAGE_EVENT_ADAPTER,
@@ -67,7 +66,6 @@ import { CommonModule } from '../common/common.module';
     UpdateMessageUseCase,
     DeleteMessageUseCase,
     DeleteMessagesByRoomUseCase,
-    
   ],
   exports: [
     MESSAGE_REPOSITORY,

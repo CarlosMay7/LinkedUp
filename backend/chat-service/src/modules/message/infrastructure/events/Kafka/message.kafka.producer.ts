@@ -6,7 +6,7 @@ import { MessageResponseDto } from '../../controllers/dto/message-response.dto';
 @Injectable()
 export class MessageKafkaProducer {
   constructor(
-    @Inject('KAFKA_CLIENT') private readonly kafkaClient: Kafka, // proporciona KAFKA_CLIENT en tu módulo
+    @Inject('KAFKA_CLIENT') private readonly kafkaClient: Kafka,
   ) {}
 
   async publish(topic: string, message: MessageResponseDto): Promise<void> {
