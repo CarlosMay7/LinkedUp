@@ -1,36 +1,15 @@
+
 import { useState } from 'react';
-
+import { UserManagementTable } from '../../components/UserManagementTable';
 export const AdminPage = () => {
-    const [manualActions, setManualActions] = useState({
-        User_X: '',
-        User_Y: '',
-        User_Z: '',
-        User_A: '',
-    });
-
     const [autoBlockThreshold, setAutoBlockThreshold] = useState(100);
 
-    const handleManualAction = (user, action) => {
-        setManualActions(prev => ({
-            ...prev,
-            [user]: action,
-        }));
-    };
-
-    const handleSaveActions = () => {
-        console.log('Actions saved:', {
-            manualActions,
-            autoBlockThreshold,
-        });
-        alert('Actions saved successfully');
-    };
-
+    const handleSaveActions = () => {};
     return (
         <div className="admin-page">
             <div className="admin-header">
                 <h1>Global Moderation Statistics</h1>
             </div>
-
             <div className="stats-section">
                 <div className="stats-card">
                     <div className="stats-row">
@@ -71,66 +50,9 @@ export const AdminPage = () => {
                 </div>
             </div>
 
-            <div className="users-section">
-                <h2>Manual User Management</h2>
-                <div className="users-table">
-                    <div className="table-header">
-                        <div className="col-user">User</div>
-                        <div className="col-messages">Obscene Messages</div>
-                        <div className="col-actions">Manual Actions</div>
-                    </div>
-
-                    <div className="table-row">
-                        <div className="col-user">User_X</div>
-                        <div className="col-messages">15</div>
-                        <div className="col-actions">
-                            <button
-                                className={`action-btn btn-warn ${manualActions.User_X === 'warn' ? 'active' : ''}`}
-                                onClick={() =>
-                                    handleManualAction('User_X', 'warn')
-                                }
-                            >
-                                Warn
-                            </button>
-                            <button
-                                className={`action-btn btn-block ${manualActions.User_X === 'block' ? 'active' : ''}`}
-                                onClick={() =>
-                                    handleManualAction('User_X', 'block')
-                                }
-                            >
-                                Block
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="table-row">
-                        <div className="col-user">User_Y</div>
-                        <div className="col-messages">92</div>
-                        <div className="col-actions">
-                            <span className="warned">Warned</span>
-                            <button
-                                className={`action-btn btn-block ${manualActions.User_Y === 'block' ? 'active' : ''}`}
-                                onClick={() =>
-                                    handleManualAction('User_Y', 'block')
-                                }
-                            >
-                                Block
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="table-row">
-                        <div className="col-user">User_Z</div>
-                        <div className="col-messages">101</div>
-                        <div className="col-actions">
-                            <span className="blocked">Blocked</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <UserManagementTable />
 
             <div className="separator"></div>
-
             <div className="auto-actions-section">
                 <h3>Automatic Actions</h3>
                 <div className="auto-block">
@@ -148,7 +70,6 @@ export const AdminPage = () => {
                     </p>
                 </div>
             </div>
-
             <div className="save-section">
                 <button className="button btn-save" onClick={handleSaveActions}>
                     SAVE ACTIONS

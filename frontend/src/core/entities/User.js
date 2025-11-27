@@ -1,13 +1,15 @@
 import { USER_ROLES } from '../../config/constants';
 
 export class User {
-    constructor({ id, uuid, email, username, role, avatar }) {
+    constructor({ id, uuid, email, username, role, avatar, blocked, warned }) {
         this.id = id;
         this.uuid = uuid;
         this.email = email;
         this.username = username;
         this.role = role;
         this.avatar = avatar;
+        this.blocked = blocked;
+        this.warned = warned;
     }
 
     static fromSupabase(supabaseUser) {
