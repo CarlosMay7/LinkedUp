@@ -4,7 +4,6 @@ export class WarnUserUseCase {
     }
 
     async execute(userId) {
-        const user = await this.userRepository.warnUser(userId);
-        return user;
+        await this.userRepository.warnUser(userId);
     }
 }

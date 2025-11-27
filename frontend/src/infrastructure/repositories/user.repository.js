@@ -74,17 +74,6 @@ export class UserRepository {
         }
     }
 
-    async unwarnUser(userId) {
-        const { error } = await this.dbClient
-            .from('users')
-            .update({ warned: false })
-            .eq('user_uuid', userId);
-
-        if (error) {
-            throw error;
-        }
-    }
-
     mapToUserEntity(dbUser) {
         return new User({
             id: dbUser.id,

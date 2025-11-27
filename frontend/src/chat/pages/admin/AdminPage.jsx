@@ -1,10 +1,8 @@
-
 import { useState } from 'react';
 import { UserManagementTable } from '../../components/UserManagementTable';
 export const AdminPage = () => {
     const [autoBlockThreshold, setAutoBlockThreshold] = useState(100);
 
-    const handleSaveActions = () => {};
     return (
         <div className="admin-page">
             <div className="admin-header">
@@ -69,11 +67,6 @@ export const AdminPage = () => {
                         obscene messages.
                     </p>
                 </div>
-            </div>
-            <div className="save-section">
-                <button className="button btn-save" onClick={handleSaveActions}>
-                    SAVE ACTIONS
-                </button>
             </div>
         </div>
     );

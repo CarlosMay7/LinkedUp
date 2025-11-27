@@ -4,7 +4,6 @@ export class BlockUserUseCase {
     }
 
     async execute(userId) {
-        const user = await this.userRepository.blockUser(userId);
-        return user;
+        await this.userRepository.blockUser(userId);
     }
 }

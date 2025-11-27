@@ -1,27 +1,25 @@
-import { useEffect } from 'react';
 import { useUsers } from '../hooks/useUsers';
 
 export const UserManagementTable = () => {
-    const { users, loading: loadingUsers, blockUser, unblockUser, warnUser, fetchUsers } = useUsers();
+    const {
+        users,
+        loading: loadingUsers,
+        blockUser,
+        unblockUser,
+        warnUser,
+    } = useUsers();
 
     const handleBlockUser = async userId => {
         await blockUser(userId);
-        await fetchUsers();
     };
 
     const handleUnblockUser = async userId => {
         await unblockUser(userId);
-        await fetchUsers();
     };
 
     const handleWarnUser = async userId => {
         await warnUser(userId);
-        await fetchUsers();
     };
-
-    useEffect(() => {
-        console.log('Current users state:', users);
-    }, [users]);
 
     return (
         <div className="users-section">
@@ -53,7 +51,9 @@ export const UserManagementTable = () => {
                                 <div className="col-actions">
                                     <button
                                         className={`action-btn btn-warn warn active`}
-                                        onClick={() => handleWarnUser(user.uuid)}
+                                        onClick={() =>
+                                            handleWarnUser(user.uuid)
+                                        }
                                         disabled={user.warned}
                                     >
                                         {user.warned ? 'Warned' : 'Warn'}
@@ -61,14 +61,18 @@ export const UserManagementTable = () => {
                                     {user.blocked ? (
                                         <button
                                             className={`action-btn btn-unblock unblock active`}
-                                            onClick={() => handleUnblockUser(user.uuid)}
+                                            onClick={() =>
+                                                handleUnblockUser(user.uuid)
+                                            }
                                         >
                                             Unblock
                                         </button>
                                     ) : (
                                         <button
                                             className={`action-btn btn-block block active`}
-                                            onClick={() => handleBlockUser(user.uuid)}
+                                            onClick={() =>
+                                                handleBlockUser(user.uuid)
+                                            }
                                         >
                                             Block
                                         </button>
@@ -82,5 +86,3 @@ export const UserManagementTable = () => {
         </div>
     );
 };
- 
-

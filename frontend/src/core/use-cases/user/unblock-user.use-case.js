@@ -4,7 +4,6 @@ export class UnblockUserUseCase {
     }
 
     async execute(userId) {
-        const user = await this.userRepository.unblockUser(userId);
-        return user;
+        await this.userRepository.unblockUser(userId);
     }
 }
