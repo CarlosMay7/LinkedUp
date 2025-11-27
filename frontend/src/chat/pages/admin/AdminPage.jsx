@@ -1,159 +1,110 @@
-import { useState } from 'react';
+import { useEffect, useState } from "react";
+
+import { filterMessages } from "../../../utils/Filter";
+import { checkMessage } from "../../../utils/CheckMessage";
+import { aggregateStats } from "../../../utils/Stats";
 
 export const AdminPage = () => {
-    const [manualActions, setManualActions] = useState({
-        User_X: '',
-        User_Y: '',
-        User_Z: '',
-        User_A: '',
-    });
+  const [stats, setStats] = useState([]);
+  const [topWords, setTopWords] = useState([]);
+  const [totalWords, setTotalWords] = useState(0);
 
-    const [autoBlockThreshold, setAutoBlockThreshold] = useState(100);
+  useEffect(() => {
+    const loadStats = async () => {
+        console.log("Cargando estadísticas...");
+      try {
+    // ------------------------
+    // MENSAJE DE PRUEBA
+    // ------------------------
+        const testMessage = {
+            user: "550e8400-e29b-41d4-a716-446655440001",
+            text: "negro bitch damn",
+        };
 
-    const handleManualAction = (user, action) => {
-        setManualActions(prev => ({
-            ...prev,
-            [user]: action,
-        }));
-    };
+        const messages = [testMessage];
+        console.log("📨 Mensajes a procesar:", messages);
 
-    const handleSaveActions = () => {
-        console.log('Actions saved:', {
-            manualActions,
-            autoBlockThreshold,
-        });
-        alert('Actions saved successfully');
-    };
+        const filtered = filterMessages(messages);
+        console.log("✅ Mensajes filtrados:", filtered);
 
-    return (
-        <div className="admin-page">
-            <div className="admin-header">
-                <h1>Global Moderation Statistics</h1>
-            </div>
+        let allResults = [];
+        let wordCounter = {};
 
-            <div className="stats-section">
-                <div className="stats-card">
-                    <div className="stats-row">
-                        <div className="total-words">
-                            <h3>Total Words</h3>
-                            <div className="filtered-today">
-                                <span className="label">Filtered (Today)</span>
-                                <span className="value">
-                                    {/* Add statistics */}11,204
-                                </span>
-                            </div>
-                        </div>
+        for (const msg of filtered) {
+          console.log("🔍 Procesando mensaje:", msg);
 
-                        <div className="top-words">
-                            <h3>Top 10 Words</h3>
-                            <div className="words-list">
-                                <div className="word-item">
-                                    <span className="rank">1.</span>
-                                    <span className="word">
-                                        {/* Add words */}Word_A
-                                    </span>
-                                    <span className="count">
-                                        {/* Word counter */}
-                                    </span>
-                                </div>
-                                <div className="word-item">
-                                    <span className="rank">2.</span>
-                                    <span className="word">Word_B</span>
-                                    <span className="count">(310)</span>
-                                </div>
-                                <div className="word-item">
-                                    <span className="rank">3.</span>
-                                    <span className="word">...</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+          const messageToCheck = {
+            user: msg.senderId || msg.user || "unknown",
+            content: msg.content || msg.text || ""
+          };
 
-            <div className="users-section">
-                <h2>Manual User Management</h2>
-                <div className="users-table">
-                    <div className="table-header">
-                        <div className="col-user">User</div>
-                        <div className="col-messages">Obscene Messages</div>
-                        <div className="col-actions">Manual Actions</div>
-                    </div>
+          console.log("📤 Enviando a checkMessage:", messageToCheck);
+          const result = await checkMessage(messageToCheck);
+          allResults.push(result);
 
-                    <div className="table-row">
-                        <div className="col-user">User_X</div>
-                        <div className="col-messages">15</div>
-                        <div className="col-actions">
-                            <button
-                                className={`action-btn btn-warn ${manualActions.User_X === 'warn' ? 'active' : ''}`}
-                                onClick={() =>
-                                    handleManualAction('User_X', 'warn')
-                                }
-                            >
-                                Warn
-                            </button>
-                            <button
-                                className={`action-btn btn-block ${manualActions.User_X === 'block' ? 'active' : ''}`}
-                                onClick={() =>
-                                    handleManualAction('User_X', 'block')
-                                }
-                            >
-                                Block
-                            </button>
-                        </div>
-                    </div>
+          for (const [word, count] of Object.entries(result.badWords || {})) {
+            wordCounter[word] = (wordCounter[word] || 0) + count;
+          }
+        }
 
-                    <div className="table-row">
-                        <div className="col-user">User_Y</div>
-                        <div className="col-messages">92</div>
-                        <div className="col-actions">
-                            <span className="warned">Warned</span>
-                            <button
-                                className={`action-btn btn-block ${manualActions.User_Y === 'block' ? 'active' : ''}`}
-                                onClick={() =>
-                                    handleManualAction('User_Y', 'block')
-                                }
-                            >
-                                Block
-                            </button>
-                        </div>
-                    </div>
+        console.log("📊 Todos los resultados:", allResults);
+        console.log("🔢 Contador de palabras:", wordCounter);
 
-                    <div className="table-row">
-                        <div className="col-user">User_Z</div>
-                        <div className="col-messages">101</div>
-                        <div className="col-actions">
-                            <span className="blocked">Blocked</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        const aggregated = aggregateStats(allResults);
+        console.log("📈 Estadísticas agregadas:", aggregated);
+        setStats(aggregated);
 
-            <div className="separator"></div>
+        const sortedTop = Object.entries(wordCounter)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 10);
+        setTopWords(sortedTop);
 
-            <div className="auto-actions-section">
-                <h3>Automatic Actions</h3>
-                <div className="auto-block">
-                    <p>
-                        Automatically block account after exceeding
-                        <input
-                            type="number"
-                            value={autoBlockThreshold}
-                            onChange={e =>
-                                setAutoBlockThreshold(parseInt(e.target.value))
-                            }
-                            className="threshold-input"
-                        />
-                        obscene messages.
-                    </p>
-                </div>
-            </div>
+        const total = Object.values(wordCounter).reduce((acc, v) => acc + v, 0);
+        setTotalWords(total);
 
-            <div className="save-section">
-                <button className="button btn-save" onClick={handleSaveActions}>
-                    SAVE ACTIONS
-                </button>
-            </div>
+      } catch (err) {
+        console.error("Error loading stats:", err);
+      }
+  };
+
+    loadStats();
+
+}, []);
+
+return ( <div className="admin-page"> <div className="admin-header"> <h1>Global Moderation Statistics</h1> </div>
+
+  <div className="stats-section">
+    <div className="stats-card">
+      <div className="stats-row">
+
+        <div className="total-words">
+          <h3>Total Words</h3>
+          <div className="filtered-today">
+            <span className="label">Filtered (Today)</span>
+            <span className="value">{totalWords.toLocaleString()}</span>
+          </div>
         </div>
-    );
+
+        <div className="top-words">
+          <h3>Top 10 Words</h3>
+          <div className="words-list">
+            {topWords.length === 0 && <p>No data available</p>}
+
+            {topWords.map(([word, count], index) => (
+              <div key={word} className="word-item">
+                <span className="rank">{index + 1}.</span>
+                <span className="word">{word}</span>
+                <span className="count">({count})</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+);
 };
+
