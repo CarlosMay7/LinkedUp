@@ -1,8 +1,15 @@
 import { Module } from '@nestjs/common';
-import { ChatGateway } from './chat/chat.gateway';
+import { ConfigModule } from '@nestjs/config';
+import { ChatModule } from './modules/chat/chat.module';
 
 @Module({
-  imports: [],
-  providers: [ChatGateway],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
+    ChatModule,
+  ],
+  providers: [],
 })
 export class AppModule {}
