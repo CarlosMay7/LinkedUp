@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateMessageUseCase } from '../../domain/use-cases/create-message.use-case';
 import { MessagePayload } from './data/message.payload';
-import { MessageEventAdapter } from './message-event.adapter';
+import { MESSAGE_EVENT_ADAPTER, MessageEventAdapter } from './message-event.adapter';
 
 
 @Injectable()
@@ -9,6 +9,7 @@ export class MessageEventService {
 
   constructor(
     private readonly createMessageUseCase: CreateMessageUseCase,
+    @Inject(MESSAGE_EVENT_ADAPTER)
     private readonly publisher: MessageEventAdapter,
   ) {}
 

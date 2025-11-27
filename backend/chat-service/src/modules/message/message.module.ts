@@ -48,7 +48,7 @@ import { CommonModule } from '../common/common.module';
     MessageEventService,
     {
     provide: 'KAFKA_CLIENT',
-    useFactory: () => new Kafka({ brokers: ['broker:9092'] }),
+    useFactory: () => new Kafka({ brokers: ['localhost:29092'] }),
     },
     {
       provide: MESSAGE_EVENT_ADAPTER,
