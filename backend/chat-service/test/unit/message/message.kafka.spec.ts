@@ -99,6 +99,9 @@ describe('Kafka integrations (unit)', () => {
 
       const kafkaProducer = new MessageKafkaProducer(kafkaClient);
 
+      // Inicializa el "producer" (simula onModuleInit de Nest)
+      await kafkaProducer.onModuleInit();
+
       const messageEntity = new MessageEntity(
         mockMessageEntity.senderId,
         'content',
@@ -111,6 +114,9 @@ describe('Kafka integrations (unit)', () => {
       const messageDto = MessageMapper.toDto(messageEntity);
 
       await kafkaProducer.publish('some.topic', messageDto);
+
+      // Limpieza (simula onModuleDestroy)
+      await kafkaProducer.onModuleDestroy();
 
       expect(producer.connect).toHaveBeenCalled();
       expect(producer.send).toHaveBeenCalledWith({
