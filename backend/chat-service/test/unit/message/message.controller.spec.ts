@@ -158,12 +158,7 @@ describe('MessageController', () => {
 
       const result = await controller.create(createDto);
 
-      expect(createMessageUseCase.execute).toHaveBeenCalledWith(
-        createDto.roomId,
-        createDto.senderId,
-        undefined,
-        createDto.content,
-      );
+      expect(createMessageUseCase.execute).toHaveBeenCalledWith(createDto);
       expect(result).toHaveProperty('id');
       expect(result.content).toBe('Test message content');
     });
@@ -188,12 +183,7 @@ describe('MessageController', () => {
 
       const result = await controller.create(createDto);
 
-      expect(createMessageUseCase.execute).toHaveBeenCalledWith(
-        undefined,
-        createDto.senderId,
-        createDto.receiverId,
-        createDto.content,
-      );
+      expect(createMessageUseCase.execute).toHaveBeenCalledWith(createDto);
       expect(result.receiverId).toBe('550e8400-e29b-41d4-a716-446655440002');
     });
   });
