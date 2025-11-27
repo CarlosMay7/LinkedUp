@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Kafka } from 'kafkajs';
 
@@ -44,16 +45,17 @@ import { CommonModule } from '../common/common.module';
       useClass: MessageMongoRepository,
     },
     //event handler
-    MessageEventService,
     {
       provide: 'KAFKA_CLIENT',
-      useFactory: () => new Kafka({ brokers: ['localhost:29092'] }),
+      useFactory: (configService: ConfigService) => new Kafka({ brokers: [configService.get<string>('KAFKA_BROKER') || "kafka:9092"] }),
+      inject: [ConfigService],
     },
     {
       provide: MESSAGE_EVENT_ADAPTER,
       useClass: MessageKafkaAdapter,
     },
     // Kafka Infrastructure
+    MessageEventService,
     MessageKafkaProducer,
     MessageKafkaConsumer,
     // Use Cases
