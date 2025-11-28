@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Server } from 'socket.io';
 import { IMessageBroker } from '../../domain/interfaces/message-broker.interface';
-import { MessageEntity } from '../../domain/entities/message.entity';
 
 @Injectable()
 export class SocketIOMessageBroker implements IMessageBroker {
@@ -13,7 +12,7 @@ export class SocketIOMessageBroker implements IMessageBroker {
     this.logger.log('Socket.IO server configured');
   }
 
-  sendToRoom(roomId: string, message: MessageEntity): void {
+  sendToRoom(roomId: string, message: any): void {
     if (!this.server) {
       this.logger.error('Socket.IO server not configured');
       return;
@@ -30,7 +29,7 @@ export class SocketIOMessageBroker implements IMessageBroker {
     this.logger.log(`Message sent to room: ${roomId}`);
   }
 
-  sendToUser(userId: string, message: MessageEntity): void {
+  sendToUser(userId: string, message: any): void {
     if (!this.server) {
       this.logger.error('Socket.IO server not configured');
       return;
