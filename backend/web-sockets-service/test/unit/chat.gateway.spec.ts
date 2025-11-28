@@ -119,6 +119,12 @@ describe('ChatGateway', () => {
   describe('handleJoinRoom', () => {
     it('should join a room', () => {
       const data = { roomId: 'room-1', userId: 'user-1' };
+      // Ensure server.rooms and server.to are defined so gateway methods do not throw
+      gateway.server = {
+        sockets: { adapter: { rooms: new Map() } },
+        to: jest.fn().mockReturnValue({ emit: jest.fn() }),
+      } as any;
+
       const result = gateway.handleJoinRoom(data, mockSocket as Socket);
       expect(mockSocket.join).toHaveBeenCalledWith('room-1');
       expect(result.data?.roomId).toBe('room-1');
@@ -128,6 +134,12 @@ describe('ChatGateway', () => {
   describe('handleLeaveRoom', () => {
     it('should leave a room', () => {
       const data = { roomId: 'room-1', userId: 'user-1' };
+      // Ensure server.rooms and server.to are defined so gateway methods do not throw
+      gateway.server = {
+        sockets: { adapter: { rooms: new Map() } },
+        to: jest.fn().mockReturnValue({ emit: jest.fn() }),
+      } as any;
+
       const result = gateway.handleLeaveRoom(data, mockSocket as Socket);
       expect(mockSocket.leave).toHaveBeenCalledWith('room-1');
       expect(result.data?.roomId).toBe('room-1');
@@ -275,12 +287,9 @@ describe('ChatGateway', () => {
         .mockReturnValueOnce('user-1')
         .mockReturnValueOnce('user-2');
       
-      const result = gateway.handleGetOnlineUsers(data);
-      
-      expect(result).toEqual({
-        event: 'onlineUsers',
-        data: ['user-1', 'user-2'],
-      });
+      gateway.handleGetOnlineUsers(data, mockSocket as Socket);
+
+      expect(mockSocket.emit).toHaveBeenCalledWith('onlineUsers', ['user-1', 'user-2']);
     });
   });
 });
