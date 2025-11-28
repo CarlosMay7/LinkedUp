@@ -66,12 +66,7 @@ export class MessageController {
   async create(
     @Body() createMessageDto: CreateMessageDto,
   ): Promise<MessageResponseDto> {
-    const message = await this.createMessageUseCase.execute(
-      createMessageDto.roomId,
-      createMessageDto.senderId,
-      createMessageDto.receiverId,
-      createMessageDto.content,
-    );
+    const message = await this.createMessageUseCase.execute(createMessageDto);
     return MessageMapper.toDto(message);
   }
 

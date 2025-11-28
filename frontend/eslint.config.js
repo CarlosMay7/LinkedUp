@@ -40,7 +40,6 @@ export default defineConfig([
             'react/jsx-uses-react': 'off',
             'react/jsx-uses-vars': 'error',
             'react-hooks/rules-of-hooks': 'error',
-            'react-hooks/exhaustive-deps': 'warn',
 
             'prettier/prettier': 'warn',
         },

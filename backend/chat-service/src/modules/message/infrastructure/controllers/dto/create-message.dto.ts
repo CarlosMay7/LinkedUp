@@ -7,8 +7,9 @@ import {
   ValidateIf,
   IsUUID,
 } from 'class-validator';
+import { ICreateMessageDto } from 'src/modules/message/domain/interfaces/icreate-message.dto';
 
-export class CreateMessageDto {
+export class CreateMessageDto implements ICreateMessageDto {
   @ApiPropertyOptional({
     description:
       'Room ID if the message belongs to a room (nullable for private messages)',
