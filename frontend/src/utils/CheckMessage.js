@@ -6,15 +6,13 @@ export async function checkMessage({ user, content }, { apiUrl = DEFAULT_API, ti
     if (!messageText.trim()) return result;
 
     try {
-        console.log("🔍 Analizando mensaje completo con API:", messageText);
-        
+
         const words = messageText.toLowerCase().split(/\s+/);
         const detectedWords = [];
 
         for (const word of words) {
             if (word.length > 3 && !isCommonWord(word)) {
                 try {
-                    console.log(`🔍 Verificando palabra: "${word}"`);
                     const wordResult = await analyzeWordWithAPI(word, apiUrl, timeout);
                     
                     if (wordResult.isProfanity) {
@@ -34,24 +32,19 @@ export async function checkMessage({ user, content }, { apiUrl = DEFAULT_API, ti
             result.totalBad += 1;
         });
         
-        console.log("📊 Resultado final de análisis por palabras:", result);
-        
         if (result.totalBad > 0) {
             return result;
         }
-        
-        console.log("🔄 Intentando análisis del mensaje completo...");
+       
         const fullMessageResult = await analyzeWordWithAPI(messageText, apiUrl, timeout);
         
         if (fullMessageResult.isProfanity && fullMessageResult.flaggedWord) {
             const badWord = fullMessageResult.flaggedWord.toLowerCase();
             result.badWords[badWord] = 1;
             result.totalBad = 1;
-            console.log("✅ Mensaje completo detectó palabra:", badWord);
             return result;
         }
         
-        console.log("ℹ️ No se detectaron palabras malas con la API");
         return result;
 
     } catch (err) {

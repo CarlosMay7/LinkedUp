@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 
 import { filterMessages } from "../../../utils/Filter";
-import { checkMessage } from "../../../utils/CheckMessage";
+// import { checkMessage } from "../../../utils/CheckMessage";
 import { aggregateStats } from "../../../utils/Stats";
+import { StatsRepository } from "../../../infrastructure/repositories/stats.repository";
+import { SaveUserStatsUseCase } from "../../../core/use-cases/stats/save-user-stats.use-case";
+import { supabase } from '../../auth/supabase/supabaseClient';
 
 export const AdminPage = () => {
   const [stats, setStats] = useState([]);
@@ -39,7 +42,14 @@ export const AdminPage = () => {
           };
 
           console.log("📤 Enviando a checkMessage:", messageToCheck);
-          const result = await checkMessage(messageToCheck);
+          // const result = await checkMessage(messageToCheck);
+          const statsRepository = new StatsRepository(supabase);
+          const saveUserStatsUseCase = new SaveUserStatsUseCase(statsRepository);
+          
+          if (Object.keys(result.badWords).length > 0) {
+            await saveUserStatsUseCase.execute(result.user, result.badWords);
+          }
+
           allResults.push(result);
 
           for (const [word, count] of Object.entries(result.badWords || {})) {
