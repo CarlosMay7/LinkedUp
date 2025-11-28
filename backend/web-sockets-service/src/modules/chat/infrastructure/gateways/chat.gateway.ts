@@ -119,7 +119,6 @@ export class ChatGateway
     @ConnectedSocket() client: Socket,
   ) {
     try {
-      // Publicar el mensaje en Kafka para que chat-service lo valide y persista
       await this.kafkaProducer.publishMessageCreated({
         senderId: data.senderId,
         content: data.content,
@@ -128,7 +127,6 @@ export class ChatGateway
         timestamp: Date.now(),
       });
 
-      // Ack inmediato al cliente; el mensaje final llegará vía 'newMessage' cuando Kafka procese
       const ack = {
         status: 'queued',
         tempId: undefined,
