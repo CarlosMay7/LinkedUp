@@ -1,20 +1,6 @@
 version: '3.9'
 
 services:
-  chat-service:
-    build: backend/chat-service
-    ports:
-      - "3002:3000"
-
-  web-sockets-service:
-    build: backend/web-sockets-service
-    ports:
-      - "3003:3000"
-
-  frontend:
-    build: ./frontend
-    ports:
-      - "5173:5173"
   zookeeper:
     image: wurstmeister/zookeeper
     container_name: zookeeper

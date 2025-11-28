@@ -11,28 +11,42 @@ export class InitializeWebSocketUseCase {
         try {
             this.websocketRepository.connect(token);
 
-            // Wait for connection
+            // Wait for connection with longer timeout
             return new Promise((resolve, reject) => {
                 const timeout = setTimeout(() => {
-                    reject(new Error('Timeout initializing WebSocket'));
-                }, 5000);
+                    reject(
+                        new Error(
+                            'Timeout initializing WebSocket - Server may be unavailable. Please check if the WebSocket service is running on port 3002'
+                        )
+                    );
+                }, 15000); // Increased from 5000 to 15000ms
 
                 if (this.websocketRepository.isConnected()) {
                     clearTimeout(timeout);
                     resolve({ initialized: true });
                 } else {
-                    this.websocketRepository.socket.once('connect', () => {
-                        clearTimeout(timeout);
-                        resolve({ initialized: true });
-                    });
+                    const socket = this.websocketRepository.socket;
 
-                    this.websocketRepository.socket.once(
-                        'connect_error',
-                        error => {
-                            clearTimeout(timeout);
-                            reject(error);
-                        }
-                    );
+                    const handleConnect = () => {
+                        clearTimeout(timeout);
+                        socket.off('connect', handleConnect);
+                        socket.off('connect_error', handleConnectError);
+                        resolve({ initialized: true });
+                    };
+
+                    const handleConnectError = error => {
+                        clearTimeout(timeout);
+                        socket.off('connect', handleConnect);
+                        socket.off('connect_error', handleConnectError);
+                        reject(
+                            new Error(
+                                `WebSocket connection error: ${error.message}`
+                            )
+                        );
+                    };
+
+                    socket.once('connect', handleConnect);
+                    socket.once('connect_error', handleConnectError);
                 }
             });
         } catch (error) {

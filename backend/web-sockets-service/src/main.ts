@@ -17,8 +17,7 @@ async function bootstrap() {
   const port = process.env.PORT || 3002;
   await app.listen(port);
 
-  console.log(`WebSocket Service running on http://localhost:${port}`);
-  console.log(`WebSocket endpoint: ws://localhost:${port}/socket.io`);
+  console.log(`🚀 WebSocket Service running on http://localhost:${port}`);
 }
 
 bootstrap();

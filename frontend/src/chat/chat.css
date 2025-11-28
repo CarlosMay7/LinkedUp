@@ -53,6 +53,17 @@
   margin-right: 1rem;
 }
 
+.admin-icon {
+  margin-right: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: var(--primary-color);
+  cursor: pointer;
+  transition: transform 180ms ease;
+}
+
 .profile-icon img,
 .logout-icon img {
   width: 2rem;
@@ -63,6 +74,7 @@
 
 .profile-icon img:hover,
 .logout-icon img:hover,
+.admin-icon:hover,
 .nav-logo:hover {
   transform: scale(1.12);
 }
@@ -715,6 +727,15 @@
 }
 
 .no-messages {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #b0b0b0;
+  font-style: italic;
+}
+
+.loading-messages {
   display: flex;
   align-items: center;
   justify-content: center;

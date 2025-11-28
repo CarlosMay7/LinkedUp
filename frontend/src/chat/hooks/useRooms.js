@@ -85,6 +85,37 @@ export const useRooms = () => {
         }
     };
 
+    const findOrCreateDirectMessage = async (userId1, userId2, createdBy) => {
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await fetch(
+                `${import.meta.env.VITE_API_BASE_URL}/room/direct-message/${userId1}/${userId2}`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ createdBy }),
+                }
+            );
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Failed to find or create direct message room');
+            }
+
+            const room = await response.json();
+            return room;
+        } catch (err) {
+            setError(err.message);
+            console.error('Error finding or creating direct message room:', err);
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
         fetchRooms();
     }, []);
@@ -97,5 +128,6 @@ export const useRooms = () => {
         searchRoomByName,
         getRoomById,
         addMemberToRoom,
+        findOrCreateDirectMessage,
     };
 };

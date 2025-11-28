@@ -8,9 +8,6 @@ import { CreateRoomModal } from '../components/CreateRoomModal';
 import roomIcon from '../../assets/icon/room.svg';
 import { useAuth } from '../../auth/context/AuthContext';
 import { useWebSocket } from '../../chat/context/WebSocketContext';
-import { RoomRepository } from '../../infrastructure/repositories/room.repository';
-
-const roomRepository = new RoomRepository();
 
 export const LobbyPage = () => {
     const { user: currentUser } = useAuth();
@@ -20,6 +17,7 @@ export const LobbyPage = () => {
         loading: loadingRooms,
         searchRoomByName,
         addMemberToRoom,
+        findOrCreateDirectMessage,
     } = useRooms();
     const { joinRoom, registerUser } = useWebSocket();
     const [modalOpen, setModalOpen] = useState(false);
@@ -29,47 +27,26 @@ export const LobbyPage = () => {
         setModalOpen(true);
     };
 
-    const createDirectChatRoom = async user => {
+    const openChatWithUser = async userToChat => {
         try {
-            const newRoomData = await roomRepository.createRoom(
-                user.username,
-                `Private chat between ${currentUser.username} and ${user.username}`,
-                [currentUser.id, user.uuid],
+            const room = await findOrCreateDirectMessage(
                 currentUser.id,
-                true
+                userToChat.uuid,
+                currentUser.id
             );
-            navigate(`${ROUTES.ROOM}/${newRoomData.id}`);
+            navigate(`${ROUTES.ROOM}/${room.id}`);
         } catch (err) {
-            console.error('Error creating direct chat room:', err);
+            console.error('Error opening direct chat:', err);
         }
-    };
-
-    const openChatWithUser = userToChat => {
-        const existingRoom = rooms.find(
-            room =>
-                room.isDirectMessage &&
-                room.members.includes(currentUser.id) &&
-                room.members.includes(userToChat.uuid)
-        );
-
-        if (existingRoom) {
-            navigate(`${ROUTES.ROOM}/${existingRoom.id}`);
-            return;
-        }
-
-        createDirectChatRoom(userToChat);
     };
 
     const handleJoinRoom = async roomId => {
         try {
-            // Register user in WebSocket
             await registerUser(currentUser.id);
-
-            // Join room via WebSocket
             await joinRoom(roomId, currentUser.id);
 
-            // Add member to room
-            if(!rooms.find(room => room.id === roomId).members.includes(currentUser.id)){
+            const room = rooms.find(r => r.id === roomId);
+            if (room && !room.members.includes(currentUser.id)) {
                 await addMemberToRoom(roomId, currentUser.id);
             }
 

@@ -25,12 +25,15 @@ export const WebSocketProvider = ({ children }) => {
     const { user } = useAuth();
     const [isConnected, setIsConnected] = useState(false);
     const [connectionError, setConnectionError] = useState(null);
+    const [connectionAttempts, setConnectionAttempts] = useState(0);
 
     useEffect(() => {
         if (!user) {
             // Finalize WebSocket when user logs out
             finalizeWebSocketUseCase.execute();
             setIsConnected(false);
+            setConnectionError(null);
+            setConnectionAttempts(0);
             return;
         }
 
@@ -39,18 +42,35 @@ export const WebSocketProvider = ({ children }) => {
                 setConnectionError(null);
                 await initializeWebSocketUseCase.execute(user.id);
                 setIsConnected(true);
+                setConnectionAttempts(0);
             } catch (error) {
-                console.error('Error connecting WebSocket:', error);
+                console.warn('WebSocket connection failed (app will continue without real-time features):', error.message);
                 setConnectionError(error.message);
                 setIsConnected(false);
+                
+                // Retry connection after a delay
+                const nextAttempt = connectionAttempts + 1;
+                setConnectionAttempts(nextAttempt);
+                
+                if (nextAttempt < 3) {
+                    const delay = 5000 * nextAttempt; // Exponential backoff: 5s, 10s, 15s
+                    setTimeout(connectWebSocket, delay);
+                }
             }
         };
 
         connectWebSocket();
 
         // Listen for connection changes
-        const handleConnect = () => setIsConnected(true);
-        const handleDisconnect = () => setIsConnected(false);
+        const handleConnect = () => {
+            setIsConnected(true);
+            setConnectionError(null);
+            setConnectionAttempts(0);
+        };
+        
+        const handleDisconnect = () => {
+            setIsConnected(false);
+        };
 
         websocketRepository.on('connect', handleConnect);
         websocketRepository.on('disconnect', handleDisconnect);

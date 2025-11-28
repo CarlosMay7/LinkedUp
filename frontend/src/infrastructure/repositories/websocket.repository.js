@@ -26,11 +26,11 @@ export class WebSocketRepository {
         });
 
         this.socket.on('connect', () => {
-            console.log('WebSocket connected:', this.socket.id);
+            // WebSocket connected
         });
 
         this.socket.on('disconnect', reason => {
-            console.log('WebSocket disconnected:', reason);
+            // WebSocket disconnected
         });
 
         this.socket.on('connect_error', error => {
@@ -70,14 +70,11 @@ export class WebSocketRepository {
     emit(event, data) {
         if (this.socket?.connected) {
             this.socket.emit(event, data);
-        } else {
-            console.warn('WebSocket is not connected');
         }
     }
 
     on(event, callback) {
         if (!this.socket) {
-            console.warn('WebSocket is not initialized');
             return;
         }
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useRooms } from '../hooks/useRooms';
 import { useOnlineUsers } from '../hooks/useOnlineUsers';
@@ -11,6 +11,7 @@ export const RoomPage = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
     const roomId = useLocation().pathname.split('/').pop();
+    const messagesListRef = useRef(null);
 
     const [roomName, setRoomName] = useState('');
     const [members, setMembers] = useState([]);
@@ -18,11 +19,9 @@ export const RoomPage = () => {
     const [isDirectMessage, setIsDirectMessage] = useState(false);
     const [messageInput, setMessageInput] = useState('');
 
-    const { leaveRoom } = useWebSocket();
-    const { messages, isTyping, error, sendMessage } = useMessages(
-        roomId,
-        user?.id
-    );
+    const { leaveRoom, joinRoom, registerUser } = useWebSocket();
+    const { messages, isTyping, error, loadingHistorical, sendMessage } =
+        useMessages(roomId, user?.id);
     const { onlineUsers } = useOnlineUsers(roomId);
 
     const goBack = async () => {
@@ -34,6 +33,19 @@ export const RoomPage = () => {
         map[member.user_uuid] = member.username;
         return map;
     }, {});
+
+    // For direct messages, find the display name (the other user's name)
+    const getDisplayName = () => {
+        if (!isDirectMessage || !members || members.length === 0) {
+            return roomName;
+        }
+
+        // Find the other user (not the current user)
+        const otherMember = members.find(
+            member => member.user_uuid !== user?.id
+        );
+        return otherMember ? otherMember.username : roomName;
+    };
 
     useEffect(() => {
         const loadRoomData = async () => {
@@ -48,6 +60,34 @@ export const RoomPage = () => {
 
         loadRoomData();
     }, [roomId]);
+
+    // Join room when component mounts or roomId changes
+    useEffect(() => {
+        if (!user?.id || !roomId) {
+            return;
+        }
+
+        const setupRoom = async () => {
+            try {
+                await registerUser(user.id);
+                await joinRoom(roomId, user.id);
+            } catch (err) {
+                console.error('Error setting up room:', err);
+            }
+        };
+
+        setupRoom();
+    }, [roomId, user?.id, registerUser, joinRoom]);
+
+    // Scroll to bottom when messages change or load
+    useEffect(() => {
+        if (messagesListRef.current) {
+            setTimeout(() => {
+                messagesListRef.current.scrollTop =
+                    messagesListRef.current.scrollHeight;
+            }, 0);
+        }
+    }, [messages, loadingHistorical]);
 
     const handleSendMessage = async e => {
         e.preventDefault();
@@ -81,13 +121,17 @@ export const RoomPage = () => {
                     &lt; Back
                 </button>
                 <h2 className="room-title">
-                    {loading ? 'Loading...' : roomName}
+                    {loading ? 'Loading...' : getDisplayName()}
                 </h2>
             </div>
             <div className="room-content">
                 <div className="messages-area">
-                    <div className="messages-list">
-                        {messages.length === 0 ? (
+                    <div className="messages-list" ref={messagesListRef}>
+                        {loadingHistorical && messages.length === 0 ? (
+                            <div className="loading-messages">
+                                Loading messages...
+                            </div>
+                        ) : messages.length === 0 ? (
                             <div className="no-messages">No messages yet</div>
                         ) : (
                             messages.map((msg, index) => (
@@ -112,7 +156,9 @@ export const RoomPage = () => {
                                         {msg.senderId === user?.id
                                             ? '[You]'
                                             : ''}{' '}
-                                        {formatTime(msg.timestamp)}
+                                        {formatTime(
+                                            msg.sentAt || msg.timestamp
+                                        )}
                                     </span>
                                 </div>
                             ))

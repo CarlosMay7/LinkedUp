@@ -198,10 +198,8 @@ export class ChatGateway
     this.logger.log(`Sent online users list for room ${data.roomId} to client ${client.id}`);
   }
 
-  // TODO: Implement getSenderIdFromMessage to retrieve sender from message store
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private getSenderIdFromMessage(_messageId: string): string | null {
-    // This should query a message repository or cache
     return null;
   }
 
