@@ -1,8 +1,6 @@
-import { MessageEntity } from '../entities/message.entity';
-
 export interface IMessageBroker {
-  sendToRoom(roomId: string, message: MessageEntity): void;
-  sendToUser(userId: string, message: MessageEntity): void;
+  sendToRoom(roomId: string, message: any): void;
+  sendToUser(userId: string, message: any): void;
   broadcastToRoom(roomId: string, event: string, data: any): void;
   notifyUser(userId: string, event: string, data: any): void;
 }

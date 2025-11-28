@@ -1,39 +1,47 @@
 import { Module } from '@nestjs/common';
-import { HttpModule } from '@nestjs/axios';
 import { ChatGateway } from './infrastructure/gateways/chat.gateway';
-import { MessageService } from './application/services/message.service';
 import { SessionService } from './application/services/session.service';
 import { TypingService } from './application/services/typing.service';
 import { MessageStatusService } from './application/services/message-status.service';
 import { SocketIOMessageBroker } from './infrastructure/adapters/socketio-message-broker.adapter';
 import { InMemorySessionManager } from './infrastructure/adapters/in-memory-session-manager.adapter';
-import { ChatServiceMessageRepository } from './infrastructure/adapters/chat-service-message-repository.adapter';
 import { MESSAGE_BROKER } from './domain/interfaces/message-broker.interface';
 import { SESSION_MANAGER } from './domain/interfaces/session-manager.interface';
-import { MESSAGE_REPOSITORY } from './domain/interfaces/message-repository.interface';
+import { ConfigService } from '@nestjs/config';
+import { Kafka } from 'kafkajs';
+import { WsKafkaProducer } from './infrastructure/events/Kafka/ws.kafka.producer';
+import { WsKafkaConsumer } from './infrastructure/events/Kafka/ws.kafka.consumer';
+import { WsMessageEventService } from './infrastructure/events/message-event.service';
 
 @Module({
-  imports: [HttpModule],
+  imports: [],
   providers: [
     ChatGateway,
-    MessageService,
     SessionService,
     TypingService,
     MessageStatusService,
-    SocketIOMessageBroker, // Single instance
+    SocketIOMessageBroker,
     {
       provide: MESSAGE_BROKER,
-      useExisting: SocketIOMessageBroker, // Use the same instance
+      useExisting: SocketIOMessageBroker,
     },
     {
       provide: SESSION_MANAGER,
       useClass: InMemorySessionManager,
     },
+    // Kafka client and event wiring
     {
-      provide: MESSAGE_REPOSITORY,
-      useClass: ChatServiceMessageRepository,
+      provide: 'KAFKA_CLIENT',
+      useFactory: (configService: ConfigService) =>
+        new Kafka({
+          brokers: [configService.get<string>('KAFKA_BROKER') || 'kafka:9092'],
+        }),
+      inject: [ConfigService],
     },
+    WsKafkaProducer,
+    WsKafkaConsumer,
+    WsMessageEventService,
   ],
-  exports: [MessageService, SessionService],
+  exports: [SessionService],
 })
 export class ChatModule {}

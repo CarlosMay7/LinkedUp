@@ -19,11 +19,11 @@ import {
   MessageReadDto,
   GetOnlineUsersDto,
 } from '../dto/chat.dto';
-import { MessageService } from '../../application/services/message.service';
 import { SessionService } from '../../application/services/session.service';
 import { TypingService } from '../../application/services/typing.service';
 import { MessageStatusService } from '../../application/services/message-status.service';
 import { SocketIOMessageBroker } from '../adapters/socketio-message-broker.adapter';
+import { WsKafkaProducer } from '../events/Kafka/ws.kafka.producer';
 
 @WebSocketGateway({
   cors: {
@@ -31,18 +31,20 @@ import { SocketIOMessageBroker } from '../adapters/socketio-message-broker.adapt
     credentials: true,
   },
 })
-export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+export class ChatGateway
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer()
   server: Server;
 
   private readonly logger = new Logger(ChatGateway.name);
 
   constructor(
-    private readonly messageService: MessageService,
     private readonly sessionService: SessionService,
     private readonly typingService: TypingService,
     private readonly messageStatusService: MessageStatusService,
     private readonly messageBroker: SocketIOMessageBroker,
+    private readonly kafkaProducer: WsKafkaProducer,
   ) {}
 
   afterInit(server: Server) {
@@ -71,34 +73,12 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   @SubscribeMessage('joinRoom')
-  async handleJoinRoom(
+  handleJoinRoom(
     @MessageBody() data: JoinRoomDto,
     @ConnectedSocket() client: Socket,
   ) {
     client.join(data.roomId);
     this.logger.log(`User ${data.userId} joined room ${data.roomId}`);
-
-    // Load and send historical messages to the user who just joined
-    try {
-      const historicalMessages = await this.messageService.getMessagesByRoom(data.roomId);
-      
-      if (historicalMessages.length > 0) {
-        this.logger.log(`Sending ${historicalMessages.length} historical messages to user ${data.userId}`);
-        
-        // Send historical messages only to the user who joined
-        historicalMessages.forEach(msg => {
-          client.emit('historicalMessage', {
-            _id: msg._id,
-            senderId: msg.senderId,
-            roomId: msg.roomId,
-            content: msg.content,
-            sentAt: msg.sentAt,
-          });
-        });
-      }
-    } catch (error) {
-      this.logger.error(`Failed to load historical messages: ${error.message}`);
-    }
 
     // Notify others in the room that someone joined
     client.to(data.roomId).emit('userJoined', {
@@ -147,24 +127,22 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     @ConnectedSocket() client: Socket,
   ) {
     try {
-      const message = await this.messageService.sendMessage(
-        data.senderId,
-        data.content,
-        data.roomId,
-        data.receiverId,
-      );
+      await this.kafkaProducer.publishMessageCreated({
+        senderId: data.senderId,
+        content: data.content,
+        roomId: data.roomId,
+        receiverId: data.receiverId,
+        timestamp: Date.now(),
+      });
 
-      const response = {
-        _id: message._id,
-        roomId: message.roomId,
-        senderId: message.senderId,
-        receiverId: message.receiverId,
-        content: message.content,
-        sentAt: message.sentAt,
+      const ack = {
+        status: 'queued',
+        tempId: undefined,
+        roomId: data.roomId,
+        receiverId: data.receiverId,
       };
-
-      client.emit('messageSent', { data: response });
-      return { event: 'messageSent', data: response };
+      client.emit('messageQueued', ack);
+      return { event: 'messageQueued', data: ack };
     } catch (error) {
       this.logger.error(`Failed to send message: ${error.message}`);
       client.emit('messageError', {

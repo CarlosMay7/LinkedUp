@@ -4,11 +4,11 @@ import { SocketIOAdapter } from './modules/chat/infrastructure/adapters/socket-i
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
-  // Configure WebSocket adapter with Socket.IO
+
+  // Configure WebSocket adapter (Socket.IO se maneja automáticamente con NestJS)
   app.useWebSocketAdapter(new SocketIOAdapter(app));
-  
-  // Enable CORS for HTTP endpoints
+
+  // Enable CORS (una sola vez, aquí)
   app.enableCors({
     origin: '*',
     credentials: true,
@@ -16,9 +16,9 @@ async function bootstrap() {
 
   const port = process.env.PORT || 3002;
   await app.listen(port);
-  
-  console.log(`🚀 WebSocket Service running on http://localhost:${port}`);
-  console.log(`📡 WebSocket endpoint: ws://localhost:${port}/socket.io`);
+
+  console.log(`WebSocket Service running on http://localhost:${port}`);
+  console.log(`WebSocket endpoint: ws://localhost:${port}/socket.io`);
 }
 
 bootstrap();

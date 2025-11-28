@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebSocket Test Client - LinkedUp (Dual Users)</title>
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .header {
+      background: white;
+      border-radius: 12px 12px 0 0;
+      padding: 20px 30px;
+      text-align: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .header h1 {
+      color: #667eea;
+      margin-bottom: 5px;
+    }
+
+    .header p {
+      color: #6b7280;
+      font-size: 14px;
+    }
+
+    .dual-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      padding: 20px;
+      background: white;
+      border-radius: 0 0 12px 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .user-panel {
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 20px;
+      background: #f9fafb;
+    }
+
+    .user-panel.user1 {
+      border-top: 4px solid #667eea;
+    }
+
+    .user-panel.user2 {
+      border-top: 4px solid #764ba2;
+    }
+
+    .user-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+
+    .user-panel.user1 .user-title {
+      color: #667eea;
+    }
+
+    .user-panel.user2 .user-title {
+      color: #764ba2;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 15px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+
+    .status.connected {
+      background: #d1fae5;
+      color: #047857;
+    }
+
+    .status.disconnected {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 4px;
+      color: #4b5563;
+      font-weight: 500;
+      font-size: 13px;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 13px;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      width: 100%;
+      margin-top: 8px;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .grid-2 button {
+      margin-top: 0;
+    }
+
+    .log {
+      background: #1f2937;
+      color: #10b981;
+      padding: 12px;
+      border-radius: 6px;
+      height: 250px;
+      overflow-y: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      margin-top: 15px;
+      border: 1px solid #374151;
+    }
+
+    .log-entry {
+      margin-bottom: 6px;
+      padding: 3px;
+      border-radius: 2px;
+    }
+
+    .log-entry.event {
+      color: #60a5fa;
+    }
+
+    .log-entry.error {
+      color: #f87171;
+    }
+
+    .log-entry.success {
+      color: #34d399;
+    }
+
+    .log-entry.info {
+      color: #a78bfa;
+    }
+
+    .timestamp {
+      color: #6b7280;
+      font-size: 10px;
+    }
+
+    .shared-actions {
+      grid-column: 1 / -1;
+      border: 2px dashed #cbd5e1;
+      border-radius: 8px;
+      padding: 15px;
+      background: #f8fafc;
+      margin-top: 10px;
+    }
+
+    .shared-actions h3 {
+      color: #667eea;
+      font-size: 14px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .shared-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .shared-grid button {
+      margin-top: 0;
+      font-size: 12px;
+      padding: 8px 12px;
+    }
+
+    .demo-info {
+      grid-column: 1 / -1;
+      background: #eff6ff;
+      border-left: 4px solid #667eea;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      font-size: 13px;
+      color: #1e40af;
+    }
+
+    .demo-info strong {
+      color: #667eea;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🔌 WebSocket Test Client - Dual Users</h1>
+    <p>Prueba dos usuarios concurrentes en la misma sala - Socket.IO v4.8.1</p>
+  </div>
+
+  <div class="dual-container">
+    <!-- Demo Info -->
+    <div class="demo-info" style="grid-column: 1 / -1;">
+      <strong>ℹ️ Instrucciones:</strong> 
+      1) Conecta ambos usuarios. 
+      2) Registra ambos con IDs diferentes (ej: User-1 y User-2). 
+      3) Ambos se unen a la misma sala (ej: room-chat-1). 
+      4) Envía mensajes desde cualquier usuario para probar la comunicación bilateral.
+    </div>
+
+    <!-- USER 1 -->
+    <div class="user-panel user1">
+      <div class="user-title">👤 Usuario 1</div>
+      
+      <div class="status disconnected" id="status1">● Desconectado</div>
+
+      <div class="form-group">
+        <label for="serverUrl1">URL del Servidor</label>
+        <input type="text" id="serverUrl1" value="http://localhost:3002" placeholder="http://localhost:3002">
+      </div>
+
+      <div class="grid-2">
+        <button onclick="connect('user1')">Conectar</button>
+        <button onclick="disconnect('user1')" id="disconnectBtn1" disabled>Desconectar</button>
+      </div>
+
+      <div class="form-group">
+        <label for="userId1">ID de Usuario</label>
+        <input type="text" id="userId1" value="User-1" placeholder="User-1">
+      </div>
+
+      <button onclick="register('user1')" id="registerBtn1" disabled>Registrar Usuario</button>
+
+      <div class="form-group">
+        <label for="roomId1">ID de Sala</label>
+        <input type="text" id="roomId1" value="room-chat-1" placeholder="room-chat-1">
+      </div>
+
+      <div class="grid-2">
+        <button onclick="joinRoom('user1')" id="joinBtn1" disabled>Unirse a Sala</button>
+        <button onclick="leaveRoom('user1')" id="leaveBtn1" disabled>Salir de Sala</button>
+      </div>
+
+      <div class="form-group">
+        <label for="messageContent1">Mensaje</label>
+        <textarea id="messageContent1" placeholder="Escribe tu mensaje..."></textarea>
+      </div>
+
+      <button onclick="sendMessage('user1')" id="sendBtn1" disabled>Enviar Mensaje</button>
+      <button onclick="sendTyping('user1')" id="typingBtn1" disabled style="background: #f59e0b;">Simular Typing</button>
+
+      <div class="log" id="log1"></div>
+    </div>
+
+    <!-- USER 2 -->
+    <div class="user-panel user2">
+      <div class="user-title">👤 Usuario 2</div>
+      
+      <div class="status disconnected" id="status2">● Desconectado</div>
+
+      <div class="form-group">
+        <label for="serverUrl2">URL del Servidor</label>
+        <input type="text" id="serverUrl2" value="http://localhost:3002" placeholder="http://localhost:3002">
+      </div>
+
+      <div class="grid-2">
+        <button onclick="connect('user2')">Conectar</button>
+        <button onclick="disconnect('user2')" id="disconnectBtn2" disabled>Desconectar</button>
+      </div>
+
+      <div class="form-group">
+        <label for="userId2">ID de Usuario</label>
+        <input type="text" id="userId2" value="User-2" placeholder="User-2">
+      </div>
+
+      <button onclick="register('user2')" id="registerBtn2" disabled>Registrar Usuario</button>
+
+      <div class="form-group">
+        <label for="roomId2">ID de Sala</label>
+        <input type="text" id="roomId2" value="room-chat-1" placeholder="room-chat-1">
+      </div>
+
+      <div class="grid-2">
+        <button onclick="joinRoom('user2')" id="joinBtn2" disabled>Unirse a Sala</button>
+        <button onclick="leaveRoom('user2')" id="leaveBtn2" disabled>Salir de Sala</button>
+      </div>
+
+      <div class="form-group">
+        <label for="messageContent2">Mensaje</label>
+        <textarea id="messageContent2" placeholder="Escribe tu mensaje..."></textarea>
+      </div>
+
+      <button onclick="sendMessage('user2')" id="sendBtn2" disabled>Enviar Mensaje</button>
+      <button onclick="sendTyping('user2')" id="typingBtn2" disabled style="background: #f59e0b;">Simular Typing</button>
+
+      <div class="log" id="log2"></div>
+    </div>
+
+    <!-- Shared Actions -->
+    <div class="shared-actions">
+      <h3>🔄 Acciones Sincronizadas</h3>
+      <div class="shared-grid">
+        <button onclick="connectBoth()" style="background: #10b981;">Conectar Ambos</button>
+        <button onclick="registerBoth()" style="background: #10b981;">Registrar Ambos</button>
+        <button onclick="joinBoth()" style="background: #3b82f6;">Unirse Ambos a Sala</button>
+        <button onclick="clearAllLogs()" style="background: #ef4444;">Limpiar Todos los Logs</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const sockets = {};
+    const currentUsers = {};
+    const currentRooms = {};
+
+    function log(userNum, message, type = 'info') {
+      const logDiv = document.getElementById(`log${userNum}`);
+      const timestamp = new Date().toLocaleTimeString();
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${type}`;
+      entry.innerHTML = `<span class="timestamp">[${timestamp}]</span> ${message}`;
+      logDiv.appendChild(entry);
+      logDiv.scrollTop = logDiv.scrollHeight;
+    }
+
+    function updateStatus(userNum, connected) {
+      const statusDiv = document.getElementById(`status${userNum}`);
+      if (connected) {
+        statusDiv.className = 'status connected';
+        statusDiv.textContent = '● Conectado';
+      } else {
+        statusDiv.className = 'status disconnected';
+        statusDiv.textContent = '● Desconectado';
+      }
+      updateButtons(userNum, connected);
+    }
+
+    function updateButtons(userNum, connected) {
+      document.getElementById(`disconnectBtn${userNum}`).disabled = !connected;
+      document.getElementById(`registerBtn${userNum}`).disabled = !connected;
+      document.getElementById(`joinBtn${userNum}`).disabled = !connected;
+      document.getElementById(`leaveBtn${userNum}`).disabled = !connected;
+      document.getElementById(`sendBtn${userNum}`).disabled = !connected;
+      document.getElementById(`typingBtn${userNum}`).disabled = !connected;
+    }
+
+    function connect(user) {
+      const userNum = user === 'user1' ? '1' : '2';
+      const serverUrl = document.getElementById(`serverUrl${userNum}`).value;
+      log(userNum, `🔄 Conectando a ${serverUrl}...`, 'info');
+
+      const socket = io(serverUrl, {
+        transports: ['websocket', 'polling'],
+        reconnection: true,
+        reconnectionDelay: 1000,
+        reconnectionAttempts: 5
+      });
+
+      sockets[user] = socket;
+
+      socket.on('connect', () => {
+        log(userNum, `✅ Conectado. Socket ID: ${socket.id.substring(0, 8)}...`, 'success');
+        updateStatus(userNum, true);
+      });
+
+      socket.on('disconnect', (reason) => {
+        log(userNum, `❌ Desconectado. Razón: ${reason}`, 'error');
+        updateStatus(userNum, false);
+      });
+
+      socket.on('connect_error', (error) => {
+        log(userNum, `❌ Error: ${error.message}`, 'error');
+      });
+
+      // Event Listeners
+      socket.on('registered', (data) => {
+        log(userNum, `✅ Registrado: ${data.data?.userId || 'OK'}`, 'success');
+        currentUsers[user] = data.data?.userId;
+      });
+
+      socket.on('joinedRoom', (data) => {
+        log(userNum, `🏠 Unido a sala: ${data.data?.roomId || 'OK'}`, 'event');
+        currentRooms[user] = data.data?.roomId;
+      });
+
+      socket.on('userJoined', (data) => {
+        log(userNum, `👋 ${data.data?.userId || 'Usuario'} se unió a la sala`, 'event');
+      });
+
+      socket.on('userLeft', (data) => {
+        log(userNum, `👋 ${data.data?.userId || 'Usuario'} salió de la sala`, 'event');
+      });
+
+      socket.on('newMessage', (data) => {
+        const msg = data.data?.content || data.data?.message || JSON.stringify(data);
+        log(userNum, `📨 Nuevo mensaje: "${msg}"`, 'event');
+      });
+
+      socket.on('typing', (data) => {
+        log(userNum, `⌨️ ${data.data?.userId || 'Usuario'} está escribiendo...`, 'event');
+      });
+
+      socket.on('messageQueued', (data) => {
+        log(userNum, `📤 Mensaje enviado`, 'success');
+      });
+
+      socket.on('onlineUsers', (data) => {
+        const userCount = data.data?.users?.length || 0;
+        log(userNum, `👥 ${userCount} usuarios online en sala`, 'info');
+      });
+
+      socket.onAny((eventName, ...args) => {
+        if (!['connect', 'disconnect', 'registered', 'joinedRoom', 'userJoined', 
+              'userLeft', 'newMessage', 'typing', 'messageQueued', 'onlineUsers'].includes(eventName)) {
+          log(userNum, `📡 ${eventName}`, 'info');
+        }
+      });
+    }
+
+    function disconnect(user) {
+      const userNum = user === 'user1' ? '1' : '2';
+      if (sockets[user]) {
+        sockets[user].disconnect();
+        delete sockets[user];
+        log(userNum, '🔌 Desconectado', 'info');
+        updateStatus(userNum, false);
+      }
+    }
+
+    function register(user) {
+      const userNum = user === 'user1' ? '1' : '2';
+      const userId = document.getElementById(`userId${userNum}`).value;
+      if (!userId || !sockets[user]) {
+        log(userNum, '❌ Ingresa ID de usuario', 'error');
+        return;
+      }
+      sockets[user].emit('register', { userId });
+      log(userNum, `📤 Registrando: ${userId}`, 'info');
+    }
+
+    function joinRoom(user) {
+      const userNum = user === 'user1' ? '1' : '2';
+      const roomId = document.getElementById(`roomId${userNum}`).value;
+      const userId = document.getElementById(`userId${userNum}`).value;
+      if (!roomId || !userId || !sockets[user]) {
+        log(userNum, '❌ Completa sala y usuario', 'error');
+        return;
+      }
+      sockets[user].emit('joinRoom', { roomId, userId });
+      log(userNum, `📤 Uniéndose a: ${roomId}`, 'info');
+    }
+
+    function leaveRoom(user) {
+      const userNum = user === 'user1' ? '1' : '2';
+      const roomId = document.getElementById(`roomId${userNum}`).value;
+      const userId = document.getElementById(`userId${userNum}`).value;
+      if (!roomId || !userId || !sockets[user]) {
+        log(userNum, '❌ Completa sala y usuario', 'error');
+        return;
+      }
+      sockets[user].emit('leaveRoom', { roomId, userId });
+      log(userNum, `📤 Saliendo de: ${roomId}`, 'info');
+    }
+
+    function sendMessage(user) {
+      const userNum = user === 'user1' ? '1' : '2';
+      const content = document.getElementById(`messageContent${userNum}`).value;
+      const roomId = document.getElementById(`roomId${userNum}`).value;
+      const userId = document.getElementById(`userId${userNum}`).value;
+      if (!content || !roomId || !userId || !sockets[user]) {
+        log(userNum, '❌ Completa todos los campos', 'error');
+        return;
+      }
+      sockets[user].emit('sendMessage', { senderId: userId, content, roomId });
+      log(userNum, `📤 Enviado: "${content}"`, 'success');
+      document.getElementById(`messageContent${userNum}`).value = '';
+    }
+
+    function sendTyping(user) {
+      const userNum = user === 'user1' ? '1' : '2';
+      const roomId = document.getElementById(`roomId${userNum}`).value;
+      const userId = document.getElementById(`userId${userNum}`).value;
+      if (!roomId || !userId || !sockets[user]) {
+        log(userNum, '❌ Completa sala y usuario', 'error');
+        return;
+      }
+      sockets[user].emit('typing', { userId, roomId, isTyping: true });
+      log(userNum, `⌨️ Typing...`, 'event');
+    }
+
+    function connectBoth() {
+      connect('user1');
+      setTimeout(() => connect('user2'), 500);
+    }
+
+    function registerBoth() {
+      register('user1');
+      setTimeout(() => register('user2'), 300);
+    }
+
+    function joinBoth() {
+      joinRoom('user1');
+      setTimeout(() => joinRoom('user2'), 300);
+    }
+
+    function clearAllLogs() {
+      document.getElementById('log1').innerHTML = '';
+      document.getElementById('log2').innerHTML = '';
+      log('1', '🧹 Logs limpiados', 'info');
+      log('2', '🧹 Logs limpiados', 'info');
+    }
+
+    // Initialize
+    log('1', '🚀 Cliente 1 listo', 'success');
+    log('2', '🚀 Cliente 2 listo', 'success');
+  </script>
+</body>
+</html>
