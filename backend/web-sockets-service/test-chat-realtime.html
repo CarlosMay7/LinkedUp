@@ -357,7 +357,7 @@
             });
 
             sockets[user].on('registered', (data) => {
-                addSystemMessage(user, `Registrado como: ${data.data.userId}`);
+                addSystemMessage(user, `Registrado como: ${data.userId}`);
             });
 
             sockets[user].on('joinedRoom', (data) => {

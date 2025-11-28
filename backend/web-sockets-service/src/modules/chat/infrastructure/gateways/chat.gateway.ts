@@ -107,6 +107,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       timestamp: new Date(),
     });
 
+    // Send updated online users list to all users in the room
+    const onlineUsers = this.getOnlineUsersInRoom(data.roomId);
+    this.server.to(data.roomId).emit('onlineUsers', onlineUsers);
+
     return {
       event: 'joinedRoom',
       data: { roomId: data.roomId, userId: data.userId },
@@ -126,6 +130,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       userId: data.userId,
       timestamp: new Date(),
     });
+
+    // Send updated online users list to all users remaining in the room
+    const onlineUsers = this.getOnlineUsersInRoom(data.roomId);
+    this.server.to(data.roomId).emit('onlineUsers', onlineUsers);
 
     return {
       event: 'leftRoom',
@@ -203,9 +211,13 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   @SubscribeMessage('getOnlineUsers')
-  handleGetOnlineUsers(@MessageBody() data: GetOnlineUsersDto) {
+  handleGetOnlineUsers(
+    @MessageBody() data: GetOnlineUsersDto,
+    @ConnectedSocket() client: Socket,
+  ) {
     const onlineUsers = this.getOnlineUsersInRoom(data.roomId);
-    return { event: 'onlineUsers', data: onlineUsers };
+    client.emit('onlineUsers', onlineUsers);
+    this.logger.log(`Sent online users list for room ${data.roomId} to client ${client.id}`);
   }
 
   // TODO: Implement getSenderIdFromMessage to retrieve sender from message store

@@ -1,5 +1,5 @@
 import { FaSearch, FaUser, FaPlus } from 'react-icons/fa';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../config/constants';
 import { useUsers } from '../hooks/useUsers';
 import { useRooms } from '../hooks/useRooms';
@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { CreateRoomModal } from '../components/CreateRoomModal';
 import roomIcon from '../../assets/icon/room.svg';
 import { useAuth } from '../../auth/context/AuthContext';
+import { useWebSocket } from '../../chat/context/WebSocketContext';
 import { RoomRepository } from '../../infrastructure/repositories/room.repository';
 
 const roomRepository = new RoomRepository();
@@ -14,7 +15,13 @@ const roomRepository = new RoomRepository();
 export const LobbyPage = () => {
     const { user: currentUser } = useAuth();
     const { users, loading: loadingUsers, searchUsers } = useUsers();
-    const { rooms, loading: loadingRooms, searchRoomByName } = useRooms();
+    const {
+        rooms,
+        loading: loadingRooms,
+        searchRoomByName,
+        addMemberToRoom,
+    } = useRooms();
+    const { joinRoom, registerUser } = useWebSocket();
     const [modalOpen, setModalOpen] = useState(false);
     const navigate = useNavigate();
 
@@ -51,6 +58,25 @@ export const LobbyPage = () => {
         }
 
         createDirectChatRoom(userToChat);
+    };
+
+    const handleJoinRoom = async roomId => {
+        try {
+            // Register user in WebSocket
+            await registerUser(currentUser.id);
+
+            // Join room via WebSocket
+            await joinRoom(roomId, currentUser.id);
+
+            // Add member to room
+            if(!rooms.find(room => room.id === roomId).members.includes(currentUser.id)){
+                await addMemberToRoom(roomId, currentUser.id);
+            }
+
+            navigate(`${ROUTES.ROOM}/${roomId}`);
+        } catch (err) {
+            console.error('Error joining room:', err);
+        }
     };
 
     return (
@@ -121,15 +147,15 @@ export const LobbyPage = () => {
                                 </div>
                                 <div className="room-info">
                                     <span className="room-name">
-                                        {room.name} ({room.members.length})
+                                        {room.name}
                                     </span>
                                 </div>
-                                <Link
-                                    to={`${ROUTES.ROOM}/${room.id}`}
+                                <button
                                     className="button"
+                                    onClick={() => handleJoinRoom(room.id)}
                                 >
                                     Join
-                                </Link>
+                                </button>
                             </li>
                         ))
                     )}

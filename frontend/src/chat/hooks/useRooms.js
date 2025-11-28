@@ -3,12 +3,18 @@ import { supabase } from '../../auth/supabase/supabaseClient';
 import { RoomRepository } from '../../infrastructure/repositories/room.repository';
 import { UserRepository } from '../../infrastructure/repositories/user.repository';
 import { GetRoomWithMembersUseCase } from '../../core/use-cases/room/get-room-with-members.use-case';
+import { WebSocketRepository } from '../../infrastructure/repositories/websocket.repository';
+import { AddMemberToRoomUseCase } from '../../core/use-cases/room/add-member.use-case';
 
 const roomRepository = new RoomRepository(supabase);
 const userRepository = new UserRepository(supabase);
+const webSocketRepository = new WebSocketRepository();
 const getRoomWithMembersUseCase = new GetRoomWithMembersUseCase(
     roomRepository,
     userRepository
+);
+const addMemberToRoomUseCase = new AddMemberToRoomUseCase(
+    roomRepository
 );
 
 export const useRooms = () => {
@@ -66,6 +72,19 @@ export const useRooms = () => {
         }
     };
 
+    const addMemberToRoom = async (roomId, userId) => {
+        setLoading(true);
+        setError(null);
+        try {
+            await addMemberToRoomUseCase.execute(roomId, userId);
+        } catch (err) {
+            setError(err.message);
+            console.error('Error adding member to room:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
         fetchRooms();
     }, []);
@@ -77,5 +96,6 @@ export const useRooms = () => {
         fetchRooms,
         searchRoomByName,
         getRoomById,
+        addMemberToRoom,
     };
 };

@@ -1,20 +1,39 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useRooms } from '../hooks/useRooms';
+import { useOnlineUsers } from '../hooks/useOnlineUsers';
 import { useAuth } from '../../auth/context/AuthContext';
+import { useWebSocket } from '../../chat/context/WebSocketContext';
+import { useMessages } from '../hooks/useMessages';
 
 export const RoomPage = () => {
     const { getRoomById } = useRooms();
     const { user } = useAuth();
     const navigate = useNavigate();
+    const roomId = useLocation().pathname.split('/').pop();
+
     const [roomName, setRoomName] = useState('');
     const [members, setMembers] = useState([]);
     const [loading, setLoading] = useState(true);
-    const roomId = useLocation().pathname.split('/').pop();
     const [isDirectMessage, setIsDirectMessage] = useState(false);
-    const goBack = () => {
+    const [messageInput, setMessageInput] = useState('');
+
+    const { leaveRoom } = useWebSocket();
+    const { messages, isTyping, error, sendMessage } = useMessages(
+        roomId,
+        user?.id
+    );
+    const { onlineUsers } = useOnlineUsers(roomId);
+
+    const goBack = async () => {
+        await leaveRoom(roomId, user?.id);
         navigate(-1);
     };
+
+    const memberMap = members.reduce((map, member) => {
+        map[member.user_uuid] = member.username;
+        return map;
+    }, {});
 
     useEffect(() => {
         const loadRoomData = async () => {
@@ -30,6 +49,31 @@ export const RoomPage = () => {
         loadRoomData();
     }, [roomId]);
 
+    const handleSendMessage = async e => {
+        e.preventDefault();
+        if (!messageInput.trim()) {
+            return;
+        }
+
+        try {
+            await sendMessage(messageInput);
+            setMessageInput('');
+        } catch (err) {
+            console.error('Error sending message:', err);
+        }
+    };
+
+    const formatTime = timestamp => {
+        if (!timestamp) {
+            return '';
+        }
+        const date = new Date(timestamp);
+        return date.toLocaleTimeString('es-ES', {
+            hour: '2-digit',
+            minute: '2-digit',
+        });
+    };
+
     return (
         <>
             <div className="room-header">
@@ -43,60 +87,91 @@ export const RoomPage = () => {
             <div className="room-content">
                 <div className="messages-area">
                     <div className="messages-list">
-                        <div className="message other">
-                            <span className="user-name">User A</span>
-                            <p className="message-text">Hello World!.</p>
-                            <span className="timestamp">10:30 AM</span>
-                        </div>
-
-                        <div className="message mine">
-                            <p className="message-text">...</p>
-                            <span className="timestamp">[You] 10:31 AM</span>
-                        </div>
-
-                        <div className="message other">
-                            <span className="user-name">User B</span>
-                            <p className="message-text">
-                                This is a{' '}
-                                <span className="censored">********</span>
-                                message
-                            </p>
-                            <span className="timestamp">10:31 AM</span>
-                        </div>
-
-                        <div className="message mine hola-style">
-                            <p className="message-text">Hi!</p>
-                            <span className="timestamp">10:32 AM</span>
-                        </div>
+                        {messages.length === 0 ? (
+                            <div className="no-messages">No messages yet</div>
+                        ) : (
+                            messages.map((msg, index) => (
+                                <div
+                                    key={index}
+                                    className={`message ${
+                                        msg.senderId === user?.id
+                                            ? 'mine'
+                                            : 'other'
+                                    }`}
+                                >
+                                    {msg.senderId !== user?.id && (
+                                        <span className="user-name">
+                                            {memberMap[msg.senderId] ||
+                                                msg.senderId}
+                                        </span>
+                                    )}
+                                    <p className="message-text">
+                                        {msg.content}
+                                    </p>
+                                    <span className="timestamp">
+                                        {msg.senderId === user?.id
+                                            ? '[You]'
+                                            : ''}{' '}
+                                        {formatTime(msg.timestamp)}
+                                    </span>
+                                </div>
+                            ))
+                        )}
                     </div>
                 </div>
 
                 <div
-                    className={`room-members-container ${isDirectMessage ? 'dont-show' : ''}`}
+                    className={`room-members-container ${
+                        isDirectMessage ? 'dont-show' : ''
+                    }`}
                 >
                     <h3 className="area-title">Users: {members.length}</h3>
                     <ul className="members-list">
                         {members.map((member, index) => (
                             <li key={index}>
-                                <span className="user-icon"></span>
+                                <span
+                                    className={`user-icon ${
+                                        onlineUsers.includes(member.user_uuid)
+                                            ? 'online'
+                                            : 'offline'
+                                    }`}
+                                ></span>
                                 <span className="member-name">
-                                    {member.user_uuid === user.id
+                                    {member.user_uuid === user?.id
                                         ? `${member.username} (You)`
                                         : member.username}
                                 </span>
+                                {onlineUsers.includes(member.user_uuid) && (
+                                    <span className="online-badge">online</span>
+                                )}
                             </li>
                         ))}
                     </ul>
                 </div>
             </div>
 
-            <form className="message-input-container">
+            {isTyping && (
+                <div className="typing-indicator">Someone is typing...</div>
+            )}
+            {error && <div className="error-message">{error}</div>}
+
+            <form
+                className="message-input-container"
+                onSubmit={handleSendMessage}
+            >
                 <input
                     type="text"
                     placeholder="Message..."
                     className="message-input"
+                    value={messageInput}
+                    onChange={e => setMessageInput(e.target.value)}
+                    disabled={loading}
                 />
-                <button type="submit" className="send-button button">
+                <button
+                    type="submit"
+                    className="send-button button"
+                    disabled={loading || !messageInput.trim()}
+                >
                     SEND
                 </button>
             </form>

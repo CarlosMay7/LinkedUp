@@ -107,4 +107,25 @@ export class RoomRepository {
             console.error('Error fetching room', e);
         }
     }
+
+    async addMemberToRoom(roomId, userId) {
+        try {
+            const response = await fetch(
+                `${import.meta.env.VITE_API_BASE_URL}/room/${roomId}/members/${userId}`,
+                {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ userId }),
+                }
+            );
+
+            const data = await response.json();
+            return data;
+        } catch (e) {
+            console.error('Error adding member to room:', e);
+            throw e;
+        }
+    }
 }
