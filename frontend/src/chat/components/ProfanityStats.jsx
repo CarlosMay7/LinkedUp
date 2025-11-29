@@ -21,14 +21,12 @@ export const ProfanityStats = () => {
                 setLoading(true);
                 setError(null);
 
-                // Get user's total bad words
                 const total =
                     await profanityStatsRepository.getUserBadWordsTotal(
                         user.id
                     );
                 setTotalBadWords(total);
 
-                // Get all word statistics
                 const stats = await profanityStatsRepository.getWordStats();
                 setWordStats(stats);
             } catch (err) {

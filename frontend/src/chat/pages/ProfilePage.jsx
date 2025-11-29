@@ -19,13 +19,6 @@ export const ProfilePage = () => {
 
     return (
         <div className="profile-page">
-            {/* Avatar picker hidden */}
-            {/* <AvatarPicker
-                currentIcon={currentIcon}
-                onSelect={setCurrentIcon}
-                avatars={avatars}
-            /> */}
-
             <form className="form profile-form" onSubmit={handleSubmit}>
                 <div className="form-row">
                     <div className="form-group">

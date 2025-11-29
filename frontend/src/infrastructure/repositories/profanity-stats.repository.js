@@ -165,10 +165,8 @@ export class ProfanityStatsRepository {
 
     async getTopUsers(limit = 10) {
         try {
-            // Get all users
             const allUsers = await this.userRepository.getAllUsers();
 
-            // Get top users from user_stats
             const { data: statsData, error: statsError } = await supabase
                 .from('user_stats')
                 .select('user_id, total_bad_words')
@@ -184,14 +182,12 @@ export class ProfanityStatsRepository {
                 return [];
             }
 
-            // Create a map of users by both id and uuid for lookup
             const userMap = {};
             allUsers.forEach(user => {
                 userMap[user.id] = user;
-                userMap[user.uuid] = user; // Map both id and uuid
+                userMap[user.uuid] = user;
             });
 
-            // Merge stats with user data
             const topUsersWithNames = statsData
                 .map(userStat => {
                     const user = userMap[userStat.user_id];
@@ -200,7 +196,7 @@ export class ProfanityStatsRepository {
                         username: user?.username || 'Unknown User',
                     };
                 })
-                .filter(user => user.username !== 'Unknown User'); // Filter only users with valid usernames
+                .filter(user => user.username !== 'Unknown User');
 
             return topUsersWithNames;
         } catch (error) {

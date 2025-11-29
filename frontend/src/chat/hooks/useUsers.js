@@ -9,7 +9,6 @@ import { WarnUserUseCase } from '../../core/use-cases/user/warn-user.use-case';
 import profanityStatsRepository from '../../infrastructure/repositories/profanity-stats.repository';
 import { useAuth } from '../../auth/context/AuthContext';
 
-// Dependency Injection
 const userRepository = new UserRepository(supabase);
 const getAllUsersUseCase = new GetAllUsersUseCase(userRepository);
 const searchUsersByUsernameUseCase = new SearchUsersByUsernameUseCase(
