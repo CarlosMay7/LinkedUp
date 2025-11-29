@@ -6,6 +6,7 @@ import { SearchUsersByUsernameUseCase } from '../../core/use-cases/user/search-u
 import { BlockUserUseCase } from '../../core/use-cases/user/block-user.use-case';
 import { UnblockUserUseCase } from '../../core/use-cases/user/unblock-user.use-case';
 import { WarnUserUseCase } from '../../core/use-cases/user/warn-user.use-case';
+import profanityStatsRepository from '../../infrastructure/repositories/profanity-stats.repository';
 import { useAuth } from '../../auth/context/AuthContext';
 
 // Dependency Injection
@@ -30,7 +31,22 @@ export const useUsers = () => {
         try {
             const data = await getAllUsersUseCase.execute();
             const filteredUsers = data.filter(u => u.uuid !== user.id);
-            setUsers(filteredUsers);
+
+            // Fetch profanity stats for each user
+            const usersWithStats = await Promise.all(
+                filteredUsers.map(async u => {
+                    const badWordsCount =
+                        await profanityStatsRepository.getUserBadWordsTotal(
+                            u.uuid
+                        );
+                    return {
+                        ...u,
+                        total_bad_words: badWordsCount,
+                    };
+                })
+            );
+
+            setUsers(usersWithStats);
         } catch (err) {
             setError(err.message);
             console.error('Error fetching users:', err);
@@ -49,7 +65,22 @@ export const useUsers = () => {
             }
             const data = await searchUsersByUsernameUseCase.execute(username);
             const filteredUsers = data.filter(u => u.user_uuid !== user?.id);
-            setUsers(filteredUsers);
+
+            // Fetch profanity stats for each user
+            const usersWithStats = await Promise.all(
+                filteredUsers.map(async u => {
+                    const badWordsCount =
+                        await profanityStatsRepository.getUserBadWordsTotal(
+                            u.user_uuid
+                        );
+                    return {
+                        ...u,
+                        total_bad_words: badWordsCount,
+                    };
+                })
+            );
+
+            setUsers(usersWithStats);
         } catch (err) {
             setError(err.message);
             console.error('Error searching users:', err);

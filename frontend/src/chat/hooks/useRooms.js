@@ -13,9 +13,7 @@ const getRoomWithMembersUseCase = new GetRoomWithMembersUseCase(
     roomRepository,
     userRepository
 );
-const addMemberToRoomUseCase = new AddMemberToRoomUseCase(
-    roomRepository
-);
+const addMemberToRoomUseCase = new AddMemberToRoomUseCase(roomRepository);
 
 export const useRooms = () => {
     const [rooms, setRooms] = useState([]);
@@ -102,14 +100,20 @@ export const useRooms = () => {
 
             if (!response.ok) {
                 const error = await response.json();
-                throw new Error(error.message || 'Failed to find or create direct message room');
+                throw new Error(
+                    error.message ||
+                        'Failed to find or create direct message room'
+                );
             }
 
             const room = await response.json();
             return room;
         } catch (err) {
             setError(err.message);
-            console.error('Error finding or creating direct message room:', err);
+            console.error(
+                'Error finding or creating direct message room:',
+                err
+            );
             throw err;
         } finally {
             setLoading(false);

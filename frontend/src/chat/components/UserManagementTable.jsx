@@ -47,7 +47,9 @@ export const UserManagementTable = () => {
                                 key={user.uuid}
                             >
                                 <div className="col-user">{user.username}</div>
-                                <div className="col-messages">15</div>
+                                <div className="col-messages">
+                                    {user.total_bad_words || 0}
+                                </div>
                                 <div className="col-actions">
                                     <button
                                         className={`action-btn btn-warn warn active`}
@@ -55,6 +57,7 @@ export const UserManagementTable = () => {
                                             handleWarnUser(user.uuid)
                                         }
                                         disabled={user.warned}
+                                        style={{ display: 'none' }}
                                     >
                                         {user.warned ? 'Warned' : 'Warn'}
                                     </button>
