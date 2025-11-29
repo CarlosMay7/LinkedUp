@@ -41,6 +41,20 @@ export class UserRepository {
         return data.map(user => this.mapToUserEntity(user));
     }
 
+    async getUserByEmail(email) {
+        const { data, error } = await this.dbClient
+            .from('users')
+            .select('*')
+            .eq('email', email)
+            .single();
+
+        if (error && error.code !== 'PGRST116') {
+            throw error;
+        }
+
+        return data ? this.mapToUserEntity(data) : null;
+    }
+
     async blockUser(userId) {
         const { error } = await this.dbClient
             .from('users')

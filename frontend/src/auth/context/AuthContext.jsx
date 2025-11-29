@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../supabase/supabaseClient';
 import { AuthRepository } from '../../infrastructure/repositories/auth.repository';
+import { UserRepository } from '../../infrastructure/repositories/user.repository';
 import { SignInUseCase } from '../../core/use-cases/auth/sign-in.use-case';
 import { SignUpUseCase } from '../../core/use-cases/auth/sign-up.use-case';
 import { SignOutUseCase } from '../../core/use-cases/auth/sign-out.use-case';
@@ -12,7 +13,8 @@ import { User } from '../../core/entities/User';
 const AuthContext = createContext();
 
 const authRepository = new AuthRepository(supabase);
-const signInUseCase = new SignInUseCase(authRepository);
+const userRepository = new UserRepository(supabase);
+const signInUseCase = new SignInUseCase(authRepository, userRepository);
 const signUpUseCase = new SignUpUseCase(authRepository);
 const signOutUseCase = new SignOutUseCase(authRepository);
 const updateUserUseCase = new UpdateUserUseCase(authRepository);

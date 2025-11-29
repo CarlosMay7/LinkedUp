@@ -7,6 +7,14 @@ export const mapSupabaseError = error => {
 
     const message = error.message?.toLowerCase() || '';
 
+    if (message.includes('user blocked') || error.code === 'USER_BLOCKED') {
+        return new AuthError(
+            AuthError.CODES.USER_BLOCKED,
+            'Your account has been blocked due to a code of conduct violation. Please contact support.',
+            error
+        );
+    }
+
     if (
         message.includes('invalid login credentials') ||
         message.includes('invalid email or password')

@@ -19,6 +19,7 @@ export class AuthError extends AppError {
         SIGNIN_FAILED: 'SIGNIN_FAILED',
         SIGNOUT_FAILED: 'SIGNOUT_FAILED',
         UPDATE_FAILED: 'UPDATE_FAILED',
+        USER_BLOCKED: 'USER_BLOCKED',
         AUTH_ERROR: 'AUTH_ERROR',
         UNKNOWN_ERROR: 'UNKNOWN_ERROR',
     };
