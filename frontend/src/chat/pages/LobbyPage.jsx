@@ -1,5 +1,5 @@
 import { FaSearch, FaUser, FaPlus } from 'react-icons/fa';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../config/constants';
 import { useUsers } from '../hooks/useUsers';
 import { useRooms } from '../hooks/useRooms';
@@ -7,14 +7,19 @@ import { useState } from 'react';
 import { CreateRoomModal } from '../components/CreateRoomModal';
 import roomIcon from '../../assets/icon/room.svg';
 import { useAuth } from '../../auth/context/AuthContext';
-import { RoomRepository } from '../../infrastructure/repositories/room.repository';
-
-const roomRepository = new RoomRepository();
+import { useWebSocket } from '../../chat/context/WebSocketContext';
 
 export const LobbyPage = () => {
     const { user: currentUser } = useAuth();
     const { users, loading: loadingUsers, searchUsers } = useUsers();
-    const { rooms, loading: loadingRooms, searchRoomByName } = useRooms();
+    const {
+        rooms,
+        loading: loadingRooms,
+        searchRoomByName,
+        addMemberToRoom,
+        findOrCreateDirectMessage,
+    } = useRooms();
+    const { joinRoom, registerUser } = useWebSocket();
     const [modalOpen, setModalOpen] = useState(false);
     const navigate = useNavigate();
 
@@ -22,35 +27,33 @@ export const LobbyPage = () => {
         setModalOpen(true);
     };
 
-    const createDirectChatRoom = async user => {
+    const openChatWithUser = async userToChat => {
         try {
-            const newRoomData = await roomRepository.createRoom(
-                user.username,
-                `Private chat between ${currentUser.username} and ${user.username}`,
-                [currentUser.id, user.uuid],
+            const room = await findOrCreateDirectMessage(
                 currentUser.id,
-                true
+                userToChat.uuid,
+                currentUser.id
             );
-            navigate(`${ROUTES.ROOM}/${newRoomData.id}`);
+            navigate(`${ROUTES.ROOM}/${room.id}`);
         } catch (err) {
-            console.error('Error creating direct chat room:', err);
+            console.error('Error opening direct chat:', err);
         }
     };
 
-    const openChatWithUser = userToChat => {
-        const existingRoom = rooms.find(
-            room =>
-                room.isDirectMessage &&
-                room.members.includes(currentUser.id) &&
-                room.members.includes(userToChat.uuid)
-        );
+    const handleJoinRoom = async roomId => {
+        try {
+            await registerUser(currentUser.id);
+            await joinRoom(roomId, currentUser.id);
 
-        if (existingRoom) {
-            navigate(`${ROUTES.ROOM}/${existingRoom.id}`);
-            return;
+            const room = rooms.find(r => r.id === roomId);
+            if (room && !room.members.includes(currentUser.id)) {
+                await addMemberToRoom(roomId, currentUser.id);
+            }
+
+            navigate(`${ROUTES.ROOM}/${roomId}`);
+        } catch (err) {
+            console.error('Error joining room:', err);
         }
-
-        createDirectChatRoom(userToChat);
     };
 
     return (
@@ -121,15 +124,15 @@ export const LobbyPage = () => {
                                 </div>
                                 <div className="room-info">
                                     <span className="room-name">
-                                        {room.name} ({room.members.length})
+                                        {room.name}
                                     </span>
                                 </div>
-                                <Link
-                                    to={`${ROUTES.ROOM}/${room.id}`}
+                                <button
                                     className="button"
+                                    onClick={() => handleJoinRoom(room.id)}
                                 >
                                     Join
-                                </Link>
+                                </button>
                             </li>
                         ))
                     )}

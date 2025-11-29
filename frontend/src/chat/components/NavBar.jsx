@@ -1,12 +1,15 @@
 import { Link, useLocation } from 'react-router-dom';
+import { FaShieldAlt } from 'react-icons/fa';
 import logoSrc from '../../assets/logo/Logo2.png';
 import profileSrc from '../../assets/icon/profile.svg';
 import logoutSrc from '../../assets/icon/logout.svg';
 import { ROUTES } from '../../config/constants';
+import { useAuth } from '../../auth/context/AuthContext';
 
 export const NavBar = () => {
     const location = useLocation();
     const { pathname } = location;
+    const { user } = useAuth();
 
     const paths = {
         [ROUTES.PROFILE]: 'Profile',
@@ -35,6 +38,15 @@ export const NavBar = () => {
             </div>
 
             <div className="nav-actions">
+                {user?.isAdmin() && (
+                    <Link
+                        to={ROUTES.ADMIN}
+                        className={`admin-icon ${pathname === ROUTES.ADMIN ? 'dont-show' : ''}`}
+                        title="Admin Panel"
+                    >
+                        <FaShieldAlt color="#D7C0AE" />
+                    </Link>
+                )}
                 <Link
                     to={ROUTES.PROFILE}
                     className={`profile-icon ${pathname === ROUTES.PROFILE ? 'dont-show' : ''}`}

@@ -12,6 +12,7 @@ import { AddMemberUseCase } from '../../../src/modules/room/domain/use-cases/add
 import { RemoveMemberUseCase } from '../../../src/modules/room/domain/use-cases/remove-member.use-case';
 import { FindRoomsByMemberUseCase } from '../../../src/modules/room/domain/use-cases/find-rooms-by-member.use-case';
 import { DeleteRoomUseCase } from '../../../src/modules/room/domain/use-cases/delete-room.use-case';
+import { FindOrCreateDirectMessageRoomUseCase } from '../../../src/modules/room/domain/use-cases/find-or-create-direct-message-room.use-case';
 import { Types } from 'mongoose';
 import {
   BadRequestException,
@@ -67,6 +68,10 @@ const mockDeleteRoomUseCase = {
   execute: jest.fn(),
 };
 
+const mockFindOrCreateDirectMessageRoomUseCase = {
+  execute: jest.fn(),
+};
+
 describe('RoomController', () => {
   let controller: RoomController;
   let createRoomUseCase: CreateRoomUseCase;
@@ -117,6 +122,10 @@ describe('RoomController', () => {
         {
           provide: DeleteRoomUseCase,
           useValue: mockDeleteRoomUseCase,
+        },
+        {
+          provide: FindOrCreateDirectMessageRoomUseCase,
+          useValue: mockFindOrCreateDirectMessageRoomUseCase,
         },
       ],
     }).compile();

@@ -21,6 +21,7 @@ import { AddMemberUseCase } from '../../domain/use-cases/add-member.use-case';
 import { RemoveMemberUseCase } from '../../domain/use-cases/remove-member.use-case';
 import { FindRoomsByMemberUseCase } from '../../domain/use-cases/find-rooms-by-member.use-case';
 import { DeleteRoomUseCase } from '../../domain/use-cases/delete-room.use-case';
+import { FindOrCreateDirectMessageRoomUseCase } from '../../domain/use-cases/find-or-create-direct-message-room.use-case';
 import { RoomMapper } from '../mappers/room.mapper';
 
 @ApiTags('room')
@@ -36,6 +37,7 @@ export class RoomController {
     private readonly removeMemberUseCase: RemoveMemberUseCase,
     private readonly findRoomsByMemberUseCase: FindRoomsByMemberUseCase,
     private readonly deleteRoomUseCase: DeleteRoomUseCase,
+    private readonly findOrCreateDirectMessageRoomUseCase: FindOrCreateDirectMessageRoomUseCase,
   ) {}
 
   @Post()
@@ -87,6 +89,41 @@ export class RoomController {
   ): Promise<RoomResponseDto[]> {
     const rooms = await this.findRoomsByMemberUseCase.execute(memberId);
     return RoomMapper.toDtoArray(rooms);
+  }
+
+  @Post('direct-message/:userId1/:userId2')
+  @ApiOperation({
+    summary: 'Find or create a direct message room between two users',
+  })
+  @ApiParam({
+    name: 'userId1',
+    description: 'First user ID',
+    example: '550e8400-e29b-41d4-a716-446655440001',
+  })
+  @ApiParam({
+    name: 'userId2',
+    description: 'Second user ID',
+    example: '550e8400-e29b-41d4-a716-446655440002',
+  })
+  @ApiResponse({
+    status: 200,
+    description:
+      'Direct message room found or created successfully',
+    type: RoomResponseDto,
+  })
+  @ApiResponse({ status: 400, description: 'Invalid user ID format' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  async findOrCreateDirectMessage(
+    @Param('userId1', ParseUUIDPipe) userId1: string,
+    @Param('userId2', ParseUUIDPipe) userId2: string,
+    @Body() body: { createdBy: string },
+  ): Promise<RoomResponseDto> {
+    const room = await this.findOrCreateDirectMessageRoomUseCase.execute(
+      userId1,
+      userId2,
+      body.createdBy,
+    );
+    return RoomMapper.toDto(room);
   }
 
   @Get('search/:name')

@@ -53,6 +53,16 @@ export class RoomMongoRepository implements IRoomRepository {
     return rooms.map((room) => this.toEntity(room));
   }
 
+  async findDirectMessageRoom(userId1: string, userId2: string): Promise<RoomEntity | null> {
+    const room = await this.roomModel
+      .findOne({
+        isDirectMessage: true,
+        members: { $all: [userId1, userId2], $size: 2 },
+      })
+      .exec();
+    return room ? this.toEntity(room) : null;
+  }
+
   async save(room: RoomEntity): Promise<RoomEntity> {
     const updatedRoom = await this.roomModel
       .findByIdAndUpdate(

@@ -22,13 +22,15 @@ export class CreateRoomUseCase {
     createdBy: string,
   ): Promise<RoomEntity> {
     try {
-      // Check if room name already exists
-      const existingRooms = await this.roomRepository.findByName(name);
-      const exactMatch = existingRooms.find(
-        (room) => room.name.toLowerCase() === name.toLowerCase(),
-      );
-      if (exactMatch) {
-        throw new ConflictException(`Room with name '${name}' already exists`);
+      // Check if room name already exists only for non-direct message rooms
+      if (!isDirectMessage) {
+        const existingRooms = await this.roomRepository.findByName(name);
+        const exactMatch = existingRooms.find(
+          (room) => room.name.toLowerCase() === name.toLowerCase(),
+        );
+        if (exactMatch) {
+          throw new ConflictException(`Room with name '${name}' already exists`);
+        }
       }
 
       const roomEntity = new RoomEntity(name, description, members, createdBy, isDirectMessage);

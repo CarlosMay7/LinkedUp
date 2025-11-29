@@ -6,6 +6,7 @@ import { ChatLayout } from '../components/ChatLayout';
 import { ROUTES } from '../../config/constants';
 import { LobbyPage } from '../pages/LobbyPage';
 import '../chat.css';
+import { useEffect } from 'react';
 
 export const ChatRoutes = () => {
     return (

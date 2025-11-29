@@ -24,7 +24,42 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+WebSocket Service para LinkedUp - Sistema de chat en tiempo real usando Socket.IO y NestJS.
+
+Este servicio maneja:
+- 🔌 Conexiones WebSocket bidireccionales
+- 💬 Mensajería en tiempo real
+- 🏠 Gestión de salas (rooms)
+- 👥 Presencia de usuarios online
+- ⌨️ Indicadores de "está escribiendo"
+- 📨 Estados de mensajes (entregado/leído)
+- 🚀 Integración con Kafka para procesamiento asíncrono
+
+## 🧪 Testing del Servicio
+
+**¡NUEVO!** Incluye un cliente de prueba interactivo para testing:
+
+1. **Guía completa de testing**: Ver [`TESTING_GUIDE.md`](./TESTING_GUIDE.md)
+2. **Cliente HTML interactivo**: Abrir [`websocket-test-client.html`](./websocket-test-client.html) en el navegador
+
+El cliente de prueba permite:
+- ✅ Conectar/desconectar del servidor
+- 👤 Registrar usuarios
+- 🏠 Unirse y salir de salas
+- 💬 Enviar mensajes
+- ⌨️ Simular "está escribiendo"
+- 👥 Ver usuarios online
+- 📊 Log de eventos en tiempo real
+
+**Para probar rápidamente:**
+```bash
+# 1. Iniciar el servicio
+npm run start:dev
+
+# 2. Abrir websocket-test-client.html en tu navegador
+# 3. Conectar a http://localhost:3002
+# 4. ¡Empezar a probar!
+```
 
 ## Project setup
 
@@ -44,6 +79,33 @@ $ npm run start:dev
 # production mode
 $ npm run start:prod
 ```
+
+## 📡 WebSocket Endpoints
+
+- **HTTP**: `http://localhost:3002`
+- **WebSocket**: `ws://localhost:3002/socket.io`
+
+### Eventos Disponibles
+
+**Cliente → Servidor:**
+- `register` - Registrar usuario
+- `joinRoom` - Unirse a sala
+- `leaveRoom` - Salir de sala
+- `sendMessage` - Enviar mensaje
+- `typing` - Notificar "está escribiendo"
+- `messageDelivered` - Marcar mensaje entregado
+- `messageRead` - Marcar mensaje leído
+- `getOnlineUsers` - Obtener usuarios online
+
+**Servidor → Cliente:**
+- `registered` - Confirmación registro
+- `joinedRoom` - Confirmación unión
+- `userJoined` - Usuario se unió
+- `userLeft` - Usuario salió
+- `messageQueued` - Mensaje en cola
+- `newMessage` - Nuevo mensaje
+- `typing` - Usuario escribiendo
+- `onlineUsers` - Lista de usuarios online
 
 ## Run tests
 

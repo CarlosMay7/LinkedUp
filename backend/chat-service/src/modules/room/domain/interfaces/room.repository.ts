@@ -6,6 +6,7 @@ export interface IRoomRepository {
   findById(id: string): Promise<RoomEntity | null>;
   findByName(name: string): Promise<RoomEntity[]>;
   findByMember(userId: string): Promise<RoomEntity[]>;
+  findDirectMessageRoom(userId1: string, userId2: string): Promise<RoomEntity | null>;
   save(room: RoomEntity): Promise<RoomEntity>;
   delete(id: string): Promise<boolean>;
 }
