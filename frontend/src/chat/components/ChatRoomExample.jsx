@@ -2,10 +2,6 @@ import { useEffect, useState } from 'react';
 import { useWebSocket } from '../../chat/context/WebSocketContext';
 import { useMessages } from '../../chat/hooks/useMessages';
 
-/**
- * Example component showing how to use WebSocket functionality
- * following Clean Architecture principles
- */
 export const ChatRoomExample = ({ roomId, userId }) => {
     const { isConnected, joinRoom, leaveRoom, registerUser, on, off } =
         useWebSocket();
@@ -16,7 +12,6 @@ export const ChatRoomExample = ({ roomId, userId }) => {
     const [messageInput, setMessageInput] = useState('');
     const [userJoined, setUserJoined] = useState(false);
 
-    // Initialize room and register user
     useEffect(() => {
         if (!isConnected || !roomId || !userId) {
             return;
@@ -40,7 +35,6 @@ export const ChatRoomExample = ({ roomId, userId }) => {
         };
     }, [isConnected, roomId, userId, registerUser, joinRoom, leaveRoom]);
 
-    // Listen for user events
     useEffect(() => {
         const handleUserJoined = data => {
             console.log('User joined:', data.userId);

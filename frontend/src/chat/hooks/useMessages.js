@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useWebSocket } from '../context/WebSocketContext';
 import { MessageRepository } from '../../infrastructure/repositories/message.repository';
+import { censorText } from '../../core/services/badWordsFilter';
+import badWordsDetectorService from '../../core/services/badWordsDetector';
+import profanityStatsRepository from '../../infrastructure/repositories/profanity-stats.repository';
 
 export const useMessages = (roomId, userId) => {
     const { on, off, sendMessage: sendMessageViaSocket } = useWebSocket();
@@ -16,18 +19,21 @@ export const useMessages = (roomId, userId) => {
     const loadHistoricalMessages = useCallback(async () => {
         setLoadingHistorical(true);
         try {
-            const historicalMessages = await messageRepositoryRef.current.getMessagesByRoom(roomId);
+            const historicalMessages =
+                await messageRepositoryRef.current.getMessagesByRoom(roomId);
             // Sort by sentAt in ascending order (oldest first)
             const sortedMessages = historicalMessages.sort((a, b) => {
                 const timeA = new Date(a.sentAt).getTime();
                 const timeB = new Date(b.sentAt).getTime();
                 return timeA - timeB;
             });
-            
-            // Add to loaded messages and state
+
+            // Add to loaded messages and state with censored content
             sortedMessages.forEach(msg => {
                 const messageKey = `${msg.senderId}-${msg.sentAt}-${msg.content}`;
                 loadedMessagesRef.current.add(messageKey);
+                // Censor the message content
+                msg.content = censorText(msg.content);
             });
             setMessages(sortedMessages);
         } catch (err) {
@@ -51,7 +57,12 @@ export const useMessages = (roomId, userId) => {
             const messageKey = `${data.senderId}-${data.sentAt || data.timestamp}-${data.content}`;
             if (!loadedMessagesRef.current.has(messageKey)) {
                 loadedMessagesRef.current.add(messageKey);
-                setMessages(prev => [...prev, data]);
+                // Censor the message content before displaying
+                const censoredData = {
+                    ...data,
+                    content: censorText(data.content),
+                };
+                setMessages(prev => [...prev, censoredData]);
             }
         },
         []
@@ -62,7 +73,12 @@ export const useMessages = (roomId, userId) => {
             const messageKey = `${data.senderId}-${data.sentAt || data.timestamp}-${data.content}`;
             if (!loadedMessagesRef.current.has(messageKey)) {
                 loadedMessagesRef.current.add(messageKey);
-                setMessages(prev => [...prev, data]);
+                // Censor the message content before displaying
+                const censoredData = {
+                    ...data,
+                    content: censorText(data.content),
+                };
+                setMessages(prev => [...prev, censoredData]);
             }
         },
         []
@@ -140,7 +156,28 @@ export const useMessages = (roomId, userId) => {
 
         try {
             setError(null);
-            await sendMessageViaSocket(userId, roomId, content);
+
+            // Detect bad words before censoring
+            const badWords = badWordsDetectorService.detectBadWords(content);
+
+            // Censor the message before sending
+            const censoredContent = censorText(content);
+
+            // Track bad words in database if any were found
+            if (badWords.length > 0) {
+                try {
+                    await profanityStatsRepository.trackBadWords(
+                        userId,
+                        content,
+                        badWords
+                    );
+                } catch (trackError) {
+                    console.error('Error tracking bad words:', trackError);
+                    // Continue with sending message even if tracking fails
+                }
+            }
+
+            await sendMessageViaSocket(userId, roomId, censoredContent);
         } catch (err) {
             setError(err.message);
         }

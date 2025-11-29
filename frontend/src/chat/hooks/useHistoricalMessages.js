@@ -9,7 +9,7 @@ export const useHistoricalMessages = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const loadMessagesByRoom = useCallback(async (roomId) => {
+    const loadMessagesByRoom = useCallback(async roomId => {
         setLoading(true);
         setError(null);
         try {

@@ -1,13 +1,9 @@
-import { avatars } from '../../assets/avatar';
 import { Alert } from '../../components/Alert';
-import { AvatarPicker } from '../components/AvatarPicker';
 import { useProfileForm } from '../hooks/useProfileForm';
 import { Role } from '../../core/entities/Role';
 
 export const ProfilePage = () => {
     const {
-        currentIcon,
-        setCurrentIcon,
         name,
         setName,
         currentPassword,
@@ -23,12 +19,6 @@ export const ProfilePage = () => {
 
     return (
         <div className="profile-page">
-            <AvatarPicker
-                currentIcon={currentIcon}
-                onSelect={setCurrentIcon}
-                avatars={avatars}
-            />
-
             <form className="form profile-form" onSubmit={handleSubmit}>
                 <div className="form-row">
                     <div className="form-group">

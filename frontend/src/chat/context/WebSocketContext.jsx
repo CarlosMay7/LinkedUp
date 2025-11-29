@@ -44,14 +44,17 @@ export const WebSocketProvider = ({ children }) => {
                 setIsConnected(true);
                 setConnectionAttempts(0);
             } catch (error) {
-                console.warn('WebSocket connection failed (app will continue without real-time features):', error.message);
+                console.warn(
+                    'WebSocket connection failed (app will continue without real-time features):',
+                    error.message
+                );
                 setConnectionError(error.message);
                 setIsConnected(false);
-                
+
                 // Retry connection after a delay
                 const nextAttempt = connectionAttempts + 1;
                 setConnectionAttempts(nextAttempt);
-                
+
                 if (nextAttempt < 3) {
                     const delay = 5000 * nextAttempt; // Exponential backoff: 5s, 10s, 15s
                     setTimeout(connectWebSocket, delay);
@@ -67,7 +70,7 @@ export const WebSocketProvider = ({ children }) => {
             setConnectionError(null);
             setConnectionAttempts(0);
         };
-        
+
         const handleDisconnect = () => {
             setIsConnected(false);
         };

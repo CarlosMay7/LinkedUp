@@ -25,13 +25,9 @@ export class WebSocketRepository {
             reconnectionAttempts: 5,
         });
 
-        this.socket.on('connect', () => {
-            // WebSocket connected
-        });
+        this.socket.on('connect', () => {});
 
-        this.socket.on('disconnect', reason => {
-            // WebSocket disconnected
-        });
+        this.socket.on('disconnect', reason => {});
 
         this.socket.on('connect_error', error => {
             console.error('WebSocket connection error:', error);
