@@ -3,8 +3,13 @@ import { ChatGateway } from '../../src/modules/chat/infrastructure/gateways/chat
 import { SessionService } from '../../src/modules/chat/application/services/session.service';
 import { TypingService } from '../../src/modules/chat/application/services/typing.service';
 import { MessageStatusService } from '../../src/modules/chat/application/services/message-status.service';
+import { MessageIdService } from '../../src/modules/chat/application/services/message-id.service';
+import { OnlineUsersService } from '../../src/modules/chat/application/services/online-users.service';
 import { SocketIOMessageBroker } from '../../src/modules/chat/infrastructure/adapters/socketio-message-broker.adapter';
-import { WsKafkaProducer } from '../../src/modules/chat/infrastructure/events/Kafka/ws.kafka.producer';
+import {
+  IEventProducer,
+  EVENT_PRODUCER,
+} from '../../src/modules/chat/domain/interfaces/event-producer.interface';
 import { Socket, Server } from 'socket.io';
 
 describe('ChatGateway', () => {
@@ -14,7 +19,9 @@ describe('ChatGateway', () => {
   let mockTypingService: Partial<TypingService>;
   let mockMessageStatusService: Partial<MessageStatusService>;
   let mockMessageBroker: Partial<SocketIOMessageBroker>;
-  let mockKafkaProducer: Partial<WsKafkaProducer>;
+  let mockMessageIdService: Partial<MessageIdService>;
+  let mockOnlineUsersService: Partial<OnlineUsersService>;
+  let mockEventProducer: Partial<IEventProducer>;
 
   beforeEach(async () => {
     mockSessionService = {
@@ -37,7 +44,17 @@ describe('ChatGateway', () => {
       setServer: jest.fn(),
     };
 
-    mockKafkaProducer = {
+    mockMessageIdService = {
+      registerMessage: jest.fn(),
+      getSenderIdByMessageId: jest.fn().mockReturnValue('sender-1'),
+      unregisterMessage: jest.fn(),
+    };
+
+    mockOnlineUsersService = {
+      getOnlineUsersInRoom: jest.fn().mockReturnValue(['user-1', 'user-2']),
+    };
+
+    mockEventProducer = {
       publishMessageCreated: jest.fn().mockResolvedValue(undefined),
     };
 
@@ -61,8 +78,16 @@ describe('ChatGateway', () => {
           useValue: mockMessageBroker,
         },
         {
-          provide: WsKafkaProducer,
-          useValue: mockKafkaProducer,
+          provide: MessageIdService,
+          useValue: mockMessageIdService,
+        },
+        {
+          provide: OnlineUsersService,
+          useValue: mockOnlineUsersService,
+        },
+        {
+          provide: EVENT_PRODUCER,
+          useValue: mockEventProducer,
         },
       ],
     }).compile();
@@ -151,7 +176,7 @@ describe('ChatGateway', () => {
       const data = { roomId: 'room-1', senderId: 'user-1', content: 'Hello' };
       const result = await gateway.handleSendMessage(data, mockSocket as Socket);
       
-      expect(mockKafkaProducer.publishMessageCreated).toHaveBeenCalledWith({
+      expect(mockEventProducer.publishMessageCreated).toHaveBeenCalledWith({
         senderId: 'user-1',
         content: 'Hello',
         roomId: 'room-1',
@@ -169,7 +194,7 @@ describe('ChatGateway', () => {
       const data = { receiverId: 'user-2', senderId: 'user-1', content: 'Hello' };
       const result = await gateway.handleSendMessage(data, mockSocket as Socket);
       
-      expect(mockKafkaProducer.publishMessageCreated).toHaveBeenCalledWith({
+      expect(mockEventProducer.publishMessageCreated).toHaveBeenCalledWith({
         senderId: 'user-1',
         content: 'Hello',
         roomId: undefined,
@@ -180,7 +205,7 @@ describe('ChatGateway', () => {
     });
 
     it('should handle Kafka errors gracefully', async () => {
-      (mockKafkaProducer.publishMessageCreated as jest.Mock).mockRejectedValue(
+      (mockEventProducer.publishMessageCreated as jest.Mock).mockRejectedValue(
         new Error('Kafka connection failed')
       );
       
@@ -222,9 +247,6 @@ describe('ChatGateway', () => {
     it('should mark message as delivered when sender is found', () => {
       const data = { messageId: 'msg-1', userId: 'user-1' };
       
-      // Mock private method getSenderIdFromMessage
-      jest.spyOn(gateway as any, 'getSenderIdFromMessage').mockReturnValue('sender-1');
-      
       gateway.handleMessageDelivered(data);
       
       expect(mockMessageStatusService.notifyMessageDelivered).toHaveBeenCalledWith(
@@ -232,12 +254,15 @@ describe('ChatGateway', () => {
         'sender-1',
         'user-1'
       );
+      expect(mockMessageIdService.unregisterMessage).toHaveBeenCalledWith('msg-1');
     });
 
     it('should not notify when sender is not found', () => {
-      const data = { messageId: 'msg-1', userId: 'user-1' };
+      const data = { messageId: 'msg-2', userId: 'user-1' };
       
-      // getSenderIdFromMessage returns null by default
+      // Mock getSenderIdByMessageId to return null
+      (mockMessageIdService.getSenderIdByMessageId as jest.Mock).mockReturnValueOnce(null);
+      
       gateway.handleMessageDelivered(data);
       
       expect(mockMessageStatusService.notifyMessageDelivered).not.toHaveBeenCalled();
@@ -248,9 +273,6 @@ describe('ChatGateway', () => {
     it('should mark message as read when sender is found', () => {
       const data = { messageId: 'msg-1', userId: 'user-1' };
       
-      // Mock private method getSenderIdFromMessage
-      jest.spyOn(gateway as any, 'getSenderIdFromMessage').mockReturnValue('sender-1');
-      
       gateway.handleMessageRead(data);
       
       expect(mockMessageStatusService.notifyMessageRead).toHaveBeenCalledWith(
@@ -258,12 +280,15 @@ describe('ChatGateway', () => {
         'sender-1',
         'user-1'
       );
+      expect(mockMessageIdService.unregisterMessage).toHaveBeenCalledWith('msg-1');
     });
 
     it('should not notify when sender is not found', () => {
-      const data = { messageId: 'msg-1', userId: 'user-1' };
+      const data = { messageId: 'msg-2', userId: 'user-1' };
       
-      // getSenderIdFromMessage returns null by default
+      // Mock getSenderIdByMessageId to return null
+      (mockMessageIdService.getSenderIdByMessageId as jest.Mock).mockReturnValueOnce(null);
+      
       gateway.handleMessageRead(data);
       
       expect(mockMessageStatusService.notifyMessageRead).not.toHaveBeenCalled();

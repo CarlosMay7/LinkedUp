@@ -3,22 +3,57 @@ import {
   MESSAGE_BROKER,
   IMessageBroker,
 } from '../../domain/interfaces/message-broker.interface';
-import { MessageProcessedPayload } from '../../domain/interfaces/kafka-payloads.interface';
+import {
+  IEventConsumer,
+  EVENT_CONSUMER,
+} from '../../domain/interfaces/event-consumer.interface';
+import { MessageProcessedPayload } from './Kafka/interfaces/kafka-payloads.interface';
 
 @Injectable()
-export class WsMessageEventService {
+export class WsMessageEventService implements IEventConsumer {
   private readonly logger = new Logger(WsMessageEventService.name);
 
   constructor(
     @Inject(MESSAGE_BROKER) private readonly messageBroker: IMessageBroker,
   ) {}
 
-  async handleProcessedMessage(event: MessageProcessedPayload): Promise<void> {
+  async onMessageProcessed(event: MessageProcessedPayload): Promise<void> {
+    try {
+      this.validatePayload(event);
+
+      const messagePayload = this.buildMessagePayload(event);
+
+      if (event.roomId) {
+        this.messageBroker.sendToRoom(event.roomId, messagePayload);
+      } else if (event.receiverId) {
+        this.messageBroker.sendToUser(event.receiverId, messagePayload);
+      } else {
+        this.logger.warn(
+          'Processed message without roomId or receiverId',
+          event.id,
+        );
+      }
+
+      this.logger.debug(`Event processed: ${event.id}`);
+    } catch (error) {
+      this.logger.error(`Error processing message event: ${error.message}`);
+      throw error;
+    }
+  }
+
+  private validatePayload(event: MessageProcessedPayload): void {
+    if (!event.id || !event.senderId || !event.content) {
+      throw new Error(
+        'Invalid message payload: missing required fields',
+      );
+    }
+  }
+
+  private buildMessagePayload(event: MessageProcessedPayload): any {
     const sentAt =
       typeof event.sentAt === 'string' ? new Date(event.sentAt) : event.sentAt;
 
-    // Construir el payload simple para Socket.IO (sin entidad completa)
-    const messagePayload = {
+    return {
       _id: event.id,
       senderId: event.senderId,
       content: event.content,
@@ -26,14 +61,5 @@ export class WsMessageEventService {
       receiverId: event.receiverId,
       sentAt,
     };
-
-    // Emitir según el tipo de mensaje (room o privado)
-    if (event.roomId) {
-      this.messageBroker.sendToRoom(event.roomId, messagePayload);
-    } else if (event.receiverId) {
-      this.messageBroker.sendToUser(event.receiverId, messagePayload);
-    } else {
-      this.logger.warn('Processed message without roomId or receiverId');
-    }
   }
 }

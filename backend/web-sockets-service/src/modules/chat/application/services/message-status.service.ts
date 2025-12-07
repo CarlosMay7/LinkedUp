@@ -19,15 +19,28 @@ export class MessageStatusService {
     receiverId?: string,
     roomId?: string,
   ): void {
-    const payload = {
-      messageId,
-      deliveredAt: new Date(),
-    };
+    try {
+      if (!messageId || !senderId) {
+        this.logger.warn('Cannot notify delivery: missing messageId or senderId');
+        return;
+      }
 
-    if (receiverId) {
-      this.notifyPrivateMessageDelivered(senderId, payload);
-    } else if (roomId) {
-      this.notifyRoomMessageDelivered(roomId, payload);
+      const payload = {
+        messageId,
+        deliveredAt: new Date(),
+      };
+
+      if (receiverId) {
+        this.notifyPrivateMessageDelivered(senderId, payload);
+      } else if (roomId) {
+        this.notifyRoomMessageDelivered(roomId, payload);
+      } else {
+        this.logger.warn(
+          `Delivery notification without receiverId or roomId for message ${messageId}`,
+        );
+      }
+    } catch (error) {
+      this.logger.error(`Error notifying delivery: ${error.message}`);
     }
   }
 
@@ -37,37 +50,52 @@ export class MessageStatusService {
     receiverId?: string,
     roomId?: string,
   ): void {
-    const payload = {
-      messageId,
-      readAt: new Date(),
-    };
+    try {
+      if (!messageId || !senderId) {
+        this.logger.warn('Cannot notify read: missing messageId or senderId');
+        return;
+      }
 
-    if (receiverId) {
-      this.notifyPrivateMessageRead(senderId, payload);
-    } else if (roomId) {
-      this.notifyRoomMessageRead(roomId, payload);
+      const payload = {
+        messageId,
+        readAt: new Date(),
+      };
+
+      if (receiverId) {
+        this.notifyPrivateMessageRead(senderId, payload);
+      } else if (roomId) {
+        this.notifyRoomMessageRead(roomId, payload);
+      } else {
+        this.logger.warn(
+          `Read notification without receiverId or roomId for message ${messageId}`,
+        );
+      }
+    } catch (error) {
+      this.logger.error(`Error notifying read: ${error.message}`);
     }
   }
 
   private notifyPrivateMessageDelivered(senderId: string, payload: any): void {
-    this.logger.log(
+    this.logger.debug(
       `Message ${payload.messageId} delivered to sender ${senderId}`,
     );
     this.messageBroker.notifyUser(senderId, 'message:delivered', payload);
   }
 
   private notifyRoomMessageDelivered(roomId: string, payload: any): void {
-    this.logger.log(`Message ${payload.messageId} delivered in room ${roomId}`);
+    this.logger.debug(
+      `Message ${payload.messageId} delivered in room ${roomId}`,
+    );
     this.messageBroker.broadcastToRoom(roomId, 'message:delivered', payload);
   }
 
   private notifyPrivateMessageRead(senderId: string, payload: any): void {
-    this.logger.log(`Message ${payload.messageId} read by sender ${senderId}`);
+    this.logger.debug(`Message ${payload.messageId} read by sender ${senderId}`);
     this.messageBroker.notifyUser(senderId, 'message:read', payload);
   }
 
   private notifyRoomMessageRead(roomId: string, payload: any): void {
-    this.logger.log(`Message ${payload.messageId} read in room ${roomId}`);
+    this.logger.debug(`Message ${payload.messageId} read in room ${roomId}`);
     this.messageBroker.broadcastToRoom(roomId, 'message:read', payload);
   }
 }

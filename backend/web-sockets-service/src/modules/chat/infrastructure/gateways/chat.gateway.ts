@@ -9,7 +9,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { Logger } from '@nestjs/common';
+import { Inject, Logger } from '@nestjs/common';
 import {
   SendMessageDto,
   JoinRoomDto,
@@ -22,8 +22,13 @@ import {
 import { SessionService } from '../../application/services/session.service';
 import { TypingService } from '../../application/services/typing.service';
 import { MessageStatusService } from '../../application/services/message-status.service';
+import { MessageIdService } from '../../application/services/message-id.service';
+import { OnlineUsersService } from '../../application/services/online-users.service';
 import { SocketIOMessageBroker } from '../adapters/socketio-message-broker.adapter';
-import { WsKafkaProducer } from '../events/Kafka/ws.kafka.producer';
+import {
+  IEventProducer,
+  EVENT_PRODUCER,
+} from '../../domain/interfaces/event-producer.interface';
 
 @WebSocketGateway({
   cors: {
@@ -44,7 +49,9 @@ export class ChatGateway
     private readonly typingService: TypingService,
     private readonly messageStatusService: MessageStatusService,
     private readonly messageBroker: SocketIOMessageBroker,
-    private readonly kafkaProducer: WsKafkaProducer,
+    private readonly messageIdService: MessageIdService,
+    private readonly onlineUsersService: OnlineUsersService,
+    @Inject(EVENT_PRODUCER) private readonly eventProducer: IEventProducer,
   ) {}
 
   afterInit(server: Server) {
@@ -127,7 +134,9 @@ export class ChatGateway
     @ConnectedSocket() client: Socket,
   ) {
     try {
-      await this.kafkaProducer.publishMessageCreated({
+      const messageId = `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      
+      await this.eventProducer.publishMessageCreated({
         senderId: data.senderId,
         content: data.content,
         roomId: data.roomId,
@@ -135,16 +144,22 @@ export class ChatGateway
         timestamp: Date.now(),
       });
 
+      // Register message ID for tracking delivery/read status
+      this.messageIdService.registerMessage(messageId, data.senderId);
+
       const ack = {
         status: 'queued',
-        tempId: undefined,
+        tempId: messageId,
         roomId: data.roomId,
         receiverId: data.receiverId,
       };
       client.emit('messageQueued', ack);
       return { event: 'messageQueued', data: ack };
     } catch (error) {
-      this.logger.error(`Failed to send message: ${error.message}`);
+      this.logger.error(
+        `Failed to send message from ${data.senderId}: ${error.message}`,
+        error.stack,
+      );
       client.emit('messageError', {
         error: error.message,
         timestamp: new Date(),
@@ -166,24 +181,44 @@ export class ChatGateway
 
   @SubscribeMessage('messageDelivered')
   handleMessageDelivered(@MessageBody() data: MessageDeliveredDto) {
-    const senderId = this.getSenderIdFromMessage(data.messageId);
-    if (senderId) {
-      this.messageStatusService.notifyMessageDelivered(
-        data.messageId,
-        senderId,
-        data.userId,
+    try {
+      const senderId = this.messageIdService.getSenderIdByMessageId(data.messageId);
+      if (senderId) {
+        this.messageStatusService.notifyMessageDelivered(
+          data.messageId,
+          senderId,
+          data.userId,
+        );
+        this.messageIdService.unregisterMessage(data.messageId);
+      } else {
+        this.logger.warn(`No sender found for message ${data.messageId}`);
+      }
+    } catch (error) {
+      this.logger.error(
+        `Error handling message delivered for ${data.messageId}: ${error.message}`,
+        error.stack,
       );
     }
   }
 
   @SubscribeMessage('messageRead')
   handleMessageRead(@MessageBody() data: MessageReadDto) {
-    const senderId = this.getSenderIdFromMessage(data.messageId);
-    if (senderId) {
-      this.messageStatusService.notifyMessageRead(
-        data.messageId,
-        senderId,
-        data.userId,
+    try {
+      const senderId = this.messageIdService.getSenderIdByMessageId(data.messageId);
+      if (senderId) {
+        this.messageStatusService.notifyMessageRead(
+          data.messageId,
+          senderId,
+          data.userId,
+        );
+        this.messageIdService.unregisterMessage(data.messageId);
+      } else {
+        this.logger.warn(`No sender found for message ${data.messageId}`);
+      }
+    } catch (error) {
+      this.logger.error(
+        `Error handling message read for ${data.messageId}: ${error.message}`,
+        error.stack,
       );
     }
   }
@@ -193,9 +228,19 @@ export class ChatGateway
     @MessageBody() data: GetOnlineUsersDto,
     @ConnectedSocket() client: Socket,
   ) {
-    const onlineUsers = this.getOnlineUsersInRoom(data.roomId);
-    client.emit('onlineUsers', onlineUsers);
-    this.logger.log(`Sent online users list for room ${data.roomId} to client ${client.id}`);
+    try {
+      const sockets = this.server.sockets.adapter.rooms.get(data.roomId);
+      const onlineUsers = this.onlineUsersService.getOnlineUsersInRoom(data.roomId, sockets);
+      client.emit('onlineUsers', onlineUsers);
+      this.logger.log(
+        `Sent ${onlineUsers.length} online users for room ${data.roomId} to client ${client.id}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Error getting online users for room ${data.roomId}: ${error.message}`,
+        error.stack,
+      );
+    }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

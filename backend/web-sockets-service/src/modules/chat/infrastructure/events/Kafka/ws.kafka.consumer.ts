@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { Consumer, Kafka } from 'kafkajs';
 import { WsMessageEventService } from '../message-event.service';
-import { MessageProcessedPayload } from '../../../domain/interfaces/kafka-payloads.interface';
+import { MessageProcessedPayload } from './interfaces/kafka-payloads.interface';
 
 @Injectable()
 export class WsKafkaConsumer implements OnModuleInit, OnModuleDestroy {
@@ -20,30 +20,55 @@ export class WsKafkaConsumer implements OnModuleInit, OnModuleDestroy {
   ) {}
 
   async onModuleInit(): Promise<void> {
-    this.consumer = this.kafkaClient.consumer({
-      groupId: 'ws-service-consumer',
-    });
-    await this.consumer.connect();
-    await this.consumer.subscribe({
-      topic: 'message.processed',
-      fromBeginning: false,
-    });
+    try {
+      this.consumer = this.kafkaClient.consumer({
+        groupId: 'ws-service-consumer',
+      });
+      await this.consumer.connect();
+      this.logger.log('Kafka consumer connected');
 
-    await this.consumer.run({
-      eachMessage: async ({ message }) => {
-        try {
-          const value = message.value?.toString();
-          if (!value) return;
-          const payload = JSON.parse(value) as MessageProcessedPayload;
-          await this.wsMessageEventService.handleProcessedMessage(payload);
-        } catch (err) {
-          this.logger.error('Error processing Kafka message', err as any);
-        }
-      },
-    });
+      await this.consumer.subscribe({
+        topic: 'message.processed',
+        fromBeginning: false,
+      });
+      this.logger.log('Subscribed to message.processed topic');
+
+      await this.consumer.run({
+        eachMessage: async ({ message }) => {
+          await this.processMessage(message);
+        },
+      });
+    } catch (error) {
+      this.logger.error('Failed to initialize Kafka consumer', error);
+      throw error;
+    }
   }
 
   async onModuleDestroy(): Promise<void> {
-    if (this.consumer) await this.consumer.disconnect();
+    if (this.consumer) {
+      await this.consumer.disconnect();
+      this.logger.log('Kafka consumer disconnected');
+    }
+  }
+
+  private async processMessage(
+    message: any,
+  ): Promise<void> {
+    try {
+      const value = message.value?.toString();
+      if (!value) {
+        this.logger.warn('Empty message received from Kafka');
+        return;
+      }
+
+      const payload = JSON.parse(value) as MessageProcessedPayload;
+      await this.wsMessageEventService.onMessageProcessed(payload);
+      this.logger.debug(`Message processed: ${payload.id}`);
+    } catch (error) {
+      this.logger.error(
+        `Error processing Kafka message: ${error.message}`,
+        error,
+      );
+    }
   }
 }
