@@ -7,10 +7,13 @@ import {
 } from '@nestjs/common';
 import { Consumer, Kafka } from 'kafkajs';
 import { WsMessageEventService } from '../message-event.service';
-import { MessageProcessedPayload } from './interfaces/kafka-payloads.interface';
+import {
+  MessageProcessedPayload,
+  IEventConsumer,
+} from '../../interfaces/event-consumer.interface';
 
 @Injectable()
-export class WsKafkaConsumer implements OnModuleInit, OnModuleDestroy {
+export class WsKafkaConsumer implements IEventConsumer, OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(WsKafkaConsumer.name);
   private consumer: Consumer;
 
@@ -18,6 +21,10 @@ export class WsKafkaConsumer implements OnModuleInit, OnModuleDestroy {
     @Inject('KAFKA_CLIENT') private readonly kafkaClient: Kafka,
     private readonly wsMessageEventService: WsMessageEventService,
   ) {}
+
+  async onMessageProcessed(payload: MessageProcessedPayload): Promise<void> {
+    await this.wsMessageEventService.onMessageProcessed(payload);
+  }
 
   async onModuleInit(): Promise<void> {
     try {
@@ -62,7 +69,7 @@ export class WsKafkaConsumer implements OnModuleInit, OnModuleDestroy {
       }
 
       const payload = JSON.parse(value) as MessageProcessedPayload;
-      await this.wsMessageEventService.onMessageProcessed(payload);
+      await this.onMessageProcessed(payload);
       this.logger.debug(`Message processed: ${payload.id}`);
     } catch (error) {
       this.logger.error(

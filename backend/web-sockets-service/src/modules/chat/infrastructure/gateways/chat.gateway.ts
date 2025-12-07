@@ -28,7 +28,7 @@ import { SocketIOMessageBroker } from '../adapters/socketio-message-broker.adapt
 import {
   IEventProducer,
   EVENT_PRODUCER,
-} from '../../domain/interfaces/event-producer.interface';
+} from '../interfaces/event-producer.interface';
 
 @WebSocketGateway({
   cors: {

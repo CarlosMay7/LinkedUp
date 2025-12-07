@@ -7,10 +7,10 @@ import { MessageIdService } from './application/services/message-id.service';
 import { OnlineUsersService } from './application/services/online-users.service';
 import { SocketIOMessageBroker } from './infrastructure/adapters/socketio-message-broker.adapter';
 import { InMemorySessionManager } from './infrastructure/adapters/in-memory-session-manager.adapter';
-import { MESSAGE_BROKER } from './domain/interfaces/message-broker.interface';
-import { SESSION_MANAGER } from './domain/interfaces/session-manager.interface';
-import { EVENT_PRODUCER } from './domain/interfaces/event-producer.interface';
-import { EVENT_CONSUMER } from './domain/interfaces/event-consumer.interface';
+import { MESSAGE_BROKER } from './infrastructure/interfaces/message-broker.interface';
+import { SESSION_MANAGER } from './infrastructure/interfaces/session-manager.interface';
+import { EVENT_PRODUCER } from './infrastructure/interfaces/event-producer.interface';
+import { EVENT_CONSUMER } from './infrastructure/interfaces/event-consumer.interface';
 import { ConfigService } from '@nestjs/config';
 import { Kafka } from 'kafkajs';
 import { WsKafkaProducer } from './infrastructure/events/Kafka/ws.kafka.producer';
@@ -49,11 +49,11 @@ import { WsMessageEventService } from './infrastructure/events/message-event.ser
       provide: EVENT_PRODUCER,
       useExisting: WsKafkaProducer,
     },
-    WsKafkaConsumer,
     WsMessageEventService,
+    WsKafkaConsumer,
     {
       provide: EVENT_CONSUMER,
-      useExisting: WsMessageEventService,
+      useExisting: WsKafkaConsumer,
     },
   ],
   exports: [SessionService],

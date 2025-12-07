@@ -1,3 +1,4 @@
+// Kafka payloads
 export interface MessageCreatedPayload {
   senderId: string;
   content: string;
@@ -7,11 +8,8 @@ export interface MessageCreatedPayload {
   metadata?: Record<string, any>;
 }
 
-export interface MessageProcessedPayload {
-  id: string;
-  roomId?: string;
-  senderId: string;
-  receiverId?: string;
-  content: string;
-  sentAt: string | Date;
+export interface IEventProducer {
+  publishMessageCreated(payload: MessageCreatedPayload): Promise<void>;
 }
+
+export const EVENT_PRODUCER = Symbol('EVENT_PRODUCER');

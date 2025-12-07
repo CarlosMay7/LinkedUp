@@ -9,7 +9,7 @@ import { SocketIOMessageBroker } from '../../src/modules/chat/infrastructure/ada
 import {
   IEventProducer,
   EVENT_PRODUCER,
-} from '../../src/modules/chat/domain/interfaces/event-producer.interface';
+} from '../../src/modules/chat/infrastructure/interfaces/event-producer.interface';
 import { Socket, Server } from 'socket.io';
 
 describe('ChatGateway', () => {

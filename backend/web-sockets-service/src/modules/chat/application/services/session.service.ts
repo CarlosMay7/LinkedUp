@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import {
   ISessionManager,
   SESSION_MANAGER,
-} from '../../domain/interfaces/session-manager.interface';
+} from '../../infrastructure/interfaces/session-manager.interface';
 
 @Injectable()
 export class SessionService {

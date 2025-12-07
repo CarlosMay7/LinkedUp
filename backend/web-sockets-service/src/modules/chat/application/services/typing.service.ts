@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import {
   IMessageBroker,
   MESSAGE_BROKER,
-} from '../../domain/interfaces/message-broker.interface';
+} from '../../infrastructure/interfaces/message-broker.interface';
 
 @Injectable()
 export class TypingService {

@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SessionService } from '../../../src/modules/chat/application/services/session.service';
-import { SESSION_MANAGER } from '../../../src/modules/chat/domain/interfaces/session-manager.interface';
+import { SESSION_MANAGER } from '../../../src/modules/chat/infrastructure/interfaces/session-manager.interface';
 
 describe('SessionService', () => {
   let service: SessionService;

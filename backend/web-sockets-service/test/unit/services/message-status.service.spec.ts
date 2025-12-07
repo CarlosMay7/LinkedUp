@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MessageStatusService } from '../../../src/modules/chat/application/services/message-status.service';
-import { MESSAGE_BROKER } from '../../../src/modules/chat/domain/interfaces/message-broker.interface';
+import { MESSAGE_BROKER } from '../../../src/modules/chat/infrastructure/interfaces/message-broker.interface';
 
 describe('MessageStatusService', () => {
   let service: MessageStatusService;

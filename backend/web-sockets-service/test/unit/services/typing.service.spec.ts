@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypingService } from '../../../src/modules/chat/application/services/typing.service';
-import { MESSAGE_BROKER } from '../../../src/modules/chat/domain/interfaces/message-broker.interface';
+import { MESSAGE_BROKER } from '../../../src/modules/chat/infrastructure/interfaces/message-broker.interface';
 
 describe('TypingService', () => {
   let service: TypingService;

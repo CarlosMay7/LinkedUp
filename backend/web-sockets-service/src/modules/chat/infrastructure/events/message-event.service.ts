@@ -2,15 +2,13 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import {
   MESSAGE_BROKER,
   IMessageBroker,
-} from '../../domain/interfaces/message-broker.interface';
+} from '../interfaces/message-broker.interface';
 import {
-  IEventConsumer,
-  EVENT_CONSUMER,
-} from '../../domain/interfaces/event-consumer.interface';
-import { MessageProcessedPayload } from './Kafka/interfaces/kafka-payloads.interface';
+  MessageProcessedPayload,
+} from '../interfaces/event-consumer.interface';
 
 @Injectable()
-export class WsMessageEventService implements IEventConsumer {
+export class WsMessageEventService {
   private readonly logger = new Logger(WsMessageEventService.name);
 
   constructor(

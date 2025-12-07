@@ -6,11 +6,11 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { Kafka, Producer } from 'kafkajs';
-import { MessageCreatedPayload } from './interfaces/kafka-payloads.interface';
 import {
+  MessageCreatedPayload,
   IEventProducer,
   EVENT_PRODUCER,
-} from '../../../domain/interfaces/event-producer.interface';
+} from '../../interfaces/event-producer.interface';
 
 @Injectable()
 export class WsKafkaProducer implements IEventProducer, OnModuleInit, OnModuleDestroy {
