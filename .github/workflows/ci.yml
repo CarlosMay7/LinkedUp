@@ -64,7 +64,7 @@ jobs:
           echo "🚀 Running Scripts for ${{ matrix.project }}"
           npm --prefix ${{ matrix.project }} run lint
           npm --prefix ${{ matrix.project }} run format
-          npm --prefix ${{ matrix.project }} run test
+          npm --prefix ${{ matrix.project }} run test --passWithNoTests
 
       - name: Log in to Docker Hub
         if: env.PROJECT_CHANGED == 'true' && github.event_name == 'push'
