@@ -5,6 +5,7 @@ import { AuthProvider } from './auth/context/AuthContext';
 import { WebSocketProvider } from './chat/context/WebSocketContext.jsx';
 import App from './App.jsx';
 
+// This is the main entry point of the React application.
 createRoot(document.getElementById('root')).render(
     <StrictMode>
         <BrowserRouter>

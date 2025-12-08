@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SocketIOAdapter } from './modules/chat/infrastructure/adapters/socket-io.adapter';
 
+// This file bootstraps the WebSocket service using NestJS and configures the Socket.IO adapter.
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
