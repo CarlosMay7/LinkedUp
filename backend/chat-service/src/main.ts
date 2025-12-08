@@ -4,7 +4,6 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-// This file bootstraps the Chat service using NestJS, sets up Swagger for API documentation, and enables global validation.
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   
