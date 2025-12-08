@@ -56,7 +56,7 @@ jobs:
 
       - name: Install dependencies
         if: env.PROJECT_CHANGED == 'true'
-        run: npm install
+        run: npm --prefix ${{ matrix.project }} install
 
       - name: Run lint, format, and tests
         if: env.PROJECT_CHANGED == 'true'
