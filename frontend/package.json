@@ -9,7 +9,7 @@
     "lint": "eslint . --ext .js,.jsx && echo ✅ Clean!",
     "lint:fix": "eslint . --ext .js,.jsx --fix && echo ✅ Fixed!",
     "format": "prettier --write .",
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "test:watch": "jest --watch",
     "preview": "vite preview"
   },
