@@ -3,6 +3,7 @@ import globals from 'globals';
 import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
+import jest from 'eslint-plugin-jest';
 import prettier from 'eslint-plugin-prettier';
 import prettierConfig from 'eslint-config-prettier';
 import { defineConfig, globalIgnores } from 'eslint/config';
@@ -47,6 +48,24 @@ export default defineConfig([
             react: {
                 version: 'detect',
             },
+        },
+    },
+    {
+        files: ['**/__tests__/**/*.{spec,test}.{js,jsx}'],
+        plugins: {
+            jest,
+        },
+        languageOptions: {
+            globals: {
+                ...globals.jest,
+                global: 'readonly',
+            },
+        },
+        rules: {
+            'jest/expect-expect': 'warn',
+            'jest/no-disabled-tests': 'warn',
+            'jest/no-focused-tests': 'warn',
+            'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
         },
     },
 ]);

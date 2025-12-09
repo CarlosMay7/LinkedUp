@@ -7,7 +7,6 @@ export class SignInUseCase {
     }
 
     async execute({ email, password }) {
-        // Check if user is blocked in public.users table
         try {
             const userRecord = await this.userRepository.getUserByEmail(email);
 
@@ -28,7 +27,7 @@ export class SignInUseCase {
             // Otherwise ignore the error and continue
         }
 
-           const { data: userData, error } = await this.authRepository.signIn({
+        const { data: userData, error } = await this.authRepository.signIn({
             email,
             password,
         });

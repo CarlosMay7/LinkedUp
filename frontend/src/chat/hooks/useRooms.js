@@ -3,12 +3,10 @@ import { supabase } from '../../auth/supabase/supabaseClient';
 import { RoomRepository } from '../../infrastructure/repositories/room.repository';
 import { UserRepository } from '../../infrastructure/repositories/user.repository';
 import { GetRoomWithMembersUseCase } from '../../core/use-cases/room/get-room-with-members.use-case';
-import { WebSocketRepository } from '../../infrastructure/repositories/websocket.repository';
 import { AddMemberToRoomUseCase } from '../../core/use-cases/room/add-member.use-case';
 
 const roomRepository = new RoomRepository(supabase);
 const userRepository = new UserRepository(supabase);
-const webSocketRepository = new WebSocketRepository();
 const getRoomWithMembersUseCase = new GetRoomWithMembersUseCase(
     roomRepository,
     userRepository
