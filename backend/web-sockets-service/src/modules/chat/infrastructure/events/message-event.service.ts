@@ -4,6 +4,7 @@ import {
   IMessageBroker,
 } from '../interfaces/message-broker.interface';
 import { MessageProcessedPayload } from '../interfaces/event-consumer.interface';
+import { MessageIdService } from '../../application/services/message-id.service';
 
 @Injectable()
 export class WsMessageEventService {
@@ -11,11 +12,15 @@ export class WsMessageEventService {
 
   constructor(
     @Inject(MESSAGE_BROKER) private readonly messageBroker: IMessageBroker,
+    private readonly messageIdService: MessageIdService,
   ) {}
 
   async onMessageProcessed(event: MessageProcessedPayload): Promise<void> {
     try {
       this.validatePayload(event);
+
+      // Register the final DB id to allow delivery/read tracking by id.
+      this.messageIdService.registerMessage(event.id, event.senderId);
 
       const messagePayload = this.buildMessagePayload(event);
 

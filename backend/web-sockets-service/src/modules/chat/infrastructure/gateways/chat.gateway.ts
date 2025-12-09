@@ -134,9 +134,14 @@ export class ChatGateway
     @ConnectedSocket() client: Socket,
   ) {
     try {
-      const messageId = `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      // Generate a messageId that will travel with the Kafka payload so
+      // downstream services (and processed events) keep the same id.
+      const messageId = `msg-${Date.now()}-${Math.random()
+        .toString(36)
+        .slice(2, 11)}`;
 
       await this.eventProducer.publishMessageCreated({
+        id: messageId,
         senderId: data.senderId,
         content: data.content,
         roomId: data.roomId,

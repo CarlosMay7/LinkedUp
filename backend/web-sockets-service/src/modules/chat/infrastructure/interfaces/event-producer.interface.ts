@@ -1,5 +1,6 @@
 // Kafka payloads
 export interface MessageCreatedPayload {
+  id: string;
   senderId: string;
   content: string;
   roomId?: string;

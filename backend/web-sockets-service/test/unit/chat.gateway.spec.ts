@@ -185,6 +185,7 @@ describe('ChatGateway', () => {
       );
 
       expect(mockEventProducer.publishMessageCreated).toHaveBeenCalledWith({
+        id: expect.any(String),
         senderId: 'user-1',
         content: 'Hello',
         roomId: 'room-1',
@@ -213,6 +214,7 @@ describe('ChatGateway', () => {
       );
 
       expect(mockEventProducer.publishMessageCreated).toHaveBeenCalledWith({
+        id: expect.any(String),
         senderId: 'user-1',
         content: 'Hello',
         roomId: undefined,
