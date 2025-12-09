@@ -4,17 +4,28 @@ services:
   chat-service:
     build: backend/chat-service
     ports:
-      - "3002:3000"
+      - "3001:3001"
+    environment:
+      KAFKA_BROKER: kafka:9092
+    depends_on:
+      - kafka
 
   web-sockets-service:
     build: backend/web-sockets-service
     ports:
-      - "3003:3000"
+      - "3002:3002"
+    environment:
+      KAFKA_BROKER: kafka:9092
+    depends_on:
+      - kafka
 
   frontend:
-    build: ./frontend
+    build: frontend
     ports:
       - "5173:5173"
+    depends_on:
+      - chat-service
+      - web-sockets-service
   zookeeper:
     image: wurstmeister/zookeeper
     container_name: zookeeper

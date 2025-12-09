@@ -40,7 +40,7 @@ export const AdminPage = () => {
         }
     };
 
-    const formatNumber = (num) => {
+    const formatNumber = num => {
         return new Intl.NumberFormat('en-US').format(num);
     };
 
@@ -71,9 +71,16 @@ export const AdminPage = () => {
                                 <div className="words-list">
                                     {topWords.length > 0 ? (
                                         topWords.map((wordData, index) => (
-                                            <div key={index} className="word-item">
-                                                <span className="rank">{index + 1}.</span>
-                                                <span className="word">{wordData.word}</span>
+                                            <div
+                                                key={index}
+                                                className="word-item"
+                                            >
+                                                <span className="rank">
+                                                    {index + 1}.
+                                                </span>
+                                                <span className="word">
+                                                    {wordData.word}
+                                                </span>
                                                 <span className="count">
                                                     ({wordData.total})
                                                 </span>
@@ -92,8 +99,13 @@ export const AdminPage = () => {
                                 <div className="users-list">
                                     {topUsers.length > 0 ? (
                                         topUsers.map((userData, index) => (
-                                            <div key={index} className="user-item">
-                                                <span className="rank">{index + 1}.</span>
+                                            <div
+                                                key={index}
+                                                className="user-item"
+                                            >
+                                                <span className="rank">
+                                                    {index + 1}.
+                                                </span>
                                                 <span className="user-id">
                                                     {userData.username}
                                                 </span>

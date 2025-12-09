@@ -1,4 +1,4 @@
-const badWordsMap = {
+const BAD_WORDS_MAP = {
     bitch: true,
     shit: true,
     fuck: true,
@@ -27,18 +27,54 @@ const badWordsMap = {
     stupid: true,
     idiot: true,
     jerk: true,
+    asshat: true,
+    bugger: true,
+    butthead: true,
+    cocksucker: true,
+    crappy: true,
+    jackass: true,
+    prick: true,
+    shitty: true,
+    suck: true,
+    sucks: true,
+    twat: true,
+    wanker: true,
+
+    pendejo: true,
+    puto: true,
+    puta: true,
+    cabrón: true,
+    cabróna: true,
+    hijo: true,
+    mierda: true,
+    cojones: true,
+    culo: true,
+    mamón: true,
+    mamona: true,
+    jodido: true,
+    jodida: true,
+    joder: true,
+    carajo: true,
+    coño: true,
+    desgraciado: true,
+    desgraciada: true,
+    bastardo: true,
+    bastarda: true,
+    cabroncete: true,
+    idiota: true,
+    estúpido: true,
+    estúpida: true,
+    maleante: true,
+    sinvergüenza: true,
 };
 
-export const censorText = text => {
-    if (!text || typeof text !== 'string') {
-        return text;
+class BadWordsFilterService {
+    constructor() {
+        this.badWordsMap = BAD_WORDS_MAP;
     }
 
-    let censored = text;
-
-    Object.keys(badWordsMap).forEach(word => {
-        // Match whole words only, case-insensitive, with optional leet speak variations
-        const variations = [
+    _generateVariations(word) {
+        return [
             word,
             word.replace(/a/g, '@'),
             word.replace(/a/g, '4'),
@@ -48,32 +84,87 @@ export const censorText = text => {
             word.replace(/s/g, '5'),
             word.replace(/t/g, '7'),
         ];
-
-        variations.forEach(variant => {
-            // Create pattern that matches the word with word boundaries and optional punctuation
-            const pattern = new RegExp(`\\b${variant}+\\b`, 'gi');
-            censored = censored.replace(pattern, match => {
-                // Replace with asterisks matching the length
-                return '*'.repeat(Math.max(match.length, 4));
-            });
-        });
-    });
-
-    return censored;
-};
-
-export const hasProfanity = text => {
-    if (!text || typeof text !== 'string') {
-        return false;
     }
 
-    const lowerText = text.toLowerCase();
+    censorText(text) {
+        if (!text || typeof text !== 'string') {
+            return text;
+        }
 
-    return Object.keys(badWordsMap).some(word => {
-        // Check for word with word boundaries
-        const pattern = new RegExp(`\\b${word}\\b`, 'i');
-        return pattern.test(lowerText);
-    });
-};
+        let censored = text;
 
-export default { censorText, hasProfanity };
+        Object.keys(this.badWordsMap).forEach(word => {
+            const variations = this._generateVariations(word);
+
+            variations.forEach(variant => {
+                const pattern = new RegExp(`\\b${variant}+\\b`, 'gi');
+                censored = censored.replace(pattern, match => {
+                    return '*'.repeat(Math.max(match.length, 4));
+                });
+            });
+        });
+
+        return censored;
+    }
+
+    hasProfanity(text) {
+        if (!text || typeof text !== 'string') {
+            return false;
+        }
+
+        const lowerText = text.toLowerCase();
+
+        return Object.keys(this.badWordsMap).some(word => {
+            const pattern = new RegExp(`\\b${word}\\b`, 'i');
+            return pattern.test(lowerText);
+        });
+    }
+
+    countBadWords(text) {
+        if (!text || typeof text !== 'string') {
+            return 0;
+        }
+
+        let count = 0;
+        const lowerText = text.toLowerCase();
+
+        Object.keys(this.badWordsMap).forEach(word => {
+            const pattern = new RegExp(`\\b${word}\\b`, 'gi');
+            const matches = lowerText.match(pattern);
+            if (matches) {
+                count += matches.length;
+            }
+        });
+
+        return count;
+    }
+
+    getBadWordsInText(text) {
+        if (!text || typeof text !== 'string') {
+            return [];
+        }
+
+        const foundWords = [];
+        const lowerText = text.toLowerCase();
+
+        Object.keys(this.badWordsMap).forEach(word => {
+            const pattern = new RegExp(`\\b${word}\\b`, 'gi');
+            if (pattern.test(lowerText)) {
+                foundWords.push(word);
+            }
+        });
+
+        return [...new Set(foundWords)];
+    }
+}
+
+const badWordsFilterService = new BadWordsFilterService();
+
+export { BadWordsFilterService };
+export const censorText = text => badWordsFilterService.censorText(text);
+export const hasProfanity = text => badWordsFilterService.hasProfanity(text);
+export const countBadWords = text => badWordsFilterService.countBadWords(text);
+export const getBadWordsInText = text =>
+    badWordsFilterService.getBadWordsInText(text);
+
+export default badWordsFilterService;
