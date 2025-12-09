@@ -21,7 +21,9 @@ export class MessageStatusService {
   ): void {
     try {
       if (!messageId || !senderId) {
-        this.logger.warn('Cannot notify delivery: missing messageId or senderId');
+        this.logger.warn(
+          'Cannot notify delivery: missing messageId or senderId',
+        );
         return;
       }
 
@@ -90,7 +92,9 @@ export class MessageStatusService {
   }
 
   private notifyPrivateMessageRead(senderId: string, payload: any): void {
-    this.logger.debug(`Message ${payload.messageId} read by sender ${senderId}`);
+    this.logger.debug(
+      `Message ${payload.messageId} read by sender ${senderId}`,
+    );
     this.messageBroker.notifyUser(senderId, 'message:read', payload);
   }
 

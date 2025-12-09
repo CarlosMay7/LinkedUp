@@ -25,7 +25,9 @@ export class TypingService {
       } else if (receiverId) {
         this.notifyUserTyping(userId, receiverId);
       } else {
-        this.logger.warn(`Typing notification without roomId or receiverId for user ${userId}`);
+        this.logger.warn(
+          `Typing notification without roomId or receiverId for user ${userId}`,
+        );
       }
     } catch (error) {
       this.logger.error(`Error notifying typing: ${error.message}`);

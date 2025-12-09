@@ -135,7 +135,7 @@ export class ChatGateway
   ) {
     try {
       const messageId = `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      
+
       await this.eventProducer.publishMessageCreated({
         senderId: data.senderId,
         content: data.content,
@@ -182,7 +182,9 @@ export class ChatGateway
   @SubscribeMessage('messageDelivered')
   handleMessageDelivered(@MessageBody() data: MessageDeliveredDto) {
     try {
-      const senderId = this.messageIdService.getSenderIdByMessageId(data.messageId);
+      const senderId = this.messageIdService.getSenderIdByMessageId(
+        data.messageId,
+      );
       if (senderId) {
         this.messageStatusService.notifyMessageDelivered(
           data.messageId,
@@ -204,7 +206,9 @@ export class ChatGateway
   @SubscribeMessage('messageRead')
   handleMessageRead(@MessageBody() data: MessageReadDto) {
     try {
-      const senderId = this.messageIdService.getSenderIdByMessageId(data.messageId);
+      const senderId = this.messageIdService.getSenderIdByMessageId(
+        data.messageId,
+      );
       if (senderId) {
         this.messageStatusService.notifyMessageRead(
           data.messageId,
@@ -230,7 +234,10 @@ export class ChatGateway
   ) {
     try {
       const sockets = this.server.sockets.adapter.rooms.get(data.roomId);
-      const onlineUsers = this.onlineUsersService.getOnlineUsersInRoom(data.roomId, sockets);
+      const onlineUsers = this.onlineUsersService.getOnlineUsersInRoom(
+        data.roomId,
+        sockets,
+      );
       client.emit('onlineUsers', onlineUsers);
       this.logger.log(
         `Sent ${onlineUsers.length} online users for room ${data.roomId} to client ${client.id}`,

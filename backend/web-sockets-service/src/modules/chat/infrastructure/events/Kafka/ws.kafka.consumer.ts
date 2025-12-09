@@ -13,7 +13,9 @@ import {
 } from '../../interfaces/event-consumer.interface';
 
 @Injectable()
-export class WsKafkaConsumer implements IEventConsumer, OnModuleInit, OnModuleDestroy {
+export class WsKafkaConsumer
+  implements IEventConsumer, OnModuleInit, OnModuleDestroy
+{
   private readonly logger = new Logger(WsKafkaConsumer.name);
   private consumer: Consumer;
 
@@ -58,9 +60,7 @@ export class WsKafkaConsumer implements IEventConsumer, OnModuleInit, OnModuleDe
     }
   }
 
-  private async processMessage(
-    message: any,
-  ): Promise<void> {
+  private async processMessage(message: any): Promise<void> {
     try {
       const value = message.value?.toString();
       if (!value) {

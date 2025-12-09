@@ -8,7 +8,9 @@ export class MessageIdService {
   registerMessage(messageId: string, senderId: string): void {
     try {
       if (!messageId || !senderId) {
-        this.logger.warn('Cannot register message: missing messageId or senderId');
+        this.logger.warn(
+          'Cannot register message: missing messageId or senderId',
+        );
         return;
       }
       this.messageIdMap.set(messageId, senderId);
@@ -31,7 +33,9 @@ export class MessageIdService {
       }
       return senderId;
     } catch (error) {
-      this.logger.error(`Error getting sender for message ${messageId}: ${error.message}`);
+      this.logger.error(
+        `Error getting sender for message ${messageId}: ${error.message}`,
+      );
       return null;
     }
   }

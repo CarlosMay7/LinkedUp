@@ -3,9 +3,7 @@ import {
   MESSAGE_BROKER,
   IMessageBroker,
 } from '../interfaces/message-broker.interface';
-import {
-  MessageProcessedPayload,
-} from '../interfaces/event-consumer.interface';
+import { MessageProcessedPayload } from '../interfaces/event-consumer.interface';
 
 @Injectable()
 export class WsMessageEventService {
@@ -41,9 +39,7 @@ export class WsMessageEventService {
 
   private validatePayload(event: MessageProcessedPayload): void {
     if (!event.id || !event.senderId || !event.content) {
-      throw new Error(
-        'Invalid message payload: missing required fields',
-      );
+      throw new Error('Invalid message payload: missing required fields');
     }
   }
 

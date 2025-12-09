@@ -53,7 +53,7 @@ describe('InMemorySessionManager', () => {
       sessionManager.registerUser('user1', 'socket1');
       sessionManager.registerUser('user2', 'socket2');
       sessionManager.registerUser('user3', 'socket3');
-      
+
       const users = sessionManager.getAllOnlineUsers();
       expect(users).toEqual(['user1', 'user2', 'user3']);
     });
@@ -67,7 +67,7 @@ describe('InMemorySessionManager', () => {
       sessionManager.registerUser('user1', 'socket1');
       sessionManager.registerUser('user2', 'socket2');
       sessionManager.unregisterUser('socket2');
-      
+
       const users = sessionManager.getAllOnlineUsers();
       expect(users).toEqual(['user1']);
     });

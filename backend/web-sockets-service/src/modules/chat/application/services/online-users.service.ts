@@ -1,5 +1,8 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { SESSION_MANAGER, ISessionManager } from '../../infrastructure/interfaces/session-manager.interface';
+import {
+  SESSION_MANAGER,
+  ISessionManager,
+} from '../../infrastructure/interfaces/session-manager.interface';
 
 @Injectable()
 export class OnlineUsersService {
@@ -24,7 +27,9 @@ export class OnlineUsersService {
         }
       });
 
-      this.logger.debug(`Retrieved ${onlineUsers.length} online users in room ${roomId}`);
+      this.logger.debug(
+        `Retrieved ${onlineUsers.length} online users in room ${roomId}`,
+      );
       return onlineUsers;
     } catch (error) {
       this.logger.error(`Error getting online users: ${error.message}`);
