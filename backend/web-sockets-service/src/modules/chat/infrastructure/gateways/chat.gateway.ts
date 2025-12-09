@@ -160,11 +160,12 @@ export class ChatGateway
         `Failed to send message from ${data.senderId}: ${error.message}`,
         error.stack,
       );
+      const errorMessage = 'Failed to publish message';
       client.emit('messageError', {
-        error: error.message,
+        error: errorMessage,
         timestamp: new Date(),
       });
-      return { event: 'messageError', data: { error: error.message } };
+      return { event: 'messageError', data: { error: errorMessage } };
     }
   }
 

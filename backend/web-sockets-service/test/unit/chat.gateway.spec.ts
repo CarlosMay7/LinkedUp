@@ -177,7 +177,7 @@ describe('ChatGateway', () => {
   });
 
   describe('handleSendMessage', () => {
-    it('should publish message to Kafka and emit queued acknowledgment', async () => {
+    it('should publish message to event producer and emit queued acknowledgment', async () => {
       const data = { roomId: 'room-1', senderId: 'user-1', content: 'Hello' };
       const result = await gateway.handleSendMessage(
         data,
@@ -222,9 +222,9 @@ describe('ChatGateway', () => {
       expect(result.event).toBe('messageQueued');
     });
 
-    it('should handle Kafka errors gracefully', async () => {
+    it('should handle event producer errors gracefully', async () => {
       (mockEventProducer.publishMessageCreated as jest.Mock).mockRejectedValue(
-        new Error('Kafka connection failed'),
+        new Error('Connection failed'),
       );
 
       const data = { roomId: 'room-1', senderId: 'user-1', content: 'Hello' };
@@ -236,7 +236,7 @@ describe('ChatGateway', () => {
       expect(mockSocket.emit).toHaveBeenCalledWith(
         'messageError',
         expect.objectContaining({
-          error: expect.any(String),
+          error: 'Failed to publish message',
         }),
       );
       expect(result.event).toBe('messageError');
