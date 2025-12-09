@@ -1,9 +1,19 @@
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { SocketIOAdapter } from './modules/chat/infrastructure/adapters/socket-io.adapter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Enable DTO validation for WebSocket messages (transform + whitelist)
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: false,
+    }),
+  );
 
   // Configure WebSocket adapter (Socket.IO se maneja automáticamente con NestJS)
   app.useWebSocketAdapter(new SocketIOAdapter(app));

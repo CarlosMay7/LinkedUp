@@ -1,46 +1,94 @@
-export interface SendMessageDto {
-  roomId?: string;
+import { IsString, IsOptional, IsBoolean, IsNotEmpty } from 'class-validator';
+
+export class SendMessageDto {
+  @IsNotEmpty()
+  @IsString()
   senderId: string;
-  receiverId?: string;
+
+  @IsNotEmpty()
+  @IsString()
   content: string;
-}
 
-export interface JoinRoomDto {
-  roomId: string;
-  userId: string;
-}
-
-export interface LeaveRoomDto {
-  roomId: string;
-  userId: string;
-}
-
-export interface TypingDto {
+  @IsOptional()
+  @IsString()
   roomId?: string;
-  userId: string;
+
+  @IsOptional()
+  @IsString()
   receiverId?: string;
+}
+
+export class JoinRoomDto {
+  @IsNotEmpty()
+  @IsString()
+  roomId: string;
+
+  @IsNotEmpty()
+  @IsString()
+  userId: string;
+}
+
+export class LeaveRoomDto {
+  @IsNotEmpty()
+  @IsString()
+  roomId: string;
+
+  @IsNotEmpty()
+  @IsString()
+  userId: string;
+}
+
+export class TypingDto {
+  @IsNotEmpty()
+  @IsString()
+  userId: string;
+
+  @IsNotEmpty()
+  @IsBoolean()
   isTyping: boolean;
+
+  @IsOptional()
+  @IsString()
+  roomId?: string;
+
+  @IsOptional()
+  @IsString()
+  receiverId?: string;
 }
 
-export interface RegisterDto {
+export class RegisterDto {
+  @IsNotEmpty()
+  @IsString()
   userId: string;
 }
 
-export interface MessageDeliveredDto {
+export class MessageDeliveredDto {
+  @IsNotEmpty()
+  @IsString()
   messageId: string;
+
+  @IsNotEmpty()
+  @IsString()
   userId: string;
 }
 
-export interface MessageReadDto {
+export class MessageReadDto {
+  @IsNotEmpty()
+  @IsString()
   messageId: string;
+
+  @IsNotEmpty()
+  @IsString()
   userId: string;
 }
 
-export interface GetOnlineUsersDto {
+export class GetOnlineUsersDto {
+  @IsNotEmpty()
+  @IsString()
   roomId: string;
 }
 
-export interface MessageResponse {
+export class MessageResponse {
   messageId: string;
   roomId?: string;
   senderId: string;

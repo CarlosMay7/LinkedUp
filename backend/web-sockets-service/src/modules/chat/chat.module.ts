@@ -3,10 +3,14 @@ import { ChatGateway } from './infrastructure/gateways/chat.gateway';
 import { SessionService } from './application/services/session.service';
 import { TypingService } from './application/services/typing.service';
 import { MessageStatusService } from './application/services/message-status.service';
+import { MessageIdService } from './application/services/message-id.service';
+import { OnlineUsersService } from './application/services/online-users.service';
 import { SocketIOMessageBroker } from './infrastructure/adapters/socketio-message-broker.adapter';
 import { InMemorySessionManager } from './infrastructure/adapters/in-memory-session-manager.adapter';
-import { MESSAGE_BROKER } from './domain/interfaces/message-broker.interface';
-import { SESSION_MANAGER } from './domain/interfaces/session-manager.interface';
+import { MESSAGE_BROKER } from './infrastructure/interfaces/message-broker.interface';
+import { SESSION_MANAGER } from './infrastructure/interfaces/session-manager.interface';
+import { EVENT_PRODUCER } from './infrastructure/interfaces/event-producer.interface';
+import { EVENT_CONSUMER } from './infrastructure/interfaces/event-consumer.interface';
 import { ConfigService } from '@nestjs/config';
 import { Kafka } from 'kafkajs';
 import { WsKafkaProducer } from './infrastructure/events/Kafka/ws.kafka.producer';
@@ -20,6 +24,8 @@ import { WsMessageEventService } from './infrastructure/events/message-event.ser
     SessionService,
     TypingService,
     MessageStatusService,
+    MessageIdService,
+    OnlineUsersService,
     SocketIOMessageBroker,
     {
       provide: MESSAGE_BROKER,
@@ -29,7 +35,7 @@ import { WsMessageEventService } from './infrastructure/events/message-event.ser
       provide: SESSION_MANAGER,
       useClass: InMemorySessionManager,
     },
-    // Kafka client and event wiring
+    // Kafka client
     {
       provide: 'KAFKA_CLIENT',
       useFactory: (configService: ConfigService) =>
@@ -39,8 +45,16 @@ import { WsMessageEventService } from './infrastructure/events/message-event.ser
       inject: [ConfigService],
     },
     WsKafkaProducer,
-    WsKafkaConsumer,
+    {
+      provide: EVENT_PRODUCER,
+      useExisting: WsKafkaProducer,
+    },
     WsMessageEventService,
+    WsKafkaConsumer,
+    {
+      provide: EVENT_CONSUMER,
+      useExisting: WsKafkaConsumer,
+    },
   ],
   exports: [SessionService],
 })

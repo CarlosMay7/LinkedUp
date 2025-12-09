@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Server } from 'socket.io';
-import { IMessageBroker } from '../../domain/interfaces/message-broker.interface';
+import { IMessageBroker } from '../interfaces/message-broker.interface';
 
 @Injectable()
 export class SocketIOMessageBroker implements IMessageBroker {

@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ISessionManager } from '../../domain/interfaces/session-manager.interface';
+import { ISessionManager } from '../interfaces/session-manager.interface';
 import { UserSessionEntity } from '../../domain/entities/user-session.entity';
 
 @Injectable()

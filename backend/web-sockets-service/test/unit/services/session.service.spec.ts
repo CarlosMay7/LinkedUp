@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SessionService } from '../../../src/modules/chat/application/services/session.service';
-import { SESSION_MANAGER } from '../../../src/modules/chat/domain/interfaces/session-manager.interface';
+import { SESSION_MANAGER } from '../../../src/modules/chat/infrastructure/interfaces/session-manager.interface';
 
 describe('SessionService', () => {
   let service: SessionService;
@@ -35,14 +35,19 @@ describe('SessionService', () => {
   describe('registerUser', () => {
     it('should register a user with socket ID', () => {
       service.registerUser('user1', 'socket123');
-      expect(mockSessionManager.registerUser).toHaveBeenCalledWith('user1', 'socket123');
+      expect(mockSessionManager.registerUser).toHaveBeenCalledWith(
+        'user1',
+        'socket123',
+      );
     });
   });
 
   describe('unregisterUser', () => {
     it('should unregister a user by socket ID', () => {
       service.unregisterUser('socket123');
-      expect(mockSessionManager.unregisterUser).toHaveBeenCalledWith('socket123');
+      expect(mockSessionManager.unregisterUser).toHaveBeenCalledWith(
+        'socket123',
+      );
     });
   });
 
@@ -65,7 +70,9 @@ describe('SessionService', () => {
     it('should return userId for a socket ID', () => {
       mockSessionManager.getUserIdBySocketId.mockReturnValue('user1');
       const result = service.getUserIdBySocketId('socket123');
-      expect(mockSessionManager.getUserIdBySocketId).toHaveBeenCalledWith('socket123');
+      expect(mockSessionManager.getUserIdBySocketId).toHaveBeenCalledWith(
+        'socket123',
+      );
       expect(result).toBe('user1');
     });
   });
