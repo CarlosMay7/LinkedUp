@@ -56,6 +56,24 @@ describe('BadWordsFilterService', () => {
             const result = service.censorText(text);
             expect(result).toContain('****');
         });
+
+        it('should censor Spanish profanities', () => {
+            const text = 'pendejo puto mierda cabrón';
+            const result = service.censorText(text);
+            expect(result).not.toContain('pendejo');
+            expect(result).not.toContain('puto');
+            expect(result).not.toContain('mierda');
+            expect(result).not.toContain('cabrón');
+        });
+
+        it('should censor English profanities with variations', () => {
+            const text = 'asshat bugger cocksucker shitty';
+            const result = service.censorText(text);
+            expect(result).not.toContain('asshat');
+            expect(result).not.toContain('bugger');
+            expect(result).not.toContain('cocksucker');
+            expect(result).not.toContain('shitty');
+        });
     });
 
     describe('hasProfanity', () => {
@@ -91,6 +109,18 @@ describe('BadWordsFilterService', () => {
             const text = 'The shitake mushroom';
             const result = service.hasProfanity(text);
             expect(result).toBe(false);
+        });
+
+        it('should detect Spanish profanities', () => {
+            const text = 'Este es un mensaje pendejo y puto';
+            const result = service.hasProfanity(text);
+            expect(result).toBe(true);
+        });
+
+        it('should detect extended English profanities', () => {
+            const text = 'This message is from a douchebag asshat';
+            const result = service.hasProfanity(text);
+            expect(result).toBe(true);
         });
     });
 
@@ -128,6 +158,24 @@ describe('BadWordsFilterService', () => {
             const text = 'The shitake mushroom';
             const result = service.countBadWords(text);
             expect(result).toBe(0);
+        });
+
+        it('should count Spanish profanities', () => {
+            const text = 'pendejo puto cabrón mierda';
+            const result = service.countBadWords(text);
+            expect(result).toBe(4);
+        });
+
+        it('should count extended English profanities', () => {
+            const text = 'asshat bugger cocksucker shitty douchebag';
+            const result = service.countBadWords(text);
+            expect(result).toBe(5);
+        });
+
+        it('should count mixed Spanish and English profanities', () => {
+            const text = 'fuck pendejo shit cabrón damn puto';
+            const result = service.countBadWords(text);
+            expect(result).toBe(6);
         });
     });
 });

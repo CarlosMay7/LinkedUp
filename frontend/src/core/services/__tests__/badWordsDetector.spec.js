@@ -54,6 +54,26 @@ describe('BadWordsDetectorService', () => {
             expect(service.detectBadWords(123)).toEqual([]);
             expect(service.detectBadWords({})).toEqual([]);
         });
+
+        it('should detect Spanish profanities', () => {
+            const text = 'Este mensaje tiene pendejo y puto';
+            const result = service.detectBadWords(text);
+            expect(result).toContain('pendejo');
+            expect(result).toContain('puto');
+        });
+
+        it('should detect extended English profanities', () => {
+            const text = 'You are a douchebag asshat';
+            const result = service.detectBadWords(text);
+            expect(result).toContain('douchebag');
+            expect(result).toContain('asshat');
+        });
+
+        it('should detect mixed Spanish and English profanities', () => {
+            const text = 'fuck pendejo shit cabrón';
+            const result = service.detectBadWords(text);
+            expect(result.length).toBe(4);
+        });
     });
 
     describe('getUniqueDetectedWords', () => {
