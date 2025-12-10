@@ -7,6 +7,7 @@ describe('RegisterUserUseCase', () => {
     beforeEach(() => {
         mockWebsocketRepository = {
             emit: jest.fn(),
+            register: jest.fn(),
         };
         registerUserUseCase = new RegisterUserUseCase(mockWebsocketRepository);
     });
@@ -21,11 +22,8 @@ describe('RegisterUserUseCase', () => {
                 registered: true,
                 userId: 'user123',
             });
-            expect(mockWebsocketRepository.emit).toHaveBeenCalledWith(
-                'register',
-                {
-                    userId,
-                }
+            expect(mockWebsocketRepository.register).toHaveBeenCalledWith(
+                userId
             );
         });
 
@@ -35,7 +33,7 @@ describe('RegisterUserUseCase', () => {
             await expect(registerUserUseCase.execute(userId)).rejects.toThrow(
                 'User ID is required to register'
             );
-            expect(mockWebsocketRepository.emit).not.toHaveBeenCalled();
+            expect(mockWebsocketRepository.register).not.toHaveBeenCalled();
         });
 
         it('should throw error when user ID is empty string', async () => {
@@ -46,9 +44,9 @@ describe('RegisterUserUseCase', () => {
             );
         });
 
-        it('should handle websocket emit error', async () => {
+        it('should handle websocket register error', async () => {
             const userId = 'user123';
-            mockWebsocketRepository.emit.mockImplementation(() => {
+            mockWebsocketRepository.register.mockImplementation(() => {
                 throw new Error('WebSocket not connected');
             });
 
@@ -71,11 +69,8 @@ describe('RegisterUserUseCase', () => {
 
             await registerUserUseCase.execute(userId);
 
-            expect(mockWebsocketRepository.emit).toHaveBeenCalledWith(
-                'register',
-                {
-                    userId: 'custom_user_id_123',
-                }
+            expect(mockWebsocketRepository.register).toHaveBeenCalledWith(
+                userId
             );
         });
 
@@ -84,21 +79,18 @@ describe('RegisterUserUseCase', () => {
             await registerUserUseCase.execute('user2');
             await registerUserUseCase.execute('user3');
 
-            expect(mockWebsocketRepository.emit).toHaveBeenCalledTimes(3);
-            expect(mockWebsocketRepository.emit).toHaveBeenNthCalledWith(
+            expect(mockWebsocketRepository.register).toHaveBeenCalledTimes(3);
+            expect(mockWebsocketRepository.register).toHaveBeenNthCalledWith(
                 1,
-                'register',
-                { userId: 'user1' }
+                'user1'
             );
-            expect(mockWebsocketRepository.emit).toHaveBeenNthCalledWith(
+            expect(mockWebsocketRepository.register).toHaveBeenNthCalledWith(
                 2,
-                'register',
-                { userId: 'user2' }
+                'user2'
             );
-            expect(mockWebsocketRepository.emit).toHaveBeenNthCalledWith(
+            expect(mockWebsocketRepository.register).toHaveBeenNthCalledWith(
                 3,
-                'register',
-                { userId: 'user3' }
+                'user3'
             );
         });
 
@@ -113,7 +105,7 @@ describe('RegisterUserUseCase', () => {
 
         it('should handle network error gracefully', async () => {
             const userId = 'user123';
-            mockWebsocketRepository.emit.mockImplementation(() => {
+            mockWebsocketRepository.register.mockImplementation(() => {
                 throw new Error('Network timeout');
             });
 
