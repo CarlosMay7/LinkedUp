@@ -9,7 +9,7 @@ export class JoinRoomUseCase {
         }
 
         try {
-            this.websocketRepository.emit('join-room', { roomId, userId });
+            this.websocketRepository.joinRoom(roomId, userId);
 
             return { joined: true, roomId };
         } catch (error) {

@@ -1,10 +1,10 @@
-version: '3.9'
-
 services:
   chat-service:
     build: backend/chat-service
     ports:
       - "3001:3001"
+    env_file:
+      - backend/chat-service/.env
     environment:
       KAFKA_BROKER: kafka:9092
     depends_on:
@@ -14,6 +14,8 @@ services:
     build: backend/web-sockets-service
     ports:
       - "3002:3002"
+    env_file:
+      - backend/web-sockets-service/.env
     environment:
       KAFKA_BROKER: kafka:9092
     depends_on:

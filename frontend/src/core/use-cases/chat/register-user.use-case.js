@@ -9,7 +9,7 @@ export class RegisterUserUseCase {
         }
 
         try {
-            this.websocketRepository.emit('register', { userId });
+            this.websocketRepository.register(userId);
 
             return { registered: true, userId };
         } catch (error) {

@@ -7,6 +7,7 @@ describe('JoinRoomUseCase', () => {
     beforeEach(() => {
         mockWebsocketRepository = {
             emit: jest.fn(),
+            joinRoom: jest.fn(),
         };
         joinRoomUseCase = new JoinRoomUseCase(mockWebsocketRepository);
     });
@@ -22,12 +23,9 @@ describe('JoinRoomUseCase', () => {
                 joined: true,
                 roomId: 'room123',
             });
-            expect(mockWebsocketRepository.emit).toHaveBeenCalledWith(
-                'join-room',
-                {
-                    roomId,
-                    userId,
-                }
+            expect(mockWebsocketRepository.joinRoom).toHaveBeenCalledWith(
+                roomId,
+                userId
             );
         });
 
@@ -38,7 +36,7 @@ describe('JoinRoomUseCase', () => {
             await expect(
                 joinRoomUseCase.execute(roomId, userId)
             ).rejects.toThrow('Room ID is required to join a room');
-            expect(mockWebsocketRepository.emit).not.toHaveBeenCalled();
+            expect(mockWebsocketRepository.joinRoom).not.toHaveBeenCalled();
         });
 
         it('should throw error when room ID is empty string', async () => {
@@ -56,19 +54,16 @@ describe('JoinRoomUseCase', () => {
             const result = await joinRoomUseCase.execute(roomId, null);
 
             expect(result.joined).toBe(true);
-            expect(mockWebsocketRepository.emit).toHaveBeenCalledWith(
-                'join-room',
-                {
-                    roomId,
-                    userId: null,
-                }
+            expect(mockWebsocketRepository.joinRoom).toHaveBeenCalledWith(
+                roomId,
+                null
             );
         });
 
-        it('should handle websocket emit error', async () => {
+        it('should handle websocket joinRoom error', async () => {
             const roomId = 'room123';
             const userId = 'user456';
-            mockWebsocketRepository.emit.mockImplementation(() => {
+            mockWebsocketRepository.joinRoom.mockImplementation(() => {
                 throw new Error('WebSocket not connected');
             });
 
@@ -84,21 +79,21 @@ describe('JoinRoomUseCase', () => {
             await joinRoomUseCase.execute('room2', userId);
             await joinRoomUseCase.execute('room3', userId);
 
-            expect(mockWebsocketRepository.emit).toHaveBeenCalledTimes(3);
-            expect(mockWebsocketRepository.emit).toHaveBeenNthCalledWith(
+            expect(mockWebsocketRepository.joinRoom).toHaveBeenCalledTimes(3);
+            expect(mockWebsocketRepository.joinRoom).toHaveBeenNthCalledWith(
                 1,
-                'join-room',
-                { roomId: 'room1', userId }
+                'room1',
+                userId
             );
-            expect(mockWebsocketRepository.emit).toHaveBeenNthCalledWith(
+            expect(mockWebsocketRepository.joinRoom).toHaveBeenNthCalledWith(
                 2,
-                'join-room',
-                { roomId: 'room2', userId }
+                'room2',
+                userId
             );
-            expect(mockWebsocketRepository.emit).toHaveBeenNthCalledWith(
+            expect(mockWebsocketRepository.joinRoom).toHaveBeenNthCalledWith(
                 3,
-                'join-room',
-                { roomId: 'room3', userId }
+                'room3',
+                userId
             );
         });
 

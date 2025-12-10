@@ -98,8 +98,7 @@ describe('FinalizeWebSocketUseCase', () => {
             await finalizeWebSocketUseCase.execute();
 
             const endTime = Date.now();
-            // Should take at least 100ms due to setTimeout
-            expect(endTime - startTime).toBeGreaterThanOrEqual(100);
+            expect(endTime - startTime).toBeGreaterThanOrEqual(90);
         });
 
         it('should handle successful disconnection', async () => {

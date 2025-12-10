@@ -7,6 +7,7 @@ describe('SendMessageUseCase', () => {
     beforeEach(() => {
         mockWebsocketRepository = {
             emit: jest.fn(),
+            sendMessage: jest.fn(),
         };
         sendMessageUseCase = new SendMessageUseCase(mockWebsocketRepository);
     });
@@ -23,15 +24,11 @@ describe('SendMessageUseCase', () => {
 
             expect(result).toEqual({
                 sent: true,
-                message: {
-                    senderId: 'user123',
-                    roomId: 'room456',
-                    content: 'Hello, this is a test message',
-                },
             });
-            expect(mockWebsocketRepository.emit).toHaveBeenCalledWith(
-                'sendMessage',
-                messageData
+            expect(mockWebsocketRepository.sendMessage).toHaveBeenCalledWith(
+                'user123',
+                'room456',
+                'Hello, this is a test message'
             );
         });
 
@@ -47,7 +44,7 @@ describe('SendMessageUseCase', () => {
             ).rejects.toThrow(
                 'SenderId, roomId, and content are required to send a message'
             );
-            expect(mockWebsocketRepository.emit).not.toHaveBeenCalled();
+            expect(mockWebsocketRepository.sendMessage).not.toHaveBeenCalled();
         });
 
         it('should throw error when room ID is missing', async () => {
@@ -62,7 +59,7 @@ describe('SendMessageUseCase', () => {
             ).rejects.toThrow(
                 'SenderId, roomId, and content are required to send a message'
             );
-            expect(mockWebsocketRepository.emit).not.toHaveBeenCalled();
+            expect(mockWebsocketRepository.sendMessage).not.toHaveBeenCalled();
         });
 
         it('should throw error when content is missing', async () => {
@@ -77,7 +74,7 @@ describe('SendMessageUseCase', () => {
             ).rejects.toThrow(
                 'SenderId, roomId, and content are required to send a message'
             );
-            expect(mockWebsocketRepository.emit).not.toHaveBeenCalled();
+            expect(mockWebsocketRepository.sendMessage).not.toHaveBeenCalled();
         });
 
         it('should send message with empty content string', async () => {
@@ -94,13 +91,13 @@ describe('SendMessageUseCase', () => {
             );
         });
 
-        it('should handle websocket emit error', async () => {
+        it('should handle websocket sendMessage error', async () => {
             const messageData = {
                 senderId: 'user123',
                 roomId: 'room456',
                 content: 'Test message',
             };
-            mockWebsocketRepository.emit.mockImplementation(() => {
+            mockWebsocketRepository.sendMessage.mockImplementation(() => {
                 throw new Error('WebSocket not connected');
             });
 
@@ -119,8 +116,7 @@ describe('SendMessageUseCase', () => {
             const result = await sendMessageUseCase.execute(messageData);
 
             expect(result.sent).toBe(true);
-            expect(result.message.content).toContain('@#$%^&*()');
-            expect(mockWebsocketRepository.emit).toHaveBeenCalled();
+            expect(mockWebsocketRepository.sendMessage).toHaveBeenCalled();
         });
 
         it('should send message with long content', async () => {
@@ -134,7 +130,11 @@ describe('SendMessageUseCase', () => {
             const result = await sendMessageUseCase.execute(messageData);
 
             expect(result.sent).toBe(true);
-            expect(result.message.content.length).toBe(5000);
+            expect(mockWebsocketRepository.sendMessage).toHaveBeenCalledWith(
+                'user123',
+                'room456',
+                longContent
+            );
         });
     });
 });
