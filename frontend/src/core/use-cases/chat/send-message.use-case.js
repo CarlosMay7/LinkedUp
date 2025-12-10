@@ -11,15 +11,9 @@ export class SendMessageUseCase {
         }
 
         try {
-            const message = {
-                senderId,
-                roomId,
-                content,
-            };
+            this.websocketRepository.sendMessage(senderId, roomId, content);
 
-            this.websocketRepository.emit('sendMessage', message);
-
-            return { sent: true, message };
+            return { sent: true };
         } catch (error) {
             throw new Error(`Error sending message: ${error.message}`);
         }
